@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">LightDrip</string>
     <string name="action_settings">Settings</string>
+    <string name="label_device_address">BG Meter Device address:</string>
+    <string name="label_state">Connection State:</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
 </resources>
