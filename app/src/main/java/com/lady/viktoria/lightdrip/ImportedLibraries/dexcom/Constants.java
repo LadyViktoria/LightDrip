@@ -44,18 +44,5 @@ public class Constants {
                 return arrowSymbol;
             }
         }
-
-        public String friendlyTrendName() {
-            if (trendName == null) {
-                return this.name().replace("_", " ");
-            } else {
-                return this.trendName;
-            }
-        }
-
-        public int getID() {
-            return myID;
-        }
-
     }
 }
