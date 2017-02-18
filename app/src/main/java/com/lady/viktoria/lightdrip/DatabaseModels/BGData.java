@@ -4,7 +4,7 @@ import io.realm.RealmObject;
 
 public class BGData extends RealmObject {
 
-    private Double a;
+    private double a;
     public double geta() {
         return a;
     }
@@ -12,7 +12,7 @@ public class BGData extends RealmObject {
         this.a = a;
     }
 
-    private Double ageAdjustedRawValue;
+    private double ageAdjustedRawValue;
     public double getageAdjustedRawValue() {
         return ageAdjustedRawValue;
     }
@@ -20,43 +20,43 @@ public class BGData extends RealmObject {
         this.ageAdjustedRawValue = ageAdjustedRawValue;
     }
 
-    private Double b;
-    public Double getB() {
+    private double b;
+    public double getB() {
         return b;
     }
-    public void setB(Double b) {
+    public void setB(double b) {
         this.b = b;
     }
 
-    private Double c;
-    public Double getC() {
+    private double c;
+    public double getC() {
         return c;
     }
-    public void setC(Double c) {
+    public void setC(double c) {
         this.c = c;
     }
 
-    private Double calculatedValue;
-    public Double getCalculatedValue() {
+    private double calculatedValue;
+    public double getCalculatedValue() {
         return calculatedValue;
     }
-    public void setCalculatedValue(Double calculatedValue) {
+    public void setCalculatedValue(double calculatedValue) {
         this.calculatedValue = calculatedValue;
     }
 
-    private Double calculatedValueSlope;
-    public Double getCalculatedValueSlope() {
+    private double calculatedValueSlope;
+    public double getCalculatedValueSlope() {
         return calculatedValueSlope;
     }
-    public void setCalculatedValueSlope(Double calculatedValueSlope) {
+    public void setCalculatedValueSlope(double calculatedValueSlope) {
         this.calculatedValueSlope = calculatedValueSlope;
     }
 
-    private Boolean calibrationFlag;
-    public Boolean getCalibrationFlag() {
+    private boolean calibrationFlag;
+    public boolean getCalibrationFlag() {
         return calibrationFlag;
     }
-    public void setCalibrationFlag(Boolean calibrationFlag) {
+    public void setCalibrationFlag(boolean calibrationFlag) {
         this.calibrationFlag = calibrationFlag;
     }
 
@@ -68,43 +68,43 @@ public class BGData extends RealmObject {
         this.calibrationUuid = calibrationUuid;
     }
 
-    private Double filteredData;
-    public Double getFilteredData() {
+    private double filteredData;
+    public double getFilteredData() {
         return filteredData;
     }
-    public void setFilteredData(Double filteredData) {
+    public void setFilteredData(double filteredData) {
         this.filteredData = filteredData;
     }
 
-    private Double ra;
-    public Double getRa() {
+    private double ra;
+    public double getRa() {
         return ra;
     }
-    public void setRa(Double ra) {
+    public void setRa(double ra) {
         this.ra = ra;
     }
 
-    private Double rawData;
-    public Double getRawData() {
+    private double rawData;
+    public double getRawData() {
         return rawData;
     }
-    public void setRawData(Double rawData) {
+    public void setRawData(double rawData) {
         this.rawData = rawData;
     }
 
-    private Double rb;
-    public Double getRb() {
+    private double rb;
+    public double getRb() {
         return rb;
     }
-    public void setRb(Double rb) {
+    public void setRb(double rb) {
         this.rb = rb;
     }
 
-    private Double rc;
-    public Double getRc() {
+    private double rc;
+    public double getRc() {
         return rc;
     }
-    public void setRc(Double rc) {
+    public void setRc(double rc) {
         this.rc = rc;
     }
 
@@ -116,11 +116,11 @@ public class BGData extends RealmObject {
         this.sensorUuid = sensorUuid;
     }
 
-    private Double timeSinceSensorStarted;
-    public Double getTimeSinceSensorStarted() {
+    private double timeSinceSensorStarted;
+    public double getTimeSinceSensorStarted() {
         return timeSinceSensorStarted;
     }
-    public void setTimeSinceSensorStarted(Double timeSinceSensorStarted) {
+    public void setTimeSinceSensorStarted(double timeSinceSensorStarted) {
         this.timeSinceSensorStarted = timeSinceSensorStarted;
     }
 

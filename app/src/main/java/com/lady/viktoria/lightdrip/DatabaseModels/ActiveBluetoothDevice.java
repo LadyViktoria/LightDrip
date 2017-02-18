@@ -21,7 +21,7 @@ public class ActiveBluetoothDevice extends RealmObject {
     }
 
     private boolean connected;
-    public Boolean getconnected() {
+    public boolean getconnected() {
         return connected;
     }
     public void setconnected(final boolean connected) {

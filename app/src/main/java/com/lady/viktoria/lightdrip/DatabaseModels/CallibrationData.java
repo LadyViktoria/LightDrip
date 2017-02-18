@@ -7,16 +7,16 @@ import io.realm.RealmObject;
 
 public class CallibrationData extends RealmObject {
 
-    public long timestamp;
-    public Long gettimestamp() {
+    private long timestamp;
+    public long gettimestamp() {
         return timestamp;
     }
     public void settimestamp(final long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public double sensor_age_at_time_of_estimation;
-    public Double getsensor_age_at_time_of_estimation() {
+    private double sensor_age_at_time_of_estimation;
+    public double getsensor_age_at_time_of_estimation() {
         return sensor_age_at_time_of_estimation;
     }
     public void setsensor_age_at_time_of_estimation(final Double sensor_age_at_time_of_estimation) {
@@ -25,7 +25,7 @@ public class CallibrationData extends RealmObject {
 
     //public Sensor sensor;
 
-    public double bg;
+    private double bg;
     public double gettbg() {
         return bg;
     }
@@ -33,7 +33,7 @@ public class CallibrationData extends RealmObject {
         this.bg = bg;
     }
 
-    public double raw_value;
+    private double raw_value;
     public double getraw_value() {
         return raw_value;
     }
@@ -41,7 +41,7 @@ public class CallibrationData extends RealmObject {
         this.raw_value = raw_value;
     }
 
-    public double adjusted_raw_value;
+    private double adjusted_raw_value;
     public double getadjusted_raw_value() {
         return adjusted_raw_value;
     }
@@ -49,7 +49,7 @@ public class CallibrationData extends RealmObject {
         this.adjusted_raw_value = adjusted_raw_value;
     }
 
-    public double sensor_confidence;
+    private double sensor_confidence;
     public double getsensor_confidence() {
         return sensor_confidence;
     }
@@ -57,7 +57,7 @@ public class CallibrationData extends RealmObject {
         this.sensor_confidence = sensor_confidence;
     }
 
-    public double slope_confidence;
+    private double slope_confidence;
     public double getslope_confidence() {
         return slope_confidence;
     }
@@ -65,7 +65,7 @@ public class CallibrationData extends RealmObject {
         this.slope_confidence = slope_confidence;
     }
 
-    public long raw_timestamp;
+    private long raw_timestamp;
     public long getraw_timestamp() {
         return raw_timestamp;
     }
@@ -73,7 +73,7 @@ public class CallibrationData extends RealmObject {
         this.raw_timestamp = raw_timestamp;
     }
 
-    public double slope;
+    private double slope;
     public double getslope() {
         return slope;
     }
@@ -81,7 +81,7 @@ public class CallibrationData extends RealmObject {
         this.slope = slope;
     }
 
-    public double intercept;
+    private double intercept;
     public double getintercept() {
         return intercept;
     }
@@ -89,7 +89,7 @@ public class CallibrationData extends RealmObject {
         this.intercept = intercept;
     }
 
-    public double distance_from_estimate;
+    private double distance_from_estimate;
     public double getdistance_from_estimate() {
         return distance_from_estimate;
     }
@@ -97,7 +97,7 @@ public class CallibrationData extends RealmObject {
         this.distance_from_estimate = distance_from_estimate;
     }
 
-    public double estimate_raw_at_time_of_calibration;
+    private double estimate_raw_at_time_of_calibration;
     public double getestimate_raw_at_time_of_calibration() {
         return estimate_raw_at_time_of_calibration;
     }
@@ -105,7 +105,7 @@ public class CallibrationData extends RealmObject {
         this.estimate_raw_at_time_of_calibration = estimate_raw_at_time_of_calibration;
     }
 
-    public double estimate_bg_at_time_of_calibration;
+    private double estimate_bg_at_time_of_calibration;
     public double getestimate_bg_at_time_of_calibration() {
         return estimate_bg_at_time_of_calibration;
     }
@@ -113,7 +113,7 @@ public class CallibrationData extends RealmObject {
         this.estimate_bg_at_time_of_calibration = estimate_bg_at_time_of_calibration;
     }
 
-    public UUID uuid;
+    private UUID uuid;
     public UUID getuuid() {
         return uuid;
     }
@@ -121,7 +121,7 @@ public class CallibrationData extends RealmObject {
         this.uuid = uuid;
     }
 
-    public UUID sensor_uuid;
+    private UUID sensor_uuid;
     public UUID getsensor_uuid() {
         return sensor_uuid;
     }
@@ -129,23 +129,23 @@ public class CallibrationData extends RealmObject {
         this.sensor_uuid = sensor_uuid;
     }
 
-    public Boolean possible_bad;
-    public Boolean getpossible_bad() {
+    private boolean possible_bad;
+    public boolean getpossible_bad() {
         return possible_bad;
     }
-    public void setpossible_bad(final Boolean possible_bad) {
+    public void setpossible_bad(final boolean possible_bad) {
         this.possible_bad = possible_bad;
     }
 
-    public boolean check_in;
-    public Boolean getcheck_in() {
+    private boolean check_in;
+    public boolean getcheck_in() {
         return check_in;
     }
-    public void setcheck_in(final Boolean check_in) {
+    public void setcheck_in(final boolean check_in) {
         this.check_in = check_in;
     }
 
-    public double first_decay;
+    private double first_decay;
     public double getfirst_decay() {
         return first_decay;
     }
@@ -153,7 +153,7 @@ public class CallibrationData extends RealmObject {
         this.first_decay = first_decay;
     }
 
-    public double second_decay;
+    private double second_decay;
     public double getsecond_decay() {
         return second_decay;
     }
@@ -161,7 +161,7 @@ public class CallibrationData extends RealmObject {
         this.second_decay = second_decay;
     }
 
-    public double first_slope;
+    private double first_slope;
     public double getfirst_slope() {
         return first_slope;
     }
@@ -169,7 +169,7 @@ public class CallibrationData extends RealmObject {
         this.first_slope = first_slope;
     }
 
-    public double second_slope;
+    private double second_slope;
     public double getsecond_slope() {
         return second_slope;
     }
@@ -177,7 +177,7 @@ public class CallibrationData extends RealmObject {
         this.second_slope = second_slope;
     }
 
-    public double first_intercept;
+    private double first_intercept;
     public double getfirst_intercept() {
         return first_intercept;
     }
@@ -185,7 +185,7 @@ public class CallibrationData extends RealmObject {
         this.first_intercept = first_intercept;
     }
 
-    public double second_intercept;
+    private double second_intercept;
     public double getsecond_intercept() {
         return second_intercept;
     }
@@ -193,7 +193,7 @@ public class CallibrationData extends RealmObject {
         this.second_intercept = second_intercept;
     }
 
-    public double first_scale;
+    private double first_scale;
     public double getfirst_scale() {
         return first_scale;
     }
@@ -201,7 +201,7 @@ public class CallibrationData extends RealmObject {
         this.first_scale = first_scale;
     }
 
-    public double second_scale;
+    private double second_scale;
     public double getsecond_scale() {
         return second_scale;
     }
