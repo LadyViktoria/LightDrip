@@ -59,6 +59,23 @@
         android:layout_height="wrap_content"
         />
 
+    <Button
+        android:id="@+id/browserealm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Browser Realm"
+        android:enabled="true"
+        android:layout_above="@+id/listpaireddevices"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/addtimestamp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="add timestamp"
+        android:enabled="true"
+        android:layout_above="@+id/browserealm"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

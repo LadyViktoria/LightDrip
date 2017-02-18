@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -17,13 +16,17 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.lady.viktoria.lightdrip.DatabaseModels.BGData;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import de.jonasrottmann.realmbrowser.RealmBrowser;
+import io.realm.Realm;
+
+public class MainActivity extends RealmBaseActivity implements View.OnClickListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    Button btnAct;
+    Button btnAct, browserrealm, addtimestamptodb;
     TextView bgmac;
     Bundle b;
     public String deviceBTMAC;
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mConnectionState;
     private boolean mConnected = false;
     private TextView mDataField;
+    private Realm mRealm;
+
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -81,10 +86,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnAct = (Button) findViewById(R.id.listpaireddevices);
         bgmac = (TextView)findViewById(R.id.bgmac);
         btnAct.setOnClickListener(this);
+        browserrealm = (Button) findViewById(R.id.browserealm);
+        browserrealm.setOnClickListener(this);
+        addtimestamptodb = (Button) findViewById(R.id.addtimestamp);
+        addtimestamptodb.setOnClickListener(this);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         Intent gattServiceIntent = new Intent(this, BGMeterGattService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         mDataField = (TextView) findViewById(R.id.bgreading);
+
+        // Initialize Realm
+        Realm.init(this);
+        mRealm = Realm.getInstance(getRealmConfig());
 
         try {
             b = getIntent().getExtras();
@@ -141,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         unbindService(mServiceConnection);
         mBGMeterGattService = null;
+        mRealm.close();
     }
 
     private void displayData(String data) {
@@ -163,6 +177,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.listpaireddevices:
                 Intent intent = new Intent (this, BGMeterActivity.class);
                 startActivity (intent);
+                break;
+            case R.id.browserealm:
+                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
+                break;
+            case R.id.addtimestamp:
+                mRealm = Realm.getInstance(getRealmConfig());
+                mRealm.beginTransaction();
+                BGData timestamp = mRealm.createObject(BGData.class);
+                timestamp.setTimestamp(System.currentTimeMillis()/1000);
+                mRealm.commitTransaction();
                 break;
             default:
                 break;
