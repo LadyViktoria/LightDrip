@@ -1,6 +1,6 @@
-package com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records;
+package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records;
 
-import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.Constants;
+import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;

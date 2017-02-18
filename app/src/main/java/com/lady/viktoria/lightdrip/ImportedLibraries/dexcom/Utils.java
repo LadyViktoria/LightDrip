@@ -1,8 +1,8 @@
-package com.eveningoutpost.dexdrip.ImportedLibraries.dexcom;
+package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom;
 
-import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.EGVRecord;
-import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.GlucoseDataSet;
-import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.SensorRecord;
+import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records.EGVRecord;
+import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records.GlucoseDataSet;
+import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records.SensorRecord;
 
 import java.util.Date;
 import java.util.TimeZone;
@@ -23,32 +23,6 @@ public class Utils {
         return new Date(timeAdd);
     }
 
-    public static String getTimeString(long timeDeltaMS) {
-        long minutes = (timeDeltaMS / 1000) / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
-        long weeks = days / 7;
-        minutes = minutes - hours * 60;
-        hours = hours - days * 24;
-        days = days - weeks * 7;
-
-        String timeAgoString = "";
-        if (weeks > 0) {
-            timeAgoString += weeks + " weeks ";
-        }
-        if (days > 0) {
-            timeAgoString += days + " days ";
-        }
-        if (hours > 0) {
-            timeAgoString += hours + " hours ";
-        }
-        if (minutes >= 0) {
-            timeAgoString += minutes + " min ";
-        }
-
-        return (timeAgoString.equals("") ? "--" : timeAgoString + "ago");
-    }
-
     public static GlucoseDataSet[] mergeGlucoseDataRecords(EGVRecord[] egvRecords,
                                                            SensorRecord[] sensorRecords) {
         int egvLength = egvRecords.length;
@@ -59,17 +33,5 @@ public class Utils {
             glucoseDataSets[smallerLength - i] = new GlucoseDataSet(egvRecords[egvLength - i], sensorRecords[sensorLength - i]);
         }
         return glucoseDataSets;
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexArray = "0123456789ABCDEF".toCharArray();
-        char[] hexChars = new char[bytes.length * 3];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 3] = hexArray[v >>> 4];
-            hexChars[j * 3 + 1] = hexArray[v & 0x0F];
-            hexChars[j * 3 + 2] = " ".toCharArray()[0];
-        }
-        return new String(hexChars);
     }
 }

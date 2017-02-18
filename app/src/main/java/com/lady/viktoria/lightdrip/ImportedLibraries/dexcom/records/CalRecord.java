@@ -1,4 +1,4 @@
-package com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records;
+package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records;
 
 import android.util.Log;
 

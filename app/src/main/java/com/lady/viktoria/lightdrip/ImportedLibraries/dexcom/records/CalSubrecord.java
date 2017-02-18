@@ -1,6 +1,7 @@
-package com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records;
+package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records;
 
-import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.Utils;
+
+import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.Utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
