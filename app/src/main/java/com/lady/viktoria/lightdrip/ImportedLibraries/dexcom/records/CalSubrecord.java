@@ -1,7 +1,7 @@
 package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records;
 
 
-import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.Utils;
+import com.lady.viktoria.lightdrip.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -21,11 +21,11 @@ public class CalSubrecord {
 
     public CalSubrecord(byte[] packet, long displayTimeOffset) {
         int delta = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt();
-        dateEntered = Utils.receiverTimeToDate(delta + displayTimeOffset);
+        dateEntered = utils.receiverTimeToDate(delta + displayTimeOffset);
         calBGL = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(4);
         calRaw = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(8);
         delta = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(12);
-        dateApplied = Utils.receiverTimeToDate(delta + displayTimeOffset);
+        dateApplied = utils.receiverTimeToDate(delta + displayTimeOffset);
         unk = packet[16];
     }
 

@@ -1,6 +1,6 @@
 package com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.records;
 
-import com.lady.viktoria.lightdrip.ImportedLibraries.dexcom.Utils;
+import com.lady.viktoria.lightdrip.utils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -20,9 +20,9 @@ public class GenericTimestampRecord {
 
     public GenericTimestampRecord(byte[] packet) {
         systemTimeSeconds = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(OFFSET_SYS_TIME);
-        systemTime = Utils.receiverTimeToDate(systemTimeSeconds);
+        systemTime = utils.receiverTimeToDate(systemTimeSeconds);
         int dt = ByteBuffer.wrap(packet).order(ByteOrder.LITTLE_ENDIAN).getInt(OFFSET_DISPLAY_TIME);
-        displayTime = Utils.receiverTimeToDate(dt);
+        displayTime = utils.receiverTimeToDate(dt);
     }
 
     public GenericTimestampRecord(Date displayTime, Date systemTime) {
