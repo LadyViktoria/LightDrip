@@ -4,7 +4,7 @@ package com.lady.viktoria.lightdrip.DatabaseModels;
 import io.realm.RealmObject;
 
 
-public class CallibrationData extends RealmObject {
+public class CalibrationData extends RealmObject {
 
     private long timestamp;
     public long gettimestamp() {
