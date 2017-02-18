@@ -1,14 +1,9 @@
 package com.lady.viktoria.lightdrip.DatabaseModels;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 import io.realm.RealmObject;
 
 public class BGData extends RealmObject {
 
-    @SerializedName("a")
-    @Expose
     private Double a;
     public double geta() {
         return a;
@@ -17,8 +12,6 @@ public class BGData extends RealmObject {
         this.a = a;
     }
 
-    @SerializedName("age_adjusted_raw_value")
-    @Expose
     private Double ageAdjustedRawValue;
     public double getageAdjustedRawValue() {
         return ageAdjustedRawValue;
@@ -27,8 +20,6 @@ public class BGData extends RealmObject {
         this.ageAdjustedRawValue = ageAdjustedRawValue;
     }
 
-    @SerializedName("b")
-    @Expose
     private Double b;
     public Double getB() {
         return b;
@@ -37,8 +28,6 @@ public class BGData extends RealmObject {
         this.b = b;
     }
 
-    @SerializedName("c")
-    @Expose
     private Double c;
     public Double getC() {
         return c;
@@ -47,8 +36,6 @@ public class BGData extends RealmObject {
         this.c = c;
     }
 
-    @SerializedName("calculated_value")
-    @Expose
     private Double calculatedValue;
     public Double getCalculatedValue() {
         return calculatedValue;
@@ -57,8 +44,6 @@ public class BGData extends RealmObject {
         this.calculatedValue = calculatedValue;
     }
 
-    @SerializedName("calculated_value_slope")
-    @Expose
     private Double calculatedValueSlope;
     public Double getCalculatedValueSlope() {
         return calculatedValueSlope;
@@ -67,8 +52,6 @@ public class BGData extends RealmObject {
         this.calculatedValueSlope = calculatedValueSlope;
     }
 
-    @SerializedName("calibration_flag")
-    @Expose
     private Boolean calibrationFlag;
     public Boolean getCalibrationFlag() {
         return calibrationFlag;
@@ -77,8 +60,6 @@ public class BGData extends RealmObject {
         this.calibrationFlag = calibrationFlag;
     }
 
-    @SerializedName("calibration_uuid")
-    @Expose
     private String calibrationUuid;
     public String getCalibrationUuid() {
         return calibrationUuid;
@@ -87,8 +68,6 @@ public class BGData extends RealmObject {
         this.calibrationUuid = calibrationUuid;
     }
 
-    @SerializedName("filtered_data")
-    @Expose
     private Double filteredData;
     public Double getFilteredData() {
         return filteredData;
@@ -97,8 +76,6 @@ public class BGData extends RealmObject {
         this.filteredData = filteredData;
     }
 
-    @SerializedName("ra")
-    @Expose
     private Double ra;
     public Double getRa() {
         return ra;
@@ -107,8 +84,6 @@ public class BGData extends RealmObject {
         this.ra = ra;
     }
 
-    @SerializedName("raw_data")
-    @Expose
     private Double rawData;
     public Double getRawData() {
         return rawData;
@@ -117,8 +92,6 @@ public class BGData extends RealmObject {
         this.rawData = rawData;
     }
 
-    @SerializedName("rb")
-    @Expose
     private Double rb;
     public Double getRb() {
         return rb;
@@ -127,8 +100,6 @@ public class BGData extends RealmObject {
         this.rb = rb;
     }
 
-    @SerializedName("rc")
-    @Expose
     private Double rc;
     public Double getRc() {
         return rc;
@@ -137,8 +108,6 @@ public class BGData extends RealmObject {
         this.rc = rc;
     }
 
-    @SerializedName("sensor_uuid")
-    @Expose
     private String sensorUuid;
     public String getSensorUuid() {
         return sensorUuid;
@@ -147,8 +116,6 @@ public class BGData extends RealmObject {
         this.sensorUuid = sensorUuid;
     }
 
-    @SerializedName("time_since_sensor_started")
-    @Expose
     private Double timeSinceSensorStarted;
     public Double getTimeSinceSensorStarted() {
         return timeSinceSensorStarted;
@@ -157,8 +124,6 @@ public class BGData extends RealmObject {
         this.timeSinceSensorStarted = timeSinceSensorStarted;
     }
 
-    @SerializedName("timestamp")
-    @Expose
     private double timestamp;
     public double getTimestamp() {
         return timestamp;
@@ -167,8 +132,6 @@ public class BGData extends RealmObject {
         this.timestamp = timestamp;
     }
 
-    @SerializedName("uuid")
-    @Expose
     private String uuid;
     public String getUuid() {
         return uuid;
@@ -176,4 +139,5 @@ public class BGData extends RealmObject {
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
+
 }
