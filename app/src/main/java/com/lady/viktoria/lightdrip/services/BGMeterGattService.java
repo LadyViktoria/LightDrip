@@ -16,8 +16,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.AndroidBluetooth;
 import com.lady.viktoria.lightdrip.GlucoseReadingRx;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +48,8 @@ public class BGMeterGattService extends Service{
 
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
+    public final static UUID UUID_HM10_SERVICE =
+            UUID.fromString(GattAttributes.HM_10_SERVICE);
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -110,15 +114,17 @@ public class BGMeterGattService extends Service{
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-
         // This is special handling for the Glucose Measurement profile.  Data parsing is
         if (UUID_BG_MEASUREMENT.equals(characteristic.getUuid())) {
             final byte[] data = characteristic.getValue();
             Log.v(TAG, "Package Length" + data.length);
-            if (data != null && data.length >= 5) {
-                GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
-                intent.putExtra(EXTRA_DATA, gtb.toString());
-                Log.v(TAG,gtb.toString());
+            if (data != null && data.length > 1) {
+                if (AndroidBluetooth.CheckTransmitterID(data, data.length)) {
+                    GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
+                    intent.putExtra(EXTRA_DATA, gtb.toString());
+                    Log.v(TAG,gtb.toString());
+                }
+                else {return;}
             }
         } else {
             // For all other profiles, writes the data formatted in HEX.
@@ -284,6 +290,26 @@ public class BGMeterGattService extends Service{
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
         }
+    }
+
+    public boolean writeCustomCharacteristic(final ByteBuffer value) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return false;
+        }
+        BluetoothGattService mCustomService = mBluetoothGatt.getService(UUID_HM10_SERVICE);
+        if(mCustomService == null){
+            Log.w(TAG, "HM10 Service not found");
+            return false;
+        }
+        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_BG_MEASUREMENT);
+        byte[] bytevalue = value.array();
+        mWriteCharacteristic.setValue(bytevalue);
+        if(!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)){
+            Log.w(TAG, "Failed to write characteristic");
+            return false;
+        }
+        return true;
     }
 
     /**
