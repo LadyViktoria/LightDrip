@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip.DatabaseModels;
 
-import java.util.UUID;
 
 import io.realm.RealmObject;
 
@@ -113,19 +112,19 @@ public class CallibrationData extends RealmObject {
         this.estimate_bg_at_time_of_calibration = estimate_bg_at_time_of_calibration;
     }
 
-    private UUID uuid;
-    public UUID getuuid() {
+    private String uuid;
+    public String getuuid() {
         return uuid;
     }
-    public void setuuid(final UUID uuid) {
+    public void setuuid(final String uuid) {
         this.uuid = uuid;
     }
 
-    private UUID sensor_uuid;
-    public UUID getsensor_uuid() {
+    private String sensor_uuid;
+    public String getsensor_uuid() {
         return sensor_uuid;
     }
-    public void setsensor_uuid(final UUID sensor_uuid) {
+    public void setsensor_uuid(final String sensor_uuid) {
         this.sensor_uuid = sensor_uuid;
     }
 
