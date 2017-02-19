@@ -78,7 +78,7 @@ public class AndroidBluetooth extends Activity {
         txidMessage.put(1, (byte) 0x01);
         txidMessage.putInt(2, TransmitterID);
 
-        if (packet[0] == 0x07 && packet[1] == -15) {
+        if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
             if (TxId.compareTo("00000") != 0 && Integer.compare(DexSrc, TransmitterID) != 0) {
                 Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
@@ -90,21 +90,19 @@ public class AndroidBluetooth extends Activity {
                 return true;
             }
         }
-        else if (packet[0] == 0x11 && packet[1] == 0x00) {
+        else if (packet[0] == 21 && packet[1] == 0) {
             Log.i(TAG, "Received Data packet");
-            if (len >= 0x11) {
-                DexSrc = tmpBuffer.getInt(12);
-                TransmitterID = convertSrc(TxId);
-                if (Integer.compare(DexSrc, TransmitterID) != 0) {
-                    Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
-                    Log.v(TAG, "try to set transmitter ID");
-                    mBGMeterGattService.writeCustomCharacteristic(txidMessage);
-                    return false;
-                } else {
-                    Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
-                    writeAcknowledgePacket();
-                    return true;
-                }
+            DexSrc = tmpBuffer.getInt(12);
+            TransmitterID = convertSrc(TxId);
+            if (Integer.compare(DexSrc, TransmitterID) != 0) {
+                Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
+                Log.v(TAG, "try to set transmitter ID");
+                mBGMeterGattService.writeCustomCharacteristic(txidMessage);
+                return false;
+            } else {
+                Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
+                writeAcknowledgePacket();
+                return true;
             }
         }
         return false;

@@ -16,11 +16,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.lady.viktoria.lightdrip.DatabaseModels.BGData;
+import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener {
 
@@ -29,8 +30,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     Button btnAct, browserrealm, addtimestamptodb;
     TextView bgmac;
     Bundle b;
-    public String deviceBTMAC;
-    String mDeviceAddress = "00:00:00:00:00:00";
+    public String mDeviceAddress;
     BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState;
     private boolean mConnected = false;
@@ -57,25 +57,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         }
     };
 
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,22 +75,48 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Intent gattServiceIntent = new Intent(this, BGMeterGattService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         mDataField = (TextView) findViewById(R.id.bgreading);
-
         // Initialize Realm
         Realm.init(this);
         mRealm = Realm.getInstance(getRealmConfig());
 
         try {
             b = getIntent().getExtras();
-            deviceBTMAC = b.getString("BG Meter MAC Address");
-            Log.v("deviceBTMAC", deviceBTMAC);
-            bgmac.setText("BGMeter MAC: " + deviceBTMAC);
-            mDeviceAddress = deviceBTMAC;
+            mDeviceAddress = b.getString("BG Meter MAC Address");
+            bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            String BTDeviceAddress = results.last().getaddress();
+            if (!BTDeviceAddress.equals(mDeviceAddress)) {
+                mRealm = Realm.getInstance(getRealmConfig());
+                mRealm.beginTransaction();
+                ActiveBluetoothDevice address = mRealm.createObject(ActiveBluetoothDevice.class);
+                address.setaddress(mDeviceAddress);
+                mRealm.commitTransaction();
+                mRealm.close();
+            }
         }
         catch (Exception e) {
             Log.v("try_catch", "Error " + e.getMessage());
         }
     }
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -182,11 +189,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.addtimestamp:
-                mRealm = Realm.getInstance(getRealmConfig());
-                mRealm.beginTransaction();
-                BGData timestamp = mRealm.createObject(BGData.class);
-                timestamp.setTimestamp(System.currentTimeMillis()/1000);
-                mRealm.commitTransaction();
+                RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+                String address = results.last().getaddress();
+                Log.v(TAG, "address: " + address);
                 break;
             default:
                 break;

@@ -11,8 +11,8 @@ public class ActiveBluetoothDevice extends RealmObject {
     public void setname(final String name) {
         this.name = name;
     }
-
-    private String address;
+    
+    public String address;
     public String getaddress() {
         return address;
     }

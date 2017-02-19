@@ -1,5 +1,7 @@
 package com.lady.viktoria.lightdrip.services;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,15 +15,23 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.AndroidBluetooth;
+import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.GlucoseReadingRx;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 
 public class BGMeterGattService extends Service{
     private final static String TAG = BGMeterGattService.class.getSimpleName();
@@ -30,10 +40,12 @@ public class BGMeterGattService extends Service{
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
+    private BluetoothDevice mBluetoothDevice;
     private int mConnectionState = STATE_DISCONNECTED;
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
+    Realm mRealm;
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -126,16 +138,9 @@ public class BGMeterGattService extends Service{
                 }
                 else {return;}
             }
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                Log.d(TAG, String.format("Received", stringBuilder));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
+        }
+        else {
+            return;
         }
         sendBroadcast(intent);
     }
@@ -302,7 +307,7 @@ public class BGMeterGattService extends Service{
             Log.w(TAG, "HM10 Service not found");
             return false;
         }
-        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_BG_MEASUREMENT);
+        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_HM10_SERVICE);
         byte[] bytevalue = value.array();
         mWriteCharacteristic.setValue(bytevalue);
         if(!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)){
@@ -322,5 +327,105 @@ public class BGMeterGattService extends Service{
         if (mBluetoothGatt == null) return null;
 
         return mBluetoothGatt.getServices();
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        setFailoverTimer();
+        //lastdata = null;
+        attemptConnection();
+        return START_STICKY;
+    }
+
+    public void setFailoverTimer() {
+        long retry_in = (1000 * 60 * 6);
+        Log.d(TAG, "setFailoverTimer: Fallover Restarting in: " + (retry_in / (60 * 1000)) + " minutes");
+        Calendar calendar = Calendar.getInstance();
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        long wakeTime = calendar.getTimeInMillis() + retry_in;
+        PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+        } else
+            alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+    }
+
+    public void attemptConnection() {
+        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager == null) {
+            setRetryTimer();
+            return;
+        }
+
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        if (mBluetoothAdapter == null) {
+            setRetryTimer();
+            return;
+        }
+
+        if (mBluetoothDevice != null) {
+            mConnectionState = STATE_DISCONNECTED;
+            for (BluetoothDevice bluetoothDevice : bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+                if (bluetoothDevice.getAddress().compareTo(mBluetoothDevice.getAddress()) == 0) {
+                    mConnectionState = STATE_CONNECTED;
+                }
+            }
+        }
+
+        Log.i(TAG, "attemptConnection: Connection state: " + getStateStr(mConnectionState));
+
+        if (mConnectionState == STATE_DISCONNECTED || mConnectionState == STATE_DISCONNECTING) {
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            String deviceAddress = results.last().getaddress();
+            if (deviceAddress != null) {
+                if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.getRemoteDevice(deviceAddress) != null) {
+                    connect(deviceAddress);
+                    return;
+                }
+            }
+        } else if (mConnectionState == STATE_CONNECTED) { //WOOO, we are good to go, nothing to do here!
+            Log.i(TAG, "attemptConnection: Looks like we are already connected, going to read!");
+            return;
+        }
+
+        setRetryTimer();
+    }
+
+    private String getStateStr(int mConnectionState) {
+        switch (mConnectionState) {
+            case STATE_CONNECTED:
+                return "CONNECTED";
+            case STATE_CONNECTING:
+                return "CONNECTING";
+            case STATE_DISCONNECTED:
+                return "DISCONNECTED";
+            case STATE_DISCONNECTING:
+                return "DISCONNECTING";
+            default:
+                return "UNKNOWN STATE!";
+        }
+    }
+
+    public void setRetryTimer() {
+        long retry_in;
+        retry_in = (1000 * 65);
+            Log.d(TAG, "setRetryTimer: Restarting in: " + (retry_in / 1000) + " seconds");
+            Calendar calendar = Calendar.getInstance();
+            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+            long wakeTime = calendar.getTimeInMillis() + retry_in;
+            PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+            } else
+                alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
     }
 }

@@ -30,5 +30,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.1'
     compile 'com.android.support:design:25.1.1'
     compile (name:'realm-browser-debug', ext:'aar')
-    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'io.realm:android-adapters:1.4.0'
 }
