@@ -30,7 +30,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     Button btnAct, browserrealm, addtimestamptodb;
     TextView bgmac;
     Bundle b;
-    public String mDeviceAddress, mDeviceName;
+    public String mDeviceAddress, mDeviceName, BTDeviceAddress;
     BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState;
     private boolean mConnected = false;
@@ -78,14 +78,19 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         // Initialize Realm
         Realm.init(this);
         mRealm = Realm.getInstance(getRealmConfig());
+        RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+        BTDeviceAddress = results.last().getaddress();
+        if (!BTDeviceAddress.equals(null)) {
+            mDeviceAddress = BTDeviceAddress;
+            bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
+        }
 
         try {
             b = getIntent().getExtras();
             mDeviceAddress = b.getString("BT MAC Address");
             mDeviceName = b.getString("BT Name");
             bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
-            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            String BTDeviceAddress = results.last().getaddress();
+
             if (!BTDeviceAddress.equals(mDeviceAddress)) {
                 mRealm = Realm.getInstance(getRealmConfig());
                 mRealm.beginTransaction();

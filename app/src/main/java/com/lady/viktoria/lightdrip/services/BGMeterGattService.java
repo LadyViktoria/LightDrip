@@ -46,6 +46,7 @@ public class BGMeterGattService extends Service{
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
     Realm mRealm;
+    String deviceAddress;
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -129,7 +130,6 @@ public class BGMeterGattService extends Service{
         // This is special handling for the Glucose Measurement profile.  Data parsing is
         if (UUID_BG_MEASUREMENT.equals(characteristic.getUuid())) {
             final byte[] data = characteristic.getValue();
-            Log.v(TAG, "Package Length" + data.length);
             if (data != null && data.length > 1) {
                 if (AndroidBluetooth.CheckTransmitterID(data, data.length)) {
                     GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
@@ -332,6 +332,14 @@ public class BGMeterGattService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        try {
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            deviceAddress = results.last().getaddress();
+        }
+        catch (Exception e) {
+            Log.v("try_catch", "Error " + e.getMessage());
+        }
+
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             stopSelf();
             return START_NOT_STICKY;
@@ -358,8 +366,10 @@ public class BGMeterGattService extends Service{
     }
 
     public void attemptConnection() {
+        Log.v(TAG,"attemptConnection");
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
+            Log.v(TAG,"bluetoothManager == null");
             setRetryTimer();
             return;
         }
@@ -382,8 +392,7 @@ public class BGMeterGattService extends Service{
         Log.i(TAG, "attemptConnection: Connection state: " + getStateStr(mConnectionState));
 
         if (mConnectionState == STATE_DISCONNECTED || mConnectionState == STATE_DISCONNECTING) {
-            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            String deviceAddress = results.last().getaddress();
+
             if (deviceAddress != null) {
                 if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.getRemoteDevice(deviceAddress) != null) {
                     connect(deviceAddress);
