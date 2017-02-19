@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -43,7 +44,8 @@ public class BGMeterActivity extends ListActivity {
         String deviceBTMAC[] = macaddress.split("\\r?\\n");
         Intent intent = new Intent(BGMeterActivity.this,MainActivity.class);
         Bundle dataBundle = new Bundle();
-        dataBundle.putString("BG Meter MAC Address", deviceBTMAC[1]);
+        dataBundle.putString("BT Name", deviceBTMAC[0]);
+        dataBundle.putString("BT MAC Address", deviceBTMAC[1]);
         intent.putExtras(dataBundle);
         startActivity(intent);
         finish();
