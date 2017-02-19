@@ -11,7 +11,7 @@ import java.util.TimeZone;
 public class utils {
 
 
-    static Integer convertSrc(final String Src) {
+    public static Integer convertSrc(final String Src) {
         Integer res = 0;
         String tmpSrc = Src.toUpperCase();
         res |= getSrcValue(tmpSrc.charAt(0)) << 20;

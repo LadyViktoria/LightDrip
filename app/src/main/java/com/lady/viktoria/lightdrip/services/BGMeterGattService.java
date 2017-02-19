@@ -19,11 +19,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.AndroidBluetooth;
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.GlucoseReadingRx;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +32,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
+import static com.lady.viktoria.lightdrip.utils.convertSrc;
 
 public class BGMeterGattService extends Service{
     private final static String TAG = BGMeterGattService.class.getSimpleName();
@@ -45,8 +46,8 @@ public class BGMeterGattService extends Service{
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-    Realm mRealm;
-    String deviceAddress;
+    String BTDeviceAddress = "00:00:00:00:00:00";
+
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -131,7 +132,7 @@ public class BGMeterGattService extends Service{
         if (UUID_BG_MEASUREMENT.equals(characteristic.getUuid())) {
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 1) {
-                if (AndroidBluetooth.CheckTransmitterID(data, data.length)) {
+                if (CheckTransmitterID(data, data.length)) {
                     GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
                     intent.putExtra(EXTRA_DATA, gtb.toString());
                     Log.v(TAG,gtb.toString());
@@ -307,7 +308,7 @@ public class BGMeterGattService extends Service{
             Log.w(TAG, "HM10 Service not found");
             return false;
         }
-        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_HM10_SERVICE);
+        BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_BG_MEASUREMENT);
         byte[] bytevalue = value.array();
         mWriteCharacteristic.setValue(bytevalue);
         if(!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)){
@@ -329,21 +330,8 @@ public class BGMeterGattService extends Service{
         return mBluetoothGatt.getServices();
     }
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        try(Realm mRealm = Realm.getDefaultInstance()) {
-            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            deviceAddress = results.last().getaddress();
-        } catch (Exception e) {
-            Log.v("try_get_realm_obj", "Error " + e.getMessage());
-        }
-
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            stopSelf();
-            return START_NOT_STICKY;
-        }
         setFailoverTimer();
         //lastdata = null;
         attemptConnection();
@@ -393,9 +381,9 @@ public class BGMeterGattService extends Service{
 
         if (mConnectionState == STATE_DISCONNECTED || mConnectionState == STATE_DISCONNECTING) {
 
-            if (deviceAddress != null) {
-                if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.getRemoteDevice(deviceAddress) != null) {
-                    connect(deviceAddress);
+            if (getBTDeviceMAC() != null) {
+                if (mBluetoothAdapter.isEnabled() && mBluetoothAdapter.getRemoteDevice(getBTDeviceMAC()) != null) {
+                    connect(getBTDeviceMAC());
                     return;
                 }
             }
@@ -436,5 +424,84 @@ public class BGMeterGattService extends Service{
                 alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
             } else
                 alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+    }
+
+    public boolean CheckTransmitterID(byte[] packet, int len) {
+        int DexSrc;
+        int TransmitterID;
+        String TxId;
+        TxId = "6GAX2";
+        TransmitterID = convertSrc(TxId);
+
+        ByteBuffer tmpBuffer = ByteBuffer.allocate(len);
+        tmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        tmpBuffer.put(packet, 0, len);
+        DexSrc = tmpBuffer.getInt(12);
+
+        if (packet[0] == 7) {
+            Log.i(TAG, "Received Beacon packet.");
+            if (TxId.compareTo("00000") != 0 && Integer.compare(DexSrc, TransmitterID) != 0) {
+                Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
+                writeTxIdPacket(TransmitterID);
+                return false;
+            } else {
+                Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
+                return true;
+            }
+        }
+        else if (packet[0] == 21 && packet[1] == 0) {
+            Log.i(TAG, "Received Data packet");
+            DexSrc = tmpBuffer.getInt(12);
+            TransmitterID = convertSrc(TxId);
+            if (Integer.compare(DexSrc, TransmitterID) != 0) {
+                Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
+                writeTxIdPacket(TransmitterID);
+                return false;
+            } else {
+                Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
+                writeAcknowledgePacket();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getBTDeviceMAC() {
+        Realm mRealm = null;
+        try {
+            mRealm = Realm.getDefaultInstance();
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            BTDeviceAddress = results.last().getaddress();
+        } catch (Exception e) {
+            Log.v(TAG, "Error: try_get_realm_obj " + e.getMessage());
+        } finally {
+            if(mRealm != null) {
+                mRealm.close();
+            }
+        }
+        return BTDeviceAddress;
+    }
+
+    public boolean writeTxIdPacket(int TransmitterID) {
+        Log.v(TAG, "try to set transmitter ID");
+        ByteBuffer txidMessage = ByteBuffer.allocate(6);
+        txidMessage.order(ByteOrder.LITTLE_ENDIAN);
+        txidMessage.put(0, (byte) 0x06);
+        txidMessage.put(1, (byte) 0x01);
+        txidMessage.putInt(2, TransmitterID);
+        connect(getBTDeviceMAC());
+        writeCustomCharacteristic(txidMessage);
+        return true;
+    }
+
+    public boolean writeAcknowledgePacket() {
+        Log.d(TAG, "Sending Acknowledge Packet, to put wixel to sleep");
+        ByteBuffer ackMessage = ByteBuffer.allocate(2);
+        ackMessage.put(0, (byte) 0x02);
+        ackMessage.put(1, (byte) 0xF0);
+        connect(getBTDeviceMAC());
+        writeCustomCharacteristic(ackMessage);
+        disconnect();
+        return true;
     }
 }

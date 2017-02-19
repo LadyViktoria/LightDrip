@@ -16,6 +16,7 @@ public abstract class RealmBaseActivity extends AppCompatActivity {
                     .deleteRealmIfMigrationNeeded()
                     .build();
         }
+        Realm.setDefaultConfiguration(realmConfiguration);
         return realmConfiguration;
     }
 
