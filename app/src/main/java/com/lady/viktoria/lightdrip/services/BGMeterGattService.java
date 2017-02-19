@@ -332,12 +332,12 @@ public class BGMeterGattService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        try {
+
+        try(Realm mRealm = Realm.getDefaultInstance()) {
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             deviceAddress = results.last().getaddress();
-        }
-        catch (Exception e) {
-            Log.v("try_catch", "Error " + e.getMessage());
+        } catch (Exception e) {
+            Log.v("try_get_realm_obj", "Error " + e.getMessage());
         }
 
         if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {

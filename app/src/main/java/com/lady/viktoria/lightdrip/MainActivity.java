@@ -30,7 +30,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     Button btnAct, browserrealm, addtimestamptodb;
     TextView bgmac;
     Bundle b;
-    public String mDeviceAddress, mDeviceName, BTDeviceAddress;
+    public String mDeviceAddress = "00:00:00:00:00:00";
+    public String mDeviceName;
+    public String BTDeviceAddress = "00:00:00:00:00:00";
     BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState;
     private boolean mConnected = false;
@@ -48,6 +50,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
+            Log.v(TAG, mDeviceAddress);
             mBGMeterGattService.connect(mDeviceAddress);
         }
 
@@ -78,11 +81,16 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         // Initialize Realm
         Realm.init(this);
         mRealm = Realm.getInstance(getRealmConfig());
-        RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-        BTDeviceAddress = results.last().getaddress();
-        if (!BTDeviceAddress.equals(null)) {
-            mDeviceAddress = BTDeviceAddress;
-            bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
+
+        try {
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            BTDeviceAddress = results.last().getaddress();
+            if (!BTDeviceAddress.equals(null)) {
+                mDeviceAddress = BTDeviceAddress;
+                bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
+            }
+        } catch (Exception e) {
+            Log.v("try_get_realm_obj", "Error " + e.getMessage());
         }
 
         try {
@@ -90,9 +98,20 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             mDeviceAddress = b.getString("BT MAC Address");
             mDeviceName = b.getString("BT Name");
             bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
-
             if (!BTDeviceAddress.equals(mDeviceAddress)) {
                 mRealm = Realm.getInstance(getRealmConfig());
+
+                try {
+                    RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+                    results.last();
+                    mRealm.beginTransaction();
+                    results.deleteAllFromRealm();
+                    mRealm.commitTransaction();
+                    mRealm.close();
+                } catch (Exception e) {
+                    Log.v("try_delete_realm_obj", "Error " + e.getMessage());
+                }
+
                 mRealm.beginTransaction();
                 ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
                 BTDevice.setname(mDeviceName);
@@ -100,9 +119,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 mRealm.commitTransaction();
                 mRealm.close();
             }
-        }
-        catch (Exception e) {
-            Log.v("try_catch", "Error " + e.getMessage());
+        } catch (Exception e) {
+            Log.v("try_set_realm_obj", "Error " + e.getMessage());
         }
     }
 
