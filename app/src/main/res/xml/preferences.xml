@@ -9,7 +9,7 @@
         android:title="Transmitter ID"
         android:key="transmitter_id"
         android:hint="1"
-        android:inputType="textCapCharacters" />
+        android:inputType="textCapCharacters|textNoSuggestions" />
 
     </PreferenceCategory>
 
@@ -19,7 +19,9 @@
         <com.lady.viktoria.lightdrip.BluetoothDevicePreference
         android:dialogTitle="Select BT device"
         android:key="bt_device"
-        android:title="BT Device" />
+        android:title="BT Device"
+        android:defaultValue="false" />
+
     </PreferenceCategory>
 
 
