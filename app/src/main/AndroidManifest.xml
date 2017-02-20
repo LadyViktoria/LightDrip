@@ -20,6 +20,15 @@
             </intent-filter>
         </activity>
         <service android:name="com.lady.viktoria.lightdrip.services.BGMeterGattService" android:enabled="true"/>
+        <receiver
+            android:name="com.lady.viktoria.lightdrip.receiver.BGMeterGattServiceRestarter"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="com.lady.viktoria.lightdrip.services.RestartBGMeterGattService"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".PreferncesActivity"
             android:label="@string/action_preferences"

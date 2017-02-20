@@ -19,6 +19,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
@@ -28,6 +29,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import io.realm.Realm;
@@ -66,6 +69,67 @@ public class BGMeterGattService extends Service{
             UUID.fromString(GattAttributes.HM_RX_TX);
     public final static UUID UUID_HM10_SERVICE =
             UUID.fromString(GattAttributes.HM_10_SERVICE);
+
+    public BGMeterGattService(Context applicationContext) {
+        super();
+    }
+
+    public BGMeterGattService() {
+    }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        startTimer();
+        attemptConnection();
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "Try to restart BGMeterGattService!");
+        Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
+        sendBroadcast(broadcastIntent);
+        stoptimertask();
+    }
+
+    private Timer timer;
+    private TimerTask timerTask;
+    long oldTime=0;
+    public void startTimer() {
+        //set a new Timer
+        timer = new Timer();
+
+        //initialize the TimerTask's job
+        initializeTimerTask();
+
+        //schedule the timer, to wake up every 1 second
+        timer.schedule(timerTask, 1000, 1000); //
+    }
+
+    public void initializeTimerTask() {
+        timerTask = new TimerTask() {
+            public void run() {
+            }
+        };
+    }
+
+    /**
+     * not needed
+     */
+    public void stoptimertask() {
+        //stop the timer, if it's not already null
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -152,11 +216,6 @@ public class BGMeterGattService extends Service{
         public BGMeterGattService getService() {
             return BGMeterGattService.this;
         }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
     }
 
     @Override
@@ -332,29 +391,6 @@ public class BGMeterGattService extends Service{
         return mBluetoothGatt.getServices();
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        setFailoverTimer();
-        //lastdata = null;
-        attemptConnection();
-        return START_STICKY;
-    }
-
-    public void setFailoverTimer() {
-        long retry_in = (1000 * 60 * 6);
-        Log.d(TAG, "setFailoverTimer: Fallover Restarting in: " + (retry_in / (60 * 1000)) + " minutes");
-        Calendar calendar = Calendar.getInstance();
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        long wakeTime = calendar.getTimeInMillis() + retry_in;
-        PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-        } else
-            alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-    }
-
     public void attemptConnection() {
         Log.v(TAG,"attemptConnection");
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -471,12 +507,17 @@ public class BGMeterGattService extends Service{
 
     private String getBTDeviceMAC() {
         Realm mRealm = null;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         try {
             mRealm = Realm.getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("last_connected_btdevice", BTDeviceAddress);
+            editor.apply();
         } catch (Exception e) {
             Log.v(TAG, "Error: try_get_realm_obj " + e.getMessage());
+            BTDeviceAddress = preferences.getString("last_connected_btdevice", "00:00:00:00:00:00");
         } finally {
             if(mRealm != null) {
                 mRealm.close();

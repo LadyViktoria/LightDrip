@@ -1,6 +1,7 @@
 package com.lady.viktoria.lightdrip;
 
 import android.animation.Animator;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,7 +37,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     public String mDeviceAddress = "00:00:00:00:00:00";
     public String mDeviceName;
     public String BTDeviceAddress = "00:00:00:00:00:00";
-    BGMeterGattService mBGMeterGattService;
+    private BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState;
     private boolean mConnected = false;
     private TextView mDataField;
@@ -45,6 +46,55 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     LinearLayout fabLayout1, fabLayout2;
     View fabBGLayout;
     boolean isFABOpen=false;
+    Intent mServiceIntent;
+    Context context;
+    public Context getcontext() {
+        return context;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        context = this;
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mBGMeterGattService = new BGMeterGattService(getcontext());
+        mServiceIntent = new Intent(getcontext(), mBGMeterGattService.getClass());
+        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
+            startService(mServiceIntent);
+        }
+
+        bgmac = (TextView)findViewById(R.id.bgmac);
+        mConnectionState = (TextView) findViewById(R.id.connection_state);
+        mDataField = (TextView) findViewById(R.id.bgreading);
+        fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
+        fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
+        fab2= (FloatingActionButton) findViewById(R.id.fab2);
+        fabBGLayout=findViewById(R.id.fabBGLayout);
+        fab.setOnClickListener(this);
+        fab1.setOnClickListener(this);
+        fab2.setOnClickListener(this);
+        fabBGLayout.setOnClickListener(this);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+
+        // Initialize Realm
+        Realm.init(this);
+        getLastBTDevice();
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -66,35 +116,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             mBGMeterGattService = null;
         }
     };
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        bgmac = (TextView)findViewById(R.id.bgmac);
-        mConnectionState = (TextView) findViewById(R.id.connection_state);
-        Intent gattServiceIntent = new Intent(this, BGMeterGattService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-        mDataField = (TextView) findViewById(R.id.bgreading);
-        fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
-        fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
-        fab2= (FloatingActionButton) findViewById(R.id.fab2);
-        fabBGLayout=findViewById(R.id.fabBGLayout);
-        fab.setOnClickListener(this);
-        fab1.setOnClickListener(this);
-        fab2.setOnClickListener(this);
-        fabBGLayout.setOnClickListener(this);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
-        // Initialize Realm
-        Realm.init(this);
-        getLastBTDevice();
-    }
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 
@@ -158,7 +179,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
+        startService(mServiceIntent);
         mBGMeterGattService = null;
         mRealm.close();
     }
@@ -192,6 +213,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
             mDeviceName = results.last().getname();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("last_connected_btdevice", BTDeviceAddress);
+            editor.apply();
             if (!BTDeviceAddress.equals(null)) {
                 mDeviceAddress = BTDeviceAddress;
                 bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
