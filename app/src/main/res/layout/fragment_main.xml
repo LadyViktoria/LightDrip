@@ -17,15 +17,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/bgmac" />
 
-    <Button
-        android:id="@+id/listpaireddevices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Connect to Paired Device"
-        android:enabled="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
-
     <TextView
         android:text="@string/disconnected"
         android:layout_width="180dp"
@@ -56,17 +47,7 @@
     <TextView
         android:id="@+id/bluetoothstate"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        />
-
-    <Button
-        android:id="@+id/browserealm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Browser Realm"
-        android:enabled="true"
-        android:layout_above="@+id/listpaireddevices"
-        android:layout_alignParentStart="true" />
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/addtimestamp"
@@ -77,5 +58,13 @@
         android:layout_above="@+id/browserealm"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:id="@+id/browserealm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Browser Realm"
+        android:enabled="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

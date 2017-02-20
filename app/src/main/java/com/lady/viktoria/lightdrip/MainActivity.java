@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -23,11 +25,11 @@ import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends RealmBaseActivity implements View.OnClickListener {
+public class MainActivity extends RealmBaseActivity implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    Button btnAct, browserrealm, addtimestamptodb;
+    Button browserrealm, addtimestamptodb;
     TextView bgmac;
     Bundle b;
     public String mDeviceAddress = "00:00:00:00:00:00";
@@ -67,9 +69,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        btnAct = (Button) findViewById(R.id.listpaireddevices);
         bgmac = (TextView)findViewById(R.id.bgmac);
-        btnAct.setOnClickListener(this);
         browserrealm = (Button) findViewById(R.id.browserealm);
         browserrealm.setOnClickListener(this);
         addtimestamptodb = (Button) findViewById(R.id.addtimestamp);
@@ -78,51 +78,21 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Intent gattServiceIntent = new Intent(this, BGMeterGattService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         mDataField = (TextView) findViewById(R.id.bgreading);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+
         // Initialize Realm
         Realm.init(this);
         try {
             mRealm = Realm.getInstance(getRealmConfig());
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
+            mDeviceName = results.last().getname();
             if (!BTDeviceAddress.equals(null)) {
                 mDeviceAddress = BTDeviceAddress;
-                bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
+                bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
             }
         } catch (Exception e) {
             Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
-        } finally {
-            mRealm.close();
-        }
-
-        try {
-            b = getIntent().getExtras();
-            mDeviceAddress = b.getString("BT MAC Address");
-            mDeviceName = b.getString("BT Name");
-            bgmac.setText("BGMeter MAC: \n" + mDeviceAddress);
-            if (!BTDeviceAddress.equals(mDeviceAddress)) {
-
-                try {
-                    mRealm = Realm.getInstance(getRealmConfig());
-                    RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-                    results.last();
-                    mRealm.beginTransaction();
-                    results.deleteAllFromRealm();
-                    mRealm.commitTransaction();
-                } catch (Exception e) {
-                    Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
-                } finally {
-                    mRealm.close();
-                }
-
-                mRealm = Realm.getInstance(getRealmConfig());
-                mRealm.beginTransaction();
-                ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
-                BTDevice.setname(mDeviceName);
-                BTDevice.setaddress(mDeviceAddress);
-                mRealm.commitTransaction();
-            }
-        } catch (Exception e) {
-            Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
         } finally {
             mRealm.close();
         }
@@ -211,10 +181,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     public void onClick(View v) {
         // TODO Auto-generated method stub
         switch (v.getId()) {
-            case R.id.listpaireddevices:
-                Intent intent = new Intent (this, BGMeterActivity.class);
-                startActivity (intent);
-                break;
             case R.id.browserealm:
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
@@ -237,5 +203,41 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 mConnectionState.setText(resourceId);
             }
         });
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mDeviceName = preferences.getString("BT_Name", "NULL");
+        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
+        try {
+            if (!BTDeviceAddress.equals(mDeviceAddress)) {
+
+                try {
+                    mRealm = Realm.getInstance(getRealmConfig());
+                    RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+                    results.last();
+                    mRealm.beginTransaction();
+                    results.deleteAllFromRealm();
+                    mRealm.commitTransaction();
+                } catch (Exception e) {
+                    Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
+                } finally {
+                    mRealm.close();
+                }
+
+                mRealm = Realm.getInstance(getRealmConfig());
+                mRealm.beginTransaction();
+                ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
+                BTDevice.setname(mDeviceName);
+                BTDevice.setaddress(mDeviceAddress);
+                mRealm.commitTransaction();
+            }
+        } catch (Exception e) {
+            Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
+        } finally {
+            mRealm.close();
+        }
     }
 }

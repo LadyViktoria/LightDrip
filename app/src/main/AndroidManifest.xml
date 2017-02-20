@@ -19,10 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".BGMeterActivity"
-            android:label="@string/app_name">
-        </activity>
         <service android:name="com.lady.viktoria.lightdrip.services.BGMeterGattService" android:enabled="true"/>
         <activity
             android:name=".PreferncesActivity"
@@ -32,8 +28,5 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.lady.viktoria.lightdrip.MainActivity" />
         </activity>
-
-
     </application>
-
 </manifest>
