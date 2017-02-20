@@ -29,6 +29,16 @@
                 <action android:name="com.lady.viktoria.lightdrip.services.RestartBGMeterGattService"/>
             </intent-filter>
         </receiver>
+        <service android:name="com.lady.viktoria.lightdrip.services.RealmService" android:enabled="true"/>
+        <receiver
+            android:name="com.lady.viktoria.lightdrip.receiver.RealmServiceRestarter"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="com.lady.viktoria.lightdrip.services.RestartRealmService"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".PreferncesActivity"
             android:label="@string/action_preferences"

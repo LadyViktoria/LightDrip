@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
+import com.lady.viktoria.lightdrip.services.RealmService;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
@@ -42,11 +43,12 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private boolean mConnected = false;
     private TextView mDataField;
     private Realm mRealm;
+    private RealmService mRealmService;
     FloatingActionButton fab, fab1, fab2;
     LinearLayout fabLayout1, fabLayout2;
     View fabBGLayout;
     boolean isFABOpen=false;
-    Intent mServiceIntent;
+    Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
     public Context getcontext() {
         return context;
@@ -60,11 +62,21 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mBGMeterGattService = new BGMeterGattService(getcontext());
-        mServiceIntent = new Intent(getcontext(), mBGMeterGattService.getClass());
-        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
-            startService(mServiceIntent);
+
+        mRealmService = new RealmService(getcontext());
+        mServiceRealmIntent = new Intent(getcontext(), mServiceRealmIntent.getClass());
+        if (!isMyServiceRunning(mRealmService.getClass())) {
+            startService(mServiceRealmIntent);
         }
+
+
+        /*
+        mBGMeterGattService = new BGMeterGattService(getcontext());
+        mServiceBGMeterGattIntent = new Intent(getcontext(), mBGMeterGattService.getClass());
+        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
+            startService(mServiceBGMeterGattIntent);
+        }
+        */
 
         bgmac = (TextView)findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
@@ -80,9 +92,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fab2.setOnClickListener(this);
         fabBGLayout.setOnClickListener(this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
-        // Initialize Realm
-        Realm.init(this);
         getLastBTDevice();
     }
 
@@ -179,9 +188,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        startService(mServiceIntent);
+        startService(mServiceRealmIntent);
+        startService(mServiceBGMeterGattIntent);
         mBGMeterGattService = null;
-        mRealm.close();
     }
 
     private void displayData(String data) {
