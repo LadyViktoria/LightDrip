@@ -82,20 +82,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
         // Initialize Realm
         Realm.init(this);
-        try {
-            mRealm = Realm.getInstance(getRealmConfig());
-            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            BTDeviceAddress = results.last().getaddress();
-            mDeviceName = results.last().getname();
-            if (!BTDeviceAddress.equals(null)) {
-                mDeviceAddress = BTDeviceAddress;
-                bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
-            }
-        } catch (Exception e) {
-            Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
-        } finally {
-            mRealm.close();
-        }
+        getLastBTDevice();
     }
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
@@ -148,6 +135,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             final boolean result = mBGMeterGattService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
+        getLastBTDevice();
     }
 
     @Override
@@ -203,6 +191,23 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 mConnectionState.setText(resourceId);
             }
         });
+    }
+
+    private void getLastBTDevice() {
+        try {
+            mRealm = Realm.getInstance(getRealmConfig());
+            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+            BTDeviceAddress = results.last().getaddress();
+            mDeviceName = results.last().getname();
+            if (!BTDeviceAddress.equals(null)) {
+                mDeviceAddress = BTDeviceAddress;
+                bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
+            }
+        } catch (Exception e) {
+            Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
+        } finally {
+            mRealm.close();
+        }
     }
 
     @Override
