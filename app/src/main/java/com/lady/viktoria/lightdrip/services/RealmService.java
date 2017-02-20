@@ -29,7 +29,6 @@ public class RealmService extends RealmBaseService {
         startTimer();
         // Initialize Realm
         Realm.init(this);
-        Realm mRealm = Realm.getInstance(getRealmConfig());
         return START_STICKY;
     }
 

@@ -64,19 +64,18 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
 
         mRealmService = new RealmService(getcontext());
-        mServiceRealmIntent = new Intent(getcontext(), mServiceRealmIntent.getClass());
+        mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
         if (!isMyServiceRunning(mRealmService.getClass())) {
             startService(mServiceRealmIntent);
         }
 
-
-        /*
         mBGMeterGattService = new BGMeterGattService(getcontext());
-        mServiceBGMeterGattIntent = new Intent(getcontext(), mBGMeterGattService.getClass());
+        mServiceBGMeterGattIntent = new Intent(getcontext(),BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
         }
-        */
+
+
 
         bgmac = (TextView)findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
@@ -92,6 +91,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fab2.setOnClickListener(this);
         fabBGLayout.setOnClickListener(this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        Realm.init(this);
         getLastBTDevice();
     }
 
@@ -218,7 +218,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getLastBTDevice() {
         try {
-            mRealm = Realm.getInstance(getRealmConfig());
+            mRealm = Realm.getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
             mDeviceName = results.last().getname();
@@ -247,7 +247,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             if (!BTDeviceAddress.equals(mDeviceAddress)) {
 
                 try {
-                    mRealm = Realm.getInstance(getRealmConfig());
+                    mRealm = Realm.getDefaultInstance();
                     RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                     results.last();
                     mRealm.beginTransaction();
@@ -259,7 +259,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     mRealm.close();
                 }
 
-                mRealm = Realm.getInstance(getRealmConfig());
+                mRealm = Realm.getDefaultInstance();
                 mRealm.beginTransaction();
                 ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
                 BTDevice.setname(mDeviceName);
@@ -286,7 +286,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.fab2:
-                mRealm = Realm.getInstance(getRealmConfig());
+                mRealm = Realm.getDefaultInstance();
                 RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                 String address = results.last().getaddress();
                 mRealm.close();

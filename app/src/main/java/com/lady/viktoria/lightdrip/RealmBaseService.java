@@ -12,7 +12,7 @@ public class RealmBaseService extends Service {
 
     private RealmConfiguration realmConfiguration;
 
-    protected RealmConfiguration getRealmConfig() {
+    private RealmConfiguration getRealmConfig() {
         if (realmConfiguration == null) {
             realmConfiguration = new RealmConfiguration
                     .Builder()
