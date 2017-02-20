@@ -6,6 +6,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PreferncesActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -31,9 +32,18 @@ public class PreferncesActivity extends PreferenceActivity
             editor.putString("BT_MAC_Address", BTDeviceArray[1]);
             editor.apply();
         }
+        if (key.equals("transmitter_id")) {
+            String txid = sharedPreferences.getString("transmitter_id", "00000");
+            Log.v(TAG, txid);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("Transmitter_Id", txid);
+            editor.apply();
+        }
     }
 
     public Preference getPreference (String key) {
         return findPreference(key);
     }
 }
+

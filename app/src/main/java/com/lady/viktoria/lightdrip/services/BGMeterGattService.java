@@ -14,9 +14,11 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
@@ -430,7 +432,8 @@ public class BGMeterGattService extends Service{
         int DexSrc;
         int TransmitterID;
         String TxId;
-        TxId = "6GAX2";
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        TxId = preferences.getString("Transmitter_Id", "00000");
         TransmitterID = convertSrc(TxId);
 
         ByteBuffer tmpBuffer = ByteBuffer.allocate(len);
