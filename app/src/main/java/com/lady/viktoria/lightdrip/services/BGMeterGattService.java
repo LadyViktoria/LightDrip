@@ -23,11 +23,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
-import com.lady.viktoria.lightdrip.GlucoseReadingRx;
+import com.lady.viktoria.lightdrip.TransmitterDataRx;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -198,15 +199,14 @@ public class BGMeterGattService extends Service{
         // This is special handling for the Glucose Measurement profile.  Data parsing is
         if (UUID_BG_MEASUREMENT.equals(characteristic.getUuid())) {
             final byte[] data = characteristic.getValue();
+            long timestamp = new Date().getTime();
             int packatlength = data[0];
             if (data != null && packatlength >= 2) {
                 if (CheckTransmitterID(data, data.length)) {
-                    GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
-                    intent.putExtra(EXTRA_DATA, gtb.toString());
-                    Log.v(TAG,gtb.toString());
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                     preferences.edit().putInt("bridge_battery", ByteBuffer.wrap(data).get(11)).apply();
                     Log.v(TAG, "bridge_battery " + ByteBuffer.wrap(data).get(11));
+                    TransmitterDataRx.create(data, data.length, timestamp);
                 }
             } else if (data != null && packatlength <= 1) {
                 writeAcknowledgePacket();
