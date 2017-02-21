@@ -22,8 +22,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
+import com.lady.viktoria.lightdrip.DatabaseModels.BGData;
+import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationData;
+import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationRequest;
+import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
+import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
+
+import java.io.File;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
@@ -38,7 +45,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     public String mDeviceName;
     public String BTDeviceAddress = "00:00:00:00:00:00";
     private BGMeterGattService mBGMeterGattService;
-    private TextView mConnectionState;
+    private TextView mConnectionState ,mDatabaseSize;
     private boolean mConnected = false;
     private TextView mDataField;
     private Realm mRealm;
@@ -49,6 +56,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     boolean isFABOpen=false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
+    public static final String REALM_FILE_NAME = "default.realm";
     public Context getcontext() {
         return context;
     }
@@ -76,6 +84,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         bgmac = (TextView)findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.bgreading);
+        mDatabaseSize = (TextView) findViewById(R.id.databasesize);
         fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
         fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
         fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -89,6 +98,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         Realm.init(this);
         getLastBTDevice();
+        getDatabaseSize();
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -300,5 +310,44 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         }else{
             super.onBackPressed();
         }
+    }
+
+
+    private void getDatabaseSize() {
+
+        mRealm = Realm.getDefaultInstance();
+        int itemSizeActiveBluetoothDevice = mRealm.where(ActiveBluetoothDevice.class).findAll().size();
+        int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
+        int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
+        int itemSizeCalibrationRequest = mRealm.where(CalibrationRequest.class).findAll().size();
+        int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
+        int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
+        mRealm.close();
+        int itemSizeAll = itemSizeActiveBluetoothDevice + itemSizeBGData
+                + itemSizeCalibrationData + itemSizeCalibrationRequest
+                + itemSizeCalibrationRequest + itemSizeSensorData + itemSizeTransmitterData;
+
+        String FileSize = null;
+        File writableFolder = MainActivity.this.getFilesDir();
+        File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
+        if (realmFile.length() >= 0) {
+            FileSize = realmFile.length() + " bytes";
+        }
+        if (realmFile.length() / 1024 >= 1) {
+            FileSize = realmFile.length() / 1024 + " Kb";
+        }
+        if (realmFile.length() / 1024 / 1024 >= 1) {
+            FileSize = realmFile.length() / 1024 / 1024 + " Mb";
+        }
+
+        mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
+                + String.format("\nItems in ActiveBluetoothDevice: %d",itemSizeActiveBluetoothDevice)
+                + String.format("\nItems in BGData: %d",itemSizeBGData)
+                + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
+                + String.format("\nItems in CalibrationRequest: %d",itemSizeCalibrationRequest)
+                + String.format("\nItems in SensorData: %d",itemSizeSensorData)
+                + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
+                + "\nDatabase Size: " + FileSize);
+        mDatabaseSize.invalidate();
     }
 }
