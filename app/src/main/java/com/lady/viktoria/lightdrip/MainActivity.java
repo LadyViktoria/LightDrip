@@ -61,7 +61,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         mRealmService = new RealmService(getcontext());
         mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
         if (!isMyServiceRunning(mRealmService.getClass())) {
@@ -73,8 +72,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
         }
-
-
 
         bgmac = (TextView)findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
@@ -103,26 +100,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         }
         return false;
     }
-
-    // Code to manage Service lifecycle.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            mBGMeterGattService = ((BGMeterGattService.LocalBinder) service).getService();
-            if (!mBGMeterGattService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-                finish();
-            }
-            // Automatically connects to the device upon successful start-up initialization.
-            mBGMeterGattService.connect(mDeviceAddress);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mBGMeterGattService = null;
-        }
-    };
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 
@@ -182,9 +159,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        startService(mServiceRealmIntent);
-        startService(mServiceBGMeterGattIntent);
-        mBGMeterGattService = null;
     }
 
     private void displayData(String data) {

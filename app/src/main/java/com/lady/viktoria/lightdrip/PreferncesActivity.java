@@ -1,5 +1,6 @@
 package com.lady.viktoria.lightdrip;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -9,6 +10,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 
 public class PreferncesActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -34,6 +37,7 @@ public class PreferncesActivity extends PreferenceActivity
             editor.putString("BT_Name", BTDeviceArray[0]);
             editor.putString("BT_MAC_Address", BTDeviceArray[1]);
             editor.apply();
+            stopService(new Intent(this, BGMeterGattService.class));
         }
         if (key.equals("transmitter_id")) {
             int txidlength = sharedPreferences.getString("transmitter_id","00000").length();
@@ -50,6 +54,8 @@ public class PreferncesActivity extends PreferenceActivity
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Transmitter_Id", txid);
             editor.apply();
+            stopService(new Intent(this, BGMeterGattService.class));
+
         }
     }
 

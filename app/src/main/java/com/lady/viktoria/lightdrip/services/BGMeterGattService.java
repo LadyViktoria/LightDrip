@@ -81,7 +81,7 @@ public class BGMeterGattService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Realm.init(this);
-        startTimer();
+        setRetryTimer();
         attemptConnection();
         return START_STICKY;
     }
@@ -92,39 +92,6 @@ public class BGMeterGattService extends Service{
         Log.i(TAG, "Try to restart BGMeterGattService!");
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
         sendBroadcast(broadcastIntent);
-        stoptimertask();
-    }
-
-    private Timer timer;
-    private TimerTask timerTask;
-    long oldTime=0;
-    public void startTimer() {
-        //set a new Timer
-        timer = new Timer();
-
-        //initialize the TimerTask's job
-        initializeTimerTask();
-
-        //schedule the timer, to wake up every 1 second
-        timer.schedule(timerTask, 1000, 1000); //
-    }
-
-    public void initializeTimerTask() {
-        timerTask = new TimerTask() {
-            public void run() {
-            }
-        };
-    }
-
-    /**
-     * not needed
-     */
-    public void stoptimertask() {
-        //stop the timer, if it's not already null
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
     }
 
     @Nullable
@@ -228,49 +195,12 @@ public class BGMeterGattService extends Service{
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
         close();
         return super.onUnbind(intent);
     }
 
     private final IBinder mBinder = new LocalBinder();
 
-    /**
-     * Initializes a reference to the local Bluetooth adapter.
-     *
-     * @return Return true if the initialization is successful.
-     */
-    public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
-        if (mBluetoothManager == null) {
-            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-            if (mBluetoothManager == null) {
-                Log.e(TAG, "Unable to initialize BluetoothManager.");
-                return false;
-            }
-        }
-
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-        if (mBluetoothAdapter == null) {
-            Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
-     * @param address The device address of the destination device.
-     *
-     * @return Return true if the connection is initiated successfully. The connection result
-     *         is reported asynchronously through the
-     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     *         callback.
-     */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
@@ -303,53 +233,15 @@ public class BGMeterGattService extends Service{
         return true;
     }
 
-    /**
-     * Disconnects an existing connection or cancel a pending connection. The disconnection result
-     * is reported asynchronously through the
-     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     * callback.
-     */
-    public void disconnect() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mBluetoothGatt.disconnect();
-    }
-
-    /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
-     */
     public void close() {
         if (mBluetoothGatt == null) {
             return;
         }
         mBluetoothGatt.close();
         mBluetoothGatt = null;
+        Log.v(TAG, "Closing GATT");
     }
 
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
-     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
-    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mBluetoothGatt.readCharacteristic(characteristic);
-    }
-
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
-     */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
@@ -380,23 +272,13 @@ public class BGMeterGattService extends Service{
         BluetoothGattCharacteristic mWriteCharacteristic = mCustomService.getCharacteristic(UUID_BG_MEASUREMENT);
         byte[] bytevalue = value.array();
         mWriteCharacteristic.setValue(bytevalue);
+        boolean status = mBluetoothGatt.writeCharacteristic(mWriteCharacteristic);
         if(!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)){
-            Log.w(TAG, "Failed to write characteristic");
-            return false;
+            return status;
         }
-        return true;
-    }
-
-    /**
-     * Retrieves a list of supported GATT services on the connected device. This should be
-     * invoked only after {@code BluetoothGatt#discoverServices()} completes successfully.
-     *
-     * @return A {@code List} of supported services.
-     */
-    public List<BluetoothGattService> getSupportedGattServices() {
-        if (mBluetoothGatt == null) return null;
-
-        return mBluetoothGatt.getServices();
+        else {
+            return status;
+        }
     }
 
     public void attemptConnection() {
@@ -437,8 +319,23 @@ public class BGMeterGattService extends Service{
             Log.i(TAG, "attemptConnection: Looks like we are already connected, going to read!");
             return;
         }
-
         setRetryTimer();
+    }
+
+    public void setRetryTimer() {
+        long retry_in;
+        retry_in = (1000 * 65);
+        Log.d(TAG, "setRetryTimer: Restarting in: " + (retry_in / 1000) + " seconds");
+        Calendar calendar = Calendar.getInstance();
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        long wakeTime = calendar.getTimeInMillis() + retry_in;
+        PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+        } else
+            alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
     }
 
     private String getStateStr(int mConnectionState) {
@@ -456,22 +353,6 @@ public class BGMeterGattService extends Service{
         }
     }
 
-    public void setRetryTimer() {
-        long retry_in;
-        retry_in = (1000 * 65);
-            Log.d(TAG, "setRetryTimer: Restarting in: " + (retry_in / 1000) + " seconds");
-            Calendar calendar = Calendar.getInstance();
-            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-            long wakeTime = calendar.getTimeInMillis() + retry_in;
-            PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-            } else
-                alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-    }
-
     public boolean CheckTransmitterID(byte[] packet, int len) {
         int DexSrc;
         int TransmitterID;
@@ -480,7 +361,6 @@ public class BGMeterGattService extends Service{
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         TxId = preferences.getString("transmitter_id", "00000");
-        Log.v(TAG, "transmitter is " + TxId);
         TransmitterID = convertSrc(TxId);
 
         tmpBuffer = ByteBuffer.allocate(len);
@@ -523,8 +403,13 @@ public class BGMeterGattService extends Service{
         txidMessage.put(0, (byte) 0x06);
         txidMessage.put(1, (byte) 0x01);
         txidMessage.putInt(2, TransmitterID);
-        writeCustomCharacteristic(txidMessage);
-        return true;
+        if (writeCustomCharacteristic(txidMessage)) {
+            Log.v(TAG, "Write TXID Packet Successful");
+            return true;
+        } else {
+            Log.v(TAG, "Write TXID Packet failed!");
+            return false;
+        }
     }
 
     public boolean writeAcknowledgePacket() {
@@ -532,8 +417,12 @@ public class BGMeterGattService extends Service{
         ByteBuffer ackMessage = ByteBuffer.allocate(2);
         ackMessage.put(0, (byte) 0x02);
         ackMessage.put(1, (byte) 0xF0);
-        writeCustomCharacteristic(ackMessage);
-        mBluetoothGatt.disconnect();
-        return true;
+        if (writeCustomCharacteristic(ackMessage)) {
+            Log.v(TAG, "Write Acknowledge Packet Successful");
+            return true;
+        } else {
+            Log.v(TAG, "Write Acknowledge Packet failed!");
+            return false;
+        }
     }
 }
