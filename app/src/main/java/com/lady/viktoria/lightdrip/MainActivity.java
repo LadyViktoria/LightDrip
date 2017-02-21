@@ -2,14 +2,11 @@ package com.lady.viktoria.lightdrip;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,27 +36,26 @@ import io.realm.RealmResults;
 
 import static io.realm.Realm.getDefaultInstance;
 
-public class MainActivity extends RealmBaseActivity implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    TextView bgmac;
-    public String mDeviceAddress = "00:00:00:00:00:00";
-    public String mDeviceName;
-    public String BTDeviceAddress = "00:00:00:00:00:00";
+    private String mDeviceAddress = "00:00:00:00:00:00";
+    private String mDeviceName;
+    private String BTDeviceAddress = "00:00:00:00:00:00";
     private BGMeterGattService mBGMeterGattService;
-    private TextView mConnectionState ,mDatabaseSize;
+    private TextView mConnectionState ,mDatabaseSize, bgmac, mDataField;
     private boolean mConnected = false;
-    private TextView mDataField;
     private Realm mRealm;
     private RealmService mRealmService;
+    private RealmChangeListener realmListener;
     FloatingActionButton fab, fab1, fab2;
     LinearLayout fabLayout1, fabLayout2;
     View fabBGLayout;
-    boolean isFABOpen=false;
+    boolean isFABOpen = false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
-    private RealmChangeListener realmListener;
     public Context getcontext() {
         return context;
     }
@@ -68,6 +64,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
+        Realm.init(this);
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -91,15 +89,13 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
         fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
-        fab2= (FloatingActionButton) findViewById(R.id.fab2);
-        fabBGLayout=findViewById(R.id.fabBGLayout);
         fab.setOnClickListener(this);
+        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
         fab1.setOnClickListener(this);
+        fab2= (FloatingActionButton) findViewById(R.id.fab2);
         fab2.setOnClickListener(this);
+        fabBGLayout=findViewById(R.id.fabBGLayout);
         fabBGLayout.setOnClickListener(this);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-        Realm.init(this);
         getLastBTDevice();
         getDatabaseSize();
         mRealm = getDefaultInstance();
@@ -113,14 +109,72 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mRealm.addChangeListener(realmListener);
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.fab:
+                if(!isFABOpen){
+                    showFABMenu();
+                }else{
+                    closeFABMenu();
+                }
+                break;
+            case R.id.fab1:
+                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
+                break;
+            case R.id.fab2:
+                mRealm = getDefaultInstance();
+                RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+                String address = results.last().getaddress();
+                mRealm.close();
+                final Snackbar snackBar = Snackbar.make(view, "get BT MAC From DB: " + address,
+                        Snackbar.LENGTH_INDEFINITE);
+                snackBar.setAction("Dismiss", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackBar.dismiss();
+                    }
+                }).show();
+                break;
+            case R.id.fabBGLayout:
+                closeFABMenu();
+                break;
+            default:
+                break;
         }
-        return false;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mDeviceName = preferences.getString("BT_Name", "NULL");
+        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
+        try {
+            if (!BTDeviceAddress.equals(mDeviceAddress)) {
+
+                try {
+                    mRealm = getDefaultInstance();
+                    RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
+                    results.last();
+                    mRealm.beginTransaction();
+                    results.deleteAllFromRealm();
+                    mRealm.commitTransaction();
+                    mRealm.close();
+                } catch (Exception e) {
+                    Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
+                }
+
+                mRealm = getDefaultInstance();
+                mRealm.beginTransaction();
+                ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
+                BTDevice.setname(mDeviceName);
+                BTDevice.setaddress(mDeviceAddress);
+                mRealm.commitTransaction();
+                mRealm.close();
+            }
+        } catch (Exception e) {
+            Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
+        }
     }
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
@@ -184,12 +238,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mRealm.removeChangeListener(realmListener);
     }
 
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
-        }
-    }
-
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
@@ -205,6 +253,12 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 mConnectionState.setText(resourceId);
             }
         });
+    }
+
+    private void displayData(String data) {
+        if (data != null) {
+            mDataField.setText(data);
+        }
     }
 
     private void getLastBTDevice() {
@@ -224,74 +278,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             }
         } catch (Exception e) {
             Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mDeviceName = preferences.getString("BT_Name", "NULL");
-        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
-        bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
-        try {
-            if (!BTDeviceAddress.equals(mDeviceAddress)) {
-
-                try {
-                    mRealm = getDefaultInstance();
-                    RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-                    results.last();
-                    mRealm.beginTransaction();
-                    results.deleteAllFromRealm();
-                    mRealm.commitTransaction();
-                    mRealm.close();
-                } catch (Exception e) {
-                    Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
-                }
-
-                mRealm = getDefaultInstance();
-                mRealm.beginTransaction();
-                ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
-                BTDevice.setname(mDeviceName);
-                BTDevice.setaddress(mDeviceAddress);
-                mRealm.commitTransaction();
-                mRealm.close();
-            }
-        } catch (Exception e) {
-            Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
-        }
-    }
-
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.fab:
-                if(!isFABOpen){
-                    showFABMenu();
-                }else{
-                    closeFABMenu();
-                }
-                break;
-            case R.id.fab1:
-                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
-                break;
-            case R.id.fab2:
-                mRealm = getDefaultInstance();
-                RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-                String address = results.last().getaddress();
-                mRealm.close();
-                final Snackbar snackBar = Snackbar.make(view, "get BT MAC From DB: " + address,
-                        Snackbar.LENGTH_INDEFINITE);
-                snackBar.setAction("Dismiss", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        snackBar.dismiss();
-                    }
-                }).show();
-                break;
-            case R.id.fabBGLayout:
-                closeFABMenu();
-                break;
-            default:
-                break;
         }
     }
 
@@ -325,6 +311,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         }
     }
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void getDatabaseSize() {
 
