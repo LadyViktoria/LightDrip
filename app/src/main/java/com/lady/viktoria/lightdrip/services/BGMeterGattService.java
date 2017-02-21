@@ -504,7 +504,7 @@ public class BGMeterGattService extends Service{
     }
 
     private String getBTDeviceMAC() {
-        Realm mRealm = null;
+        Realm mRealm;
         try {
             mRealm = Realm.getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
