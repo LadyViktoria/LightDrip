@@ -8,11 +8,11 @@
         <EditTextPreference
         android:title="Transmitter ID"
         android:key="transmitter_id"
-        android:hint="1"
-        android:inputType="textCapCharacters|textNoSuggestions" />
+        android:inputType="textCapCharacters|textNoSuggestions"
+        android:defaultValue="00000"
+        android:text="00000"/>
 
     </PreferenceCategory>
-
 
     <PreferenceCategory android:title="Bluetooth Setup">
 

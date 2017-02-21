@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip;
 
-import android.animation.Animator;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -116,7 +115,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
-            Log.v(TAG, mDeviceAddress);
             mBGMeterGattService.connect(mDeviceAddress);
         }
 
@@ -172,10 +170,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (mBGMeterGattService != null) {
-            final boolean result = mBGMeterGattService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
-        }
         getLastBTDevice();
     }
 
@@ -222,6 +216,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
             mDeviceName = results.last().getname();
+            mRealm.close();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("last_connected_btdevice", BTDeviceAddress);
@@ -232,8 +227,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             }
         } catch (Exception e) {
             Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
-        } finally {
-            mRealm.close();
         }
     }
 
@@ -253,10 +246,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     mRealm.beginTransaction();
                     results.deleteAllFromRealm();
                     mRealm.commitTransaction();
+                    mRealm.close();
                 } catch (Exception e) {
                     Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
-                } finally {
-                    mRealm.close();
                 }
 
                 mRealm = Realm.getDefaultInstance();
@@ -265,11 +257,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 BTDevice.setname(mDeviceName);
                 BTDevice.setaddress(mDeviceAddress);
                 mRealm.commitTransaction();
+                mRealm.close();
             }
         } catch (Exception e) {
             Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
-        } finally {
-            mRealm.close();
         }
     }
 

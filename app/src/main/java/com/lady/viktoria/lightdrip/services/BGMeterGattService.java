@@ -76,9 +76,11 @@ public class BGMeterGattService extends Service{
 
     public BGMeterGattService() {
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        Realm.init(this);
         startTimer();
         attemptConnection();
         return START_STICKY;
@@ -197,13 +199,19 @@ public class BGMeterGattService extends Service{
         // This is special handling for the Glucose Measurement profile.  Data parsing is
         if (UUID_BG_MEASUREMENT.equals(characteristic.getUuid())) {
             final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 1) {
+            int packatlength = data[0];
+            if (data != null && packatlength >= 2) {
                 if (CheckTransmitterID(data, data.length)) {
                     GlucoseReadingRx gtb = new GlucoseReadingRx(data, data.length);
                     intent.putExtra(EXTRA_DATA, gtb.toString());
                     Log.v(TAG,gtb.toString());
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    preferences.edit().putInt("bridge_battery", ByteBuffer.wrap(data).get(11)).apply();
+                    Log.v(TAG, "bridge_battery " + ByteBuffer.wrap(data).get(11));
                 }
-                else {return;}
+            } else if (data != null && packatlength <= 1) {
+                writeAcknowledgePacket();
+                return;
             }
         }
         else {
@@ -468,60 +476,42 @@ public class BGMeterGattService extends Service{
         int DexSrc;
         int TransmitterID;
         String TxId;
+        ByteBuffer tmpBuffer;
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        TxId = preferences.getString("Transmitter_Id", "00000");
+        TxId = preferences.getString("transmitter_id", "00000");
+        Log.v(TAG, "transmitter is " + TxId);
         TransmitterID = convertSrc(TxId);
 
-        ByteBuffer tmpBuffer = ByteBuffer.allocate(len);
+        tmpBuffer = ByteBuffer.allocate(len);
         tmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
         tmpBuffer.put(packet, 0, len);
-        DexSrc = tmpBuffer.getInt(12);
 
         if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
-            if (TxId.compareTo("00000") != 0 && Integer.compare(DexSrc, TransmitterID) != 0) {
-                Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
-                writeTxIdPacket(TransmitterID);
-                return false;
-            } else {
-                Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
-                return true;
-            }
-        }
-        else if (packet[0] == 21 && packet[1] == 0) {
+            writeTxIdPacket(TransmitterID);
+            return false;
+        } else if (packet[0] >= 21 && packet[1] == 0) {
             Log.i(TAG, "Received Data packet");
             DexSrc = tmpBuffer.getInt(12);
             TransmitterID = convertSrc(TxId);
             if (Integer.compare(DexSrc, TransmitterID) != 0) {
-                Log.v(TAG, "TXID wrong.  Expected " + TransmitterID + " but got " + DexSrc);
                 writeTxIdPacket(TransmitterID);
                 return false;
-            } else {
-                Log.v(TAG, "TXID from settings " + TransmitterID + " matches with " + DexSrc);
-                writeAcknowledgePacket();
-                return true;
-            }
+            } else {return true;}
         }
         return false;
     }
 
     private String getBTDeviceMAC() {
         Realm mRealm = null;
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         try {
             mRealm = Realm.getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("last_connected_btdevice", BTDeviceAddress);
-            editor.apply();
+            mRealm.close();
         } catch (Exception e) {
             Log.v(TAG, "Error: try_get_realm_obj " + e.getMessage());
-            BTDeviceAddress = preferences.getString("last_connected_btdevice", "00:00:00:00:00:00");
-        } finally {
-            if(mRealm != null) {
-                mRealm.close();
-            }
         }
         return BTDeviceAddress;
     }
@@ -533,8 +523,8 @@ public class BGMeterGattService extends Service{
         txidMessage.put(0, (byte) 0x06);
         txidMessage.put(1, (byte) 0x01);
         txidMessage.putInt(2, TransmitterID);
-        connect(getBTDeviceMAC());
         writeCustomCharacteristic(txidMessage);
+        mBluetoothGatt.disconnect();
         return true;
     }
 
@@ -543,9 +533,8 @@ public class BGMeterGattService extends Service{
         ByteBuffer ackMessage = ByteBuffer.allocate(2);
         ackMessage.put(0, (byte) 0x02);
         ackMessage.put(1, (byte) 0xF0);
-        connect(getBTDeviceMAC());
         writeCustomCharacteristic(ackMessage);
-        disconnect();
+        mBluetoothGatt.disconnect();
         return true;
     }
 }

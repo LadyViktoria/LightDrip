@@ -2,15 +2,18 @@ package com.lady.viktoria.lightdrip;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public class PreferncesActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final static String TAG = PreferncesActivity.class.getSimpleName();
+    private EditTextPreference mEditTextPreference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,14 @@ public class PreferncesActivity extends PreferenceActivity
             editor.apply();
         }
         if (key.equals("transmitter_id")) {
+            int txidlength = sharedPreferences.getString("transmitter_id","00000").length();
+            if (txidlength != 5) {
+                this.mEditTextPreference = ((EditTextPreference) getPreferenceScreen() //put this in the onCreate
+                        .findPreference("transmitter_id"));
+                this.mEditTextPreference.setText("00000");
+                Toast.makeText(this, "Should be 5 digits and not " + txidlength, Toast.LENGTH_LONG).show();
+                return;
+            }
             String txid = sharedPreferences.getString("transmitter_id", "00000");
             Log.v(TAG, txid);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
