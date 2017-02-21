@@ -81,7 +81,7 @@ public class BGMeterGattService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Realm.init(this);
-        setRetryTimer();
+        startTimer();
         attemptConnection();
         return START_STICKY;
     }
@@ -92,6 +92,38 @@ public class BGMeterGattService extends Service{
         Log.i(TAG, "Try to restart BGMeterGattService!");
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
         sendBroadcast(broadcastIntent);
+        stoptimertask();
+    }
+
+    private Timer timer;
+    private TimerTask timerTask;
+    public void startTimer() {
+        //set a new Timer
+        timer = new Timer();
+
+        //initialize the TimerTask's job
+        initializeTimerTask();
+
+        //schedule the timer, to wake up every 1 second
+        timer.schedule(timerTask, 1000, 1000); //
+    }
+
+    public void initializeTimerTask() {
+        timerTask = new TimerTask() {
+            public void run() {
+            }
+        };
+    }
+
+    /**
+     * not needed
+     */
+    public void stoptimertask() {
+        //stop the timer, if it's not already null
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
     @Nullable
@@ -195,6 +227,9 @@ public class BGMeterGattService extends Service{
 
     @Override
     public boolean onUnbind(Intent intent) {
+        // After using a given device, you should make sure that BluetoothGatt.close() is called
+        // such that resources are cleaned up properly.  In this particular example, close() is
+        // invoked when the UI is disconnected from the Service.
         close();
         return super.onUnbind(intent);
     }
@@ -219,14 +254,14 @@ public class BGMeterGattService extends Service{
             }
         }
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        if (device == null) {
+        mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(address);
+        if (mBluetoothDevice == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to true.
-        mBluetoothGatt = device.connectGatt(this, true, mGattCallback);
+        mBluetoothGatt = mBluetoothDevice.connectGatt(this, true, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
@@ -283,23 +318,23 @@ public class BGMeterGattService extends Service{
 
     public void attemptConnection() {
         Log.v(TAG,"attemptConnection");
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager == null) {
+        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if (mBluetoothManager == null) {
             Log.v(TAG,"bluetoothManager == null");
-            setRetryTimer();
+            startTimer();
             return;
         }
 
-        mBluetoothAdapter = bluetoothManager.getAdapter();
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
         if (mBluetoothAdapter == null) {
-            setRetryTimer();
+            startTimer();
             return;
         }
 
         if (mBluetoothDevice != null) {
             mConnectionState = STATE_DISCONNECTED;
-            for (BluetoothDevice bluetoothDevice : bluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
-                if (bluetoothDevice.getAddress().compareTo(mBluetoothDevice.getAddress()) == 0) {
+            for (BluetoothDevice mBluetoothDevice : mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT)) {
+                if (mBluetoothDevice.getAddress().compareTo(mBluetoothDevice.getAddress()) == 0) {
                     mConnectionState = STATE_CONNECTED;
                 }
             }
@@ -319,23 +354,7 @@ public class BGMeterGattService extends Service{
             Log.i(TAG, "attemptConnection: Looks like we are already connected, going to read!");
             return;
         }
-        setRetryTimer();
-    }
-
-    public void setRetryTimer() {
-        long retry_in;
-        retry_in = (1000 * 65);
-        Log.d(TAG, "setRetryTimer: Restarting in: " + (retry_in / 1000) + " seconds");
-        Calendar calendar = Calendar.getInstance();
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        long wakeTime = calendar.getTimeInMillis() + retry_in;
-        PendingIntent serviceIntent = PendingIntent.getService(this, 0, new Intent(this, this.getClass()), 0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarm.setExact(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
-        } else
-            alarm.set(AlarmManager.RTC_WAKEUP, wakeTime, serviceIntent);
+        startTimer();
     }
 
     private String getStateStr(int mConnectionState) {
