@@ -34,7 +34,10 @@ import java.io.File;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+
+import static io.realm.Realm.getDefaultInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -56,7 +59,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     boolean isFABOpen=false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
-    public static final String REALM_FILE_NAME = "default.realm";
+    private RealmChangeListener realmListener;
     public Context getcontext() {
         return context;
     }
@@ -99,6 +102,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Realm.init(this);
         getLastBTDevice();
         getDatabaseSize();
+        mRealm = getDefaultInstance();
+        realmListener = new RealmChangeListener() {
+
+            @Override
+            public void onChange(Object element) {
+                getDatabaseSize();
+            }
+        };
+        mRealm.addChangeListener(realmListener);
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -169,6 +181,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mRealm.removeChangeListener(realmListener);
     }
 
     private void displayData(String data) {
@@ -196,7 +209,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getLastBTDevice() {
         try {
-            mRealm = Realm.getDefaultInstance();
+            mRealm = getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
             mDeviceName = results.last().getname();
@@ -224,7 +237,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             if (!BTDeviceAddress.equals(mDeviceAddress)) {
 
                 try {
-                    mRealm = Realm.getDefaultInstance();
+                    mRealm = getDefaultInstance();
                     RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                     results.last();
                     mRealm.beginTransaction();
@@ -235,7 +248,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
                 }
 
-                mRealm = Realm.getDefaultInstance();
+                mRealm = getDefaultInstance();
                 mRealm.beginTransaction();
                 ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
                 BTDevice.setname(mDeviceName);
@@ -261,7 +274,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.fab2:
-                mRealm = Realm.getDefaultInstance();
+                mRealm = getDefaultInstance();
                 RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                 String address = results.last().getaddress();
                 mRealm.close();
@@ -315,7 +328,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getDatabaseSize() {
 
-        mRealm = Realm.getDefaultInstance();
+        mRealm = getDefaultInstance();
         int itemSizeActiveBluetoothDevice = mRealm.where(ActiveBluetoothDevice.class).findAll().size();
         int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
         int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
