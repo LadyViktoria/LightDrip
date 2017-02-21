@@ -524,7 +524,6 @@ public class BGMeterGattService extends Service{
         txidMessage.put(1, (byte) 0x01);
         txidMessage.putInt(2, TransmitterID);
         writeCustomCharacteristic(txidMessage);
-        mBluetoothGatt.disconnect();
         return true;
     }
 
