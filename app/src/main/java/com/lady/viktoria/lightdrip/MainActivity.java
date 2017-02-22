@@ -1,5 +1,6 @@
 package com.lady.viktoria.lightdrip;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +11,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +28,7 @@ import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationRequest;
 import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
 import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
 
@@ -67,6 +71,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         context = this;
         Realm.init(this);
+        mRealm = getInstance(getRealmConfig());
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -102,15 +107,19 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getLastBTDevice();
         getDatabaseSize();
-        mRealm = getInstance(getRealmConfig());
-        realmListener = new RealmChangeListener() {
+        try {
+            realmListener = new RealmChangeListener() {
 
-            @Override
-            public void onChange(Object element) {
-                getDatabaseSize();
-            }
-        };
-        mRealm.addChangeListener(realmListener);
+                @Override
+                public void onChange(Object element) {
+                    getDatabaseSize();
+                }
+            };
+            mRealm.addChangeListener(realmListener);
+        } catch (Exception e) {
+            Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
+        }
+
     }
 
     public void onClick(View view) {
@@ -125,10 +134,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
-                mRealm = getDefaultInstance();
                 RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                 String address = results.last().getaddress();
-                mRealm.close();
                 final Snackbar snackBar = Snackbar.make(view, "get BT MAC From DB: " + address,
                         Snackbar.LENGTH_INDEFINITE);
                 snackBar.setAction("Dismiss", new View.OnClickListener() {
@@ -156,24 +163,20 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             if (!mDeviceAddressLast.equals(mDeviceAddress)) {
 
                 try {
-                    mRealm = getDefaultInstance();
                     RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                     results.last();
                     mRealm.beginTransaction();
                     results.deleteAllFromRealm();
                     mRealm.commitTransaction();
-                    mRealm.close();
                 } catch (Exception e) {
                     Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
                 }
 
-                mRealm = getDefaultInstance();
                 mRealm.beginTransaction();
                 ActiveBluetoothDevice BTDevice = mRealm.createObject(ActiveBluetoothDevice.class);
                 BTDevice.setname(mDeviceName);
                 BTDevice.setaddress(mDeviceAddress);
                 mRealm.commitTransaction();
-                mRealm.close();
             }
         } catch (Exception e) {
             Log.v(TAG, "Error try_set_realm_obj " + e.getMessage());
@@ -239,6 +242,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         mRealm.removeChangeListener(realmListener);
+        mRealm.close();
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -266,11 +270,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getLastBTDevice() {
         try {
-            mRealm = getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             mDeviceAddressLast = results.last().getaddress();
             mDeviceName = results.last().getname();
-            mRealm.close();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("last_connected_btdevice", mDeviceAddressLast);
@@ -325,40 +327,40 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     }
 
     private void getDatabaseSize() {
+        try {
+            int itemSizeActiveBluetoothDevice = mRealm.where(ActiveBluetoothDevice.class).findAll().size();
+            int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
+            int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
+            int itemSizeCalibrationRequest = mRealm.where(CalibrationRequest.class).findAll().size();
+            int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
+            int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
+            int itemSizeAll = itemSizeActiveBluetoothDevice + itemSizeBGData
+                    + itemSizeCalibrationData + itemSizeCalibrationRequest
+                    + itemSizeCalibrationRequest + itemSizeSensorData + itemSizeTransmitterData;
 
-        mRealm = getDefaultInstance();
-        int itemSizeActiveBluetoothDevice = mRealm.where(ActiveBluetoothDevice.class).findAll().size();
-        int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
-        int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
-        int itemSizeCalibrationRequest = mRealm.where(CalibrationRequest.class).findAll().size();
-        int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
-        int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
-        mRealm.close();
-        int itemSizeAll = itemSizeActiveBluetoothDevice + itemSizeBGData
-                + itemSizeCalibrationData + itemSizeCalibrationRequest
-                + itemSizeCalibrationRequest + itemSizeSensorData + itemSizeTransmitterData;
-
-        String FileSize = null;
-        File writableFolder = MainActivity.this.getFilesDir();
-        File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
-        if (realmFile.length() >= 0) {
-            FileSize = realmFile.length() + " bytes";
+            String FileSize = null;
+            File writableFolder = MainActivity.this.getFilesDir();
+            File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
+            if (realmFile.length() >= 0) {
+                FileSize = realmFile.length() + " bytes";
+            }
+            if (realmFile.length() / 1024 >= 1) {
+                FileSize = realmFile.length() / 1024 + " Kb";
+            }
+            if (realmFile.length() / 1024 / 1024 >= 1) {
+                FileSize = realmFile.length() / 1024 / 1024 + " Mb";
+            }
+            mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
+                    + String.format("\nItems in ActiveBluetoothDevice: %d",itemSizeActiveBluetoothDevice)
+                    + String.format("\nItems in BGData: %d",itemSizeBGData)
+                    + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
+                    + String.format("\nItems in CalibrationRequest: %d",itemSizeCalibrationRequest)
+                    + String.format("\nItems in SensorData: %d",itemSizeSensorData)
+                    + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
+                    + "\nDatabase Size: " + FileSize);
+            mDatabaseSize.invalidate();
+        } catch (Exception e) {
+        Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
         }
-        if (realmFile.length() / 1024 >= 1) {
-            FileSize = realmFile.length() / 1024 + " Kb";
-        }
-        if (realmFile.length() / 1024 / 1024 >= 1) {
-            FileSize = realmFile.length() / 1024 / 1024 + " Mb";
-        }
-
-        mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
-                + String.format("\nItems in ActiveBluetoothDevice: %d",itemSizeActiveBluetoothDevice)
-                + String.format("\nItems in BGData: %d",itemSizeBGData)
-                + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
-                + String.format("\nItems in CalibrationRequest: %d",itemSizeCalibrationRequest)
-                + String.format("\nItems in SensorData: %d",itemSizeSensorData)
-                + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
-                + "\nDatabase Size: " + FileSize);
-        mDatabaseSize.invalidate();
     }
 }

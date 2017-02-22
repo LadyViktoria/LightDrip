@@ -1,6 +1,10 @@
 package com.lady.viktoria.lightdrip;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,7 +13,9 @@ import java.util.UUID;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class TransmitterDataRx {
+import static io.realm.Realm.getInstance;
+
+public class TransmitterDataRx extends RealmBase {
     private final static String TAG = TransmitterDataRx.class.getSimpleName();
 
     private long timestamp;
@@ -18,8 +24,17 @@ public class TransmitterDataRx {
     private int sensor_battery_level;
     private String uuid;
     private Realm mRealm;
+    Context context;
+    public Context getcontext() {
+        return context;
+    }
 
-    private TransmitterDataRx() {}
+
+    private TransmitterDataRx() {
+        Realm.init(context);
+        Log.v(TAG, "Realm init");
+        mRealm = getInstance(getRealmConfig());
+    }
 
     public static synchronized TransmitterDataRx create(byte[] buffer, int len, Long timestamp) {
         if (buffer[0] < 6) {
@@ -38,26 +53,27 @@ public class TransmitterDataRx {
         if (mTransmitterDataRx.lastData("raw_data") == mTransmitterDataRx
                 .raw_data && Math.abs(mTransmitterDataRx.lastData("timestamp") - timestamp) < (120000)) {
             return null;
-        } else {
-            mTransmitterDataRx.writeTransmitterDataToRealm();
         }
+        mTransmitterDataRx.writeTransmitterDataToRealm();
         return mTransmitterDataRx;
     }
 
     private double lastData(String identifyer) {
-        mRealm = Realm.getDefaultInstance();
-        RealmResults<TransmitterData> results = mRealm.where(TransmitterData.class).findAll();
-        if (identifyer.equals("raw_data")) {
-            return results.last().getraw_data();
-        } else if (identifyer.equals("timestamp")) {
-            return (double) results.last().gettimestamp();
+        try {
+            RealmResults<TransmitterData> results = mRealm.where(TransmitterData.class).findAll();
+            if (identifyer.equals("raw_data")) {
+                return results.last().getraw_data();
+            } else if (identifyer.equals("timestamp")) {
+                return (double) results.last().gettimestamp();
+            }
+
+        } catch (Exception e) {
+            Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
         }
-        mRealm.close();
         return 0;
     }
 
     private void writeTransmitterDataToRealm() {
-        mRealm = Realm.getDefaultInstance();
         mRealm.beginTransaction();
         TransmitterData mTransmitterData = mRealm.createObject(TransmitterData.class);
         mTransmitterData.settimestamp(timestamp);
@@ -66,6 +82,5 @@ public class TransmitterDataRx {
         mTransmitterData.setsensor_battery_level(sensor_battery_level);
         mTransmitterData.setuuid(uuid);
         mRealm.commitTransaction();
-        mRealm.close();
     }
 }

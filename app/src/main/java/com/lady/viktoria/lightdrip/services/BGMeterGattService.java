@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 import com.lady.viktoria.lightdrip.TransmitterDataRx;
 
 import java.nio.ByteBuffer;
@@ -34,8 +35,10 @@ import io.realm.RealmResults;
 
 import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
+import static io.realm.Realm.getDefaultInstance;
+import static io.realm.Realm.getInstance;
 
-public class BGMeterGattService extends Service{
+public class BGMeterGattService extends RealmBaseService {
     private final static String TAG = BGMeterGattService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
@@ -48,6 +51,7 @@ public class BGMeterGattService extends Service{
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
     String BTDeviceAddress = "00:00:00:00:00:00";
+    Realm mRealm;
 
 
     public final static String ACTION_GATT_CONNECTED =
@@ -77,6 +81,7 @@ public class BGMeterGattService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Realm.init(this);
+        mRealm = getInstance(getRealmConfig());
         startTimer();
         attemptConnection();
         return START_STICKY;
@@ -89,6 +94,7 @@ public class BGMeterGattService extends Service{
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
         sendBroadcast(broadcastIntent);
         stoptimertask();
+        mRealm.close();
     }
 
     private Timer timer;
@@ -384,12 +390,9 @@ public class BGMeterGattService extends Service{
     }
 
     private String getBTDeviceMAC() {
-        Realm mRealm;
         try {
-            mRealm = Realm.getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
             BTDeviceAddress = results.last().getaddress();
-            mRealm.close();
         } catch (Exception e) {
             Log.v(TAG, "Error: try_get_realm_obj " + e.getMessage());
         }
