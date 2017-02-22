@@ -29,8 +29,11 @@ import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.io.File;
+import java.util.Calendar;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
@@ -40,7 +43,7 @@ import io.realm.RealmResults;
 import static io.realm.Realm.getInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -57,9 +60,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     LinearLayout fabLabel1, fabLabel2, fabLabel3;
     View fabBGLayout;
     boolean isFABOpen = false;
-    Intent mServiceRealmIntent, mServiceBGMeterGattIntent, mStartSensorActivityIntent;
-    StartSensorFragment mStartSensorActivity;
+    Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
+    Calendar SensorStart;
+
     public Context getcontext() {
         return context;
     }
@@ -112,6 +116,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getLastBTDevice();
         getDatabaseSize();
+        SensorStart = Calendar.getInstance();
         try {
             realmListener = new RealmChangeListener() {
 
@@ -152,11 +157,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
-                FragmentManager manager = getFragmentManager();
-                FragmentTransaction transaction = manager.beginTransaction();
-                transaction.replace(R.id.content_main,StartSensorFragment.class, R.id.unique_tag);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                        MainActivity.this,
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+                );
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -379,5 +388,33 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         } catch (Exception e) {
         Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
         }
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        String date = "You picked the following date: "+dayOfMonth+"/"+(++monthOfYear)+"/"+year;
+        Log.v(TAG, date);
+        Calendar now = Calendar.getInstance();
+        TimePickerDialog tpd = TimePickerDialog.newInstance(
+                MainActivity.this,
+                now.get(Calendar.HOUR_OF_DAY),
+                now.get(Calendar.MINUTE),
+                true
+        );
+        SensorStart.set(year, monthOfYear, year);
+        tpd.show(getFragmentManager(), "Timepickerdialog");
+    }
+
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
+        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
+        String minuteString = minute < 10 ? "0"+minute : ""+minute;
+        String secondString = second < 10 ? "0"+second : ""+second;
+        String time = "You picked the following time: "+hourString+"h"+minuteString+"m"+secondString+"s";
+        Log.v(TAG, time);
+        SensorStart.set(hourOfDay, minute, 0);
+        long startTime = SensorStart.getTime().getTime();
+        Log.v(TAG, String.valueOf(startTime));
+
     }
 }
