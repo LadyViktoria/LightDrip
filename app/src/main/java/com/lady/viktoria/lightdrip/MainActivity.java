@@ -119,11 +119,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 else {closeFABMenu();}
                 break;
             case R.id.fab1:
-            case R.id.fabLayout1:
+            case R.id.fabLabel1:
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.fab2:
-            case R.id.fabLayout2:
+            case R.id.fabLabel2:
                 mRealm = getDefaultInstance();
                 RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                 String address = results.last().getaddress();
