@@ -3,36 +3,33 @@ package com.lady.viktoria.lightdrip;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
-public class StartSensorActivity extends RealmBaseActivity implements DatePickerDialog.OnDateSetListener,
+public class StartSensorFragment extends RealmBaseFragment implements DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener {
 
-    public StartSensorActivity(Context applicationContext) {
-        super();
-    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        StartSensor();
-    }
-
-    public void StartSensor() {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         Calendar now = Calendar.getInstance();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
-                StartSensorActivity.this,
+                StartSensorFragment.this,
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
 
         );
         dpd.show(getFragmentManager(), "Datepickerdialog");
+        return view;
     }
 
     @Override
@@ -46,7 +43,7 @@ public class StartSensorActivity extends RealmBaseActivity implements DatePicker
         String date = "You picked the following date: "+dayOfMonth+"/"+(monthOfYear+1)+"/"+year;
         //dateTextView.setText(date);
         Calendar now = Calendar.getInstance();
-        TimePickerDialog timepickerdialog = TimePickerDialog.newInstance(StartSensorActivity.this,
+        TimePickerDialog timepickerdialog = TimePickerDialog.newInstance(StartSensorFragment.this,
                 now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true);
         timepickerdialog.show(getFragmentManager(), "Datepickerdialog");
 

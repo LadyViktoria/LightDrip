@@ -1,6 +1,9 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.ActivityManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +58,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     View fabBGLayout;
     boolean isFABOpen = false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent, mStartSensorActivityIntent;
-    StartSensorActivity mStartSensorActivity;
+    StartSensorFragment mStartSensorActivity;
     Context context;
     public Context getcontext() {
         return context;
@@ -149,9 +152,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
-                mStartSensorActivity = new StartSensorActivity(getcontext());
-                mStartSensorActivityIntent = new Intent(getcontext(), StartSensorActivity.class);
-                startActivity(mStartSensorActivityIntent);
+                Fragment fr = new StartSensorFragment();
+                FragmentManager fm = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.replace(R.id.content_main, fr);
+                fragmentTransaction.commit();
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -160,6 +165,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
         }
     }
+
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
