@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip.services;
 
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -27,7 +26,6 @@ public class RealmService extends RealmBaseService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startTimer();
-        // Initialize Realm
         Realm.init(this);
         return START_STICKY;
     }

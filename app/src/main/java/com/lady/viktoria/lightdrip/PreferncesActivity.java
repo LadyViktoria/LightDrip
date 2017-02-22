@@ -42,7 +42,7 @@ public class PreferncesActivity extends PreferenceActivity
         if (key.equals("transmitter_id")) {
             int txidlength = sharedPreferences.getString("transmitter_id","00000").length();
             if (txidlength != 5) {
-                this.mEditTextPreference = ((EditTextPreference) getPreferenceScreen() //put this in the onCreate
+                this.mEditTextPreference = ((EditTextPreference) getPreferenceScreen()
                         .findPreference("transmitter_id"));
                 this.mEditTextPreference.setText("00000");
                 Toast.makeText(this, "Should be 5 digits and not " + txidlength, Toast.LENGTH_LONG).show();
@@ -55,7 +55,6 @@ public class PreferncesActivity extends PreferenceActivity
             editor.putString("Transmitter_Id", txid);
             editor.apply();
             stopService(new Intent(this, BGMeterGattService.class));
-
         }
     }
 
@@ -63,4 +62,3 @@ public class PreferncesActivity extends PreferenceActivity
         return findPreference(key);
     }
 }
-

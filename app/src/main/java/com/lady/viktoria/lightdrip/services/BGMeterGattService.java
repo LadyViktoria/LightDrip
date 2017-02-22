@@ -1,7 +1,5 @@
 package com.lady.viktoria.lightdrip.services;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -27,9 +24,7 @@ import com.lady.viktoria.lightdrip.TransmitterDataRx;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -99,13 +94,8 @@ public class BGMeterGattService extends Service{
     private Timer timer;
     private TimerTask timerTask;
     public void startTimer() {
-        //set a new Timer
         timer = new Timer();
-
-        //initialize the TimerTask's job
         initializeTimerTask();
-
-        //schedule the timer, to wake up every 1 second
         timer.schedule(timerTask, 1000, 1000); //
     }
 
@@ -116,11 +106,7 @@ public class BGMeterGattService extends Service{
         };
     }
 
-    /**
-     * not needed
-     */
     public void stoptimertask() {
-        //stop the timer, if it's not already null
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -133,8 +119,6 @@ public class BGMeterGattService extends Service{
         return mBinder;
     }
 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -227,9 +211,6 @@ public class BGMeterGattService extends Service{
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
         close();
         return super.onUnbind(intent);
     }
@@ -350,7 +331,7 @@ public class BGMeterGattService extends Service{
                     return;
                 }
             }
-        } else if (mConnectionState == STATE_CONNECTED) { //WOOO, we are good to go, nothing to do here!
+        } else if (mConnectionState == STATE_CONNECTED) {
             Log.i(TAG, "attemptConnection: Looks like we are already connected, going to read!");
             return;
         }

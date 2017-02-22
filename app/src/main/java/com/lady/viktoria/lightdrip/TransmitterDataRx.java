@@ -16,8 +16,8 @@ public class TransmitterDataRx {
     private double raw_data;
     private double filtered_data;
     private int sensor_battery_level;
-    public String uuid;
-    Realm mRealm;
+    private String uuid;
+    private Realm mRealm;
 
     private TransmitterDataRx() {}
 
