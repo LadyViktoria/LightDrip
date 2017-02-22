@@ -1,15 +1,18 @@
-package com.lady.viktoria.lightdrip;
+package com.lady.viktoria.lightdrip.RealmConfig;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public abstract class RealmBaseActivity extends AppCompatActivity {
+public class RealmBaseService extends Service {
 
     private RealmConfiguration realmConfiguration;
 
-    protected RealmConfiguration getRealmConfig() {
+    private RealmConfiguration getRealmConfig() {
         if (realmConfiguration == null) {
             realmConfiguration = new RealmConfiguration
                     .Builder()
@@ -22,5 +25,11 @@ public abstract class RealmBaseActivity extends AppCompatActivity {
 
     protected void resetRealm() {
         Realm.deleteRealm(getRealmConfig());
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 }

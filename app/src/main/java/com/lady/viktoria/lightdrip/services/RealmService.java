@@ -6,7 +6,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.RealmBaseService;
+
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 
 import java.util.Timer;
 import java.util.TimerTask;
