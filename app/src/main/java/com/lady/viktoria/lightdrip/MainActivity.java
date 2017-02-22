@@ -35,6 +35,7 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 import static io.realm.Realm.getDefaultInstance;
+import static io.realm.Realm.getInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -87,7 +88,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mDataField = (TextView) findViewById(R.id.bgreading);
         mDatabaseSize = (TextView) findViewById(R.id.databasesize);
         fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
+        fabLayout1.setOnClickListener(this);
         fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
+        fabLayout2.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
@@ -98,7 +101,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getLastBTDevice();
         getDatabaseSize();
-        mRealm = getDefaultInstance();
+        mRealm = getInstance(getRealmConfig());
         realmListener = new RealmChangeListener() {
 
             @Override
@@ -112,16 +115,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
-                if(!isFABOpen){
-                    showFABMenu();
-                }else{
-                    closeFABMenu();
-                }
+                if(!isFABOpen) {showFABMenu();}
+                else {closeFABMenu();}
                 break;
             case R.id.fab1:
+            case R.id.fabLayout1:
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.fab2:
+            case R.id.fabLayout2:
                 mRealm = getDefaultInstance();
                 RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
                 String address = results.last().getaddress();
