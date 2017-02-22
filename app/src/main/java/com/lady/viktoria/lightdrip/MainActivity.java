@@ -152,11 +152,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
-                Fragment fr = new StartSensorFragment();
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, fr);
-                fragmentTransaction.commit();
+                FragmentManager manager = getFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                transaction.replace(R.id.content_main,StartSensorFragment.class, R.id.unique_tag);
+                transaction.addToBackStack(null);
+                transaction.commit();
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -165,6 +165,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
         }
     }
+
+
 
 
     @Override

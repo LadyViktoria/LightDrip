@@ -2,10 +2,14 @@ package com.lady.viktoria.lightdrip;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -17,36 +21,104 @@ public class StartSensorFragment extends RealmBaseFragment implements DatePicker
         TimePickerDialog.OnTimeSetListener {
 
 
+    private TextView dateTextView;
+    private CheckBox modeDarkDate;
+    private CheckBox modeCustomAccentDate;
+    private CheckBox vibrateDate;
+    private CheckBox dismissDate;
+    private CheckBox titleDate;
+    private CheckBox showYearFirst;
+    private CheckBox showVersion2;
+    private CheckBox limitSelectableDays;
+    private CheckBox highlightDays;
+
+
+    public StartSensorFragment() {
+        // Required empty public constructor
+    }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog dpd = DatePickerDialog.newInstance(
-                StartSensorFragment.this,
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
+        View view = inflater.inflate(R.layout.datepicker_layout, container, false);
 
-        );
-        dpd.show(getFragmentManager(), "Datepickerdialog");
+        // Find our View instances
+        dateTextView = (TextView) view.findViewById(R.id.date_textview);
+        Button dateButton = (Button) view.findViewById(R.id.date_button);
+        modeDarkDate = (CheckBox) view.findViewById(R.id.mode_dark_date);
+        modeCustomAccentDate = (CheckBox) view.findViewById(R.id.mode_custom_accent_date);
+        vibrateDate = (CheckBox) view.findViewById(R.id.vibrate_date);
+        dismissDate = (CheckBox) view.findViewById(R.id.dismiss_date);
+        titleDate = (CheckBox) view.findViewById(R.id.title_date);
+        showYearFirst = (CheckBox) view.findViewById(R.id.show_year_first);
+        showVersion2 = (CheckBox) view.findViewById(R.id.show_version_2);
+        limitSelectableDays = (CheckBox) view.findViewById(R.id.limit_dates);
+        highlightDays = (CheckBox) view.findViewById(R.id.highlight_dates);
+
+        // Show a datepicker when the dateButton is clicked
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                        StartSensorFragment.this,
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+                );
+                dpd.setThemeDark(modeDarkDate.isChecked());
+                dpd.vibrate(vibrateDate.isChecked());
+                dpd.dismissOnPause(dismissDate.isChecked());
+                dpd.showYearPickerFirst(showYearFirst.isChecked());
+                dpd.setVersion(showVersion2.isChecked() ? DatePickerDialog.Version.VERSION_2 : DatePickerDialog.Version.VERSION_1);
+                if (modeCustomAccentDate.isChecked()) {
+                    dpd.setAccentColor(Color.parseColor("#9C27B0"));
+                }
+                if (titleDate.isChecked()) {
+                    dpd.setTitle("DatePicker Title");
+                }
+                if (highlightDays.isChecked()) {
+                    Calendar date1 = Calendar.getInstance();
+                    Calendar date2 = Calendar.getInstance();
+                    date2.add(Calendar.WEEK_OF_MONTH, -1);
+                    Calendar date3 = Calendar.getInstance();
+                    date3.add(Calendar.WEEK_OF_MONTH, 1);
+                    Calendar[] days = {date1, date2, date3};
+                    dpd.setHighlightedDays(days);
+                }
+                if (limitSelectableDays.isChecked()) {
+                    Calendar[] days = new Calendar[13];
+                    for (int i = -6; i < 7; i++) {
+                        Calendar day = Calendar.getInstance();
+                        day.add(Calendar.DAY_OF_MONTH, i * 2);
+                        days[i + 6] = day;
+                    }
+                    dpd.setSelectableDays(days);
+                }
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+            }
+        });
+
         return view;
     }
 
     @Override
-    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        String time = "You picked the following time: "+hourOfDay+"h"+minute+"m"+second;
-
+    public void onResume() {
+        super.onResume();
+        DatePickerDialog dpd = (DatePickerDialog) getFragmentManager().findFragmentByTag("Datepickerdialog");
+        if(dpd != null) dpd.setOnDateSetListener(this);
     }
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String date = "You picked the following date: "+dayOfMonth+"/"+(monthOfYear+1)+"/"+year;
-        //dateTextView.setText(date);
-        Calendar now = Calendar.getInstance();
-        TimePickerDialog timepickerdialog = TimePickerDialog.newInstance(StartSensorFragment.this,
-                now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true);
-        timepickerdialog.show(getFragmentManager(), "Datepickerdialog");
+        String date = "You picked the following date: "+dayOfMonth+"/"+(++monthOfYear)+"/"+year;
+        dateTextView.setText(date);
+    }
 
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
 
     }
 }
