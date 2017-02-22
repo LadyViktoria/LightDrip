@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,8 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -24,11 +21,9 @@ import android.widget.TextView;
 import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.DatabaseModels.BGData;
 import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationData;
-import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationRequest;
 import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
 import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
 
@@ -39,11 +34,10 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
-import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -56,14 +50,18 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private Realm mRealm;
     private RealmService mRealmService;
     private RealmChangeListener realmListener;
-    FloatingActionButton fab, fab1, fab2;
-    LinearLayout fabLabel1, fabLabel2;
+    FloatingActionButton fab, fab1, fab2, fab3;
+    LinearLayout fabLabel1, fabLabel2, fabLabel3;
     View fabBGLayout;
     boolean isFABOpen = false;
-    Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
+    Intent mServiceRealmIntent, mServiceBGMeterGattIntent, mStartSensorActivityIntent;
+    StartSensorActivity mStartSensorActivity;
     Context context;
     public Context getcontext() {
         return context;
+    }
+    public MainActivity() {
+        // Required empty public constructor
     }
 
     @Override
@@ -97,12 +95,16 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLabel1.setOnClickListener(this);
         fabLabel2= (LinearLayout) findViewById(R.id.fabLabel2);
         fabLabel2.setOnClickListener(this);
+        fabLabel3= (LinearLayout) findViewById(R.id.fabLabel3);
+        fabLabel3.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
         fab1.setOnClickListener(this);
         fab2= (FloatingActionButton) findViewById(R.id.fab2);
         fab2.setOnClickListener(this);
+        fab3= (FloatingActionButton) findViewById(R.id.fab3);
+        fab3.setOnClickListener(this);
         fabBGLayout=findViewById(R.id.fabBGLayout);
         fabBGLayout.setOnClickListener(this);
         getLastBTDevice();
@@ -144,6 +146,12 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                         snackBar.dismiss();
                     }
                 }).show();
+                break;
+            case R.id.fab3:
+            case R.id.fabLabel3:
+                mStartSensorActivity = new StartSensorActivity(getcontext());
+                mStartSensorActivityIntent = new Intent(getcontext(), StartSensorActivity.class);
+                startActivity(mStartSensorActivityIntent);
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -290,11 +298,13 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         isFABOpen=true;
         fabLabel1.setVisibility(View.VISIBLE);
         fabLabel2.setVisibility(View.VISIBLE);
+        fabLabel3.setVisibility(View.VISIBLE);
         fabBGLayout.setVisibility(View.VISIBLE);
 
         fab.animate().rotationBy(180);
         fabLabel1.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
         fabLabel2.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
+        fabLabel3.animate().translationY(-getResources().getDimension(R.dimen.standard_145));
     }
 
     private void closeFABMenu(){
@@ -303,8 +313,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fab.animate().rotationBy(-180);
         fabLabel1.animate().translationY(0);
         fabLabel2.animate().translationY(0);
+        fabLabel3.animate().translationY(0);
         fabLabel1.setVisibility(View.GONE);
         fabLabel2.setVisibility(View.GONE);
+        fabLabel3.setVisibility(View.GONE);
     }
 
     @Override
@@ -331,12 +343,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             int itemSizeActiveBluetoothDevice = mRealm.where(ActiveBluetoothDevice.class).findAll().size();
             int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
             int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
-            int itemSizeCalibrationRequest = mRealm.where(CalibrationRequest.class).findAll().size();
             int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
             int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
             int itemSizeAll = itemSizeActiveBluetoothDevice + itemSizeBGData
-                    + itemSizeCalibrationData + itemSizeCalibrationRequest
-                    + itemSizeCalibrationRequest + itemSizeSensorData + itemSizeTransmitterData;
+                    + itemSizeCalibrationData + itemSizeSensorData + itemSizeTransmitterData;
 
             String FileSize = null;
             File writableFolder = MainActivity.this.getFilesDir();
@@ -354,7 +364,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     + String.format("\nItems in ActiveBluetoothDevice: %d",itemSizeActiveBluetoothDevice)
                     + String.format("\nItems in BGData: %d",itemSizeBGData)
                     + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
-                    + String.format("\nItems in CalibrationRequest: %d",itemSizeCalibrationRequest)
                     + String.format("\nItems in SensorData: %d",itemSizeSensorData)
                     + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
                     + "\nDatabase Size: " + FileSize);
