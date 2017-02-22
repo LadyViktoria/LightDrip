@@ -44,7 +44,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private String mDeviceAddress = "00:00:00:00:00:00";
     private String mDeviceName;
-    private String BTDeviceAddress = "00:00:00:00:00:00";
+    private String mDeviceAddressLast = "00:00:00:00:00:00";
     private BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState ,mDatabaseSize, bgmac, mDataField;
     private boolean mConnected = false;
@@ -152,7 +152,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
         try {
-            if (!BTDeviceAddress.equals(mDeviceAddress)) {
+            if (!mDeviceAddressLast.equals(mDeviceAddress)) {
 
                 try {
                     mRealm = getDefaultInstance();
@@ -267,15 +267,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         try {
             mRealm = getDefaultInstance();
             RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            BTDeviceAddress = results.last().getaddress();
+            mDeviceAddressLast = results.last().getaddress();
             mDeviceName = results.last().getname();
             mRealm.close();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("last_connected_btdevice", BTDeviceAddress);
+            editor.putString("last_connected_btdevice", mDeviceAddressLast);
             editor.apply();
-            if (!BTDeviceAddress.equals(null)) {
-                mDeviceAddress = BTDeviceAddress;
+            if (!mDeviceAddressLast.equals(null)) {
+                mDeviceAddress = mDeviceAddressLast;
                 bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
             }
         } catch (Exception e) {
