@@ -52,7 +52,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private RealmService mRealmService;
     private RealmChangeListener realmListener;
     FloatingActionButton fab, fab1, fab2;
-    LinearLayout fabLayout1, fabLayout2;
+    LinearLayout fabLabel1, fabLabel2;
     View fabBGLayout;
     boolean isFABOpen = false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
@@ -87,10 +87,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.bgreading);
         mDatabaseSize = (TextView) findViewById(R.id.databasesize);
-        fabLayout1= (LinearLayout) findViewById(R.id.fabLayout1);
-        fabLayout1.setOnClickListener(this);
-        fabLayout2= (LinearLayout) findViewById(R.id.fabLayout2);
-        fabLayout2.setOnClickListener(this);
+        fabLabel1= (LinearLayout) findViewById(R.id.fabLayout1);
+        fabLabel1.setOnClickListener(this);
+        fabLabel2= (LinearLayout) findViewById(R.id.fabLayout2);
+        fabLabel2.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
@@ -285,23 +285,23 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void showFABMenu(){
         isFABOpen=true;
-        fabLayout1.setVisibility(View.VISIBLE);
-        fabLayout2.setVisibility(View.VISIBLE);
+        fabLabel1.setVisibility(View.VISIBLE);
+        fabLabel2.setVisibility(View.VISIBLE);
         fabBGLayout.setVisibility(View.VISIBLE);
 
         fab.animate().rotationBy(180);
-        fabLayout1.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
-        fabLayout2.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
+        fabLabel1.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
+        fabLabel2.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
     }
 
     private void closeFABMenu(){
         isFABOpen=false;
         fabBGLayout.setVisibility(View.GONE);
         fab.animate().rotationBy(-180);
-        fabLayout1.animate().translationY(0);
-        fabLayout2.animate().translationY(0);
-        fabLayout1.setVisibility(View.GONE);
-        fabLayout2.setVisibility(View.GONE);
+        fabLabel1.animate().translationY(0);
+        fabLabel2.animate().translationY(0);
+        fabLabel1.setVisibility(View.GONE);
+        fabLabel2.setVisibility(View.GONE);
     }
 
     @Override
