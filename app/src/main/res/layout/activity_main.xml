@@ -30,7 +30,7 @@
         android:background="@color/colorTransBg"
         android:visibility="gone"/>
     <LinearLayout
-        android:id="@+id/fabLayout1"
+        android:id="@+id/fabLabel1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/standard_23"
@@ -56,7 +56,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/fabLayout2"
+        android:id="@+id/fabLabel2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/standard_12"

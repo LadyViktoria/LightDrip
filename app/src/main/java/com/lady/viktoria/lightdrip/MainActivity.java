@@ -87,9 +87,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.bgreading);
         mDatabaseSize = (TextView) findViewById(R.id.databasesize);
-        fabLabel1= (LinearLayout) findViewById(R.id.fabLayout1);
+        fabLabel1= (LinearLayout) findViewById(R.id.fabLabel1);
         fabLabel1.setOnClickListener(this);
-        fabLabel2= (LinearLayout) findViewById(R.id.fabLayout2);
+        fabLabel2= (LinearLayout) findViewById(R.id.fabLabel2);
         fabLabel2.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
