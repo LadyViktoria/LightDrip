@@ -23,14 +23,6 @@ public class SensorData extends RealmObject {
         this.stopped_at = stopped_at;
     }
 
-    private int latest_battery_level;
-    public int getlatest_battery_level() {
-        return latest_battery_level;
-    }
-    public void setlatest_battery_level(final int latest_battery_level) {
-        this.latest_battery_level = latest_battery_level;
-    }
-
     @PrimaryKey
     @Index
     private String uuid;
@@ -39,14 +31,6 @@ public class SensorData extends RealmObject {
     }
     public void setuuid(final String uuid) {
         this.uuid = uuid;
-    }
-
-    private String sensor_location;
-    public String getsensor_location() {
-        return sensor_location;
-    }
-    public void setsensor_location(final String sensor_location) {
-        this.sensor_location = sensor_location;
     }
 
 }
