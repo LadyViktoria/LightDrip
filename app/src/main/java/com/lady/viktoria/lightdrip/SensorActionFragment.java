@@ -56,11 +56,10 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
             public void onClick(DialogInterface dialog, int which) {
                 if (!isSensorActive()) {
                     StartSensor();
-                    dialog.dismiss();
                 } else {
                     Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
-                    dialog.dismiss();
                 }
+                dialog.dismiss();
             }
         });
 
