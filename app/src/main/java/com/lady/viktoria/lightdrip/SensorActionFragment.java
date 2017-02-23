@@ -49,13 +49,14 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
 
     protected void SensorDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Please choice if you want to stop current Sensor or start a new Sensor");
+        builder.setMessage("Please choose if you want to stop current Sensor or start a new Sensor");
         builder.setTitle("Sensor Actions");
         builder.setPositiveButton("Start Sensor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (!isSensorActive()) {
                     StartSensor();
+                    dialog.dismiss();
                 } else {
                     Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
                 }
@@ -108,9 +109,6 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
             String lastUUID = results.last().getuuid();
             SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
-            mRealm.beginTransaction();
-            mRealm.commitTransaction();
-            mRealm.close();
             if (mSensorData.getstopped_at() == 0L) {
                 return true;
             }
@@ -152,6 +150,5 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         } catch (Exception e) {
             Log.v(TAG, "onTimeSet try_set_realm_obj " + e.getMessage());
         }
-        getActivity().getFragmentManager().popBackStack();
     }
 }
