@@ -5,7 +5,7 @@ import android.app.Fragment;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public class RealmBaseFragment extends Fragment {
+public abstract class RealmBaseFragment extends Fragment {
 
     private RealmConfiguration realmConfiguration;
 

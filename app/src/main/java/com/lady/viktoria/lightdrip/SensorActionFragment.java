@@ -86,14 +86,18 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
     }
 
     private void StopSensor() {
-        long stopped_at = new Date().getTime();
-        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
-        String lastUUID = results.last().getuuid();
-        SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
-        mRealm.beginTransaction();
-        mSensorData.setstopped_at(stopped_at);
-        mRealm.commitTransaction();
-        mRealm.close();
+        try {
+            long stopped_at = new Date().getTime();
+            RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+            String lastUUID = results.last().getuuid();
+            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+            mRealm.beginTransaction();
+            mSensorData.setstopped_at(stopped_at);
+            mRealm.commitTransaction();
+            mRealm.close();
+        } catch (Exception e) {
+            Log.v(TAG, "stopSensor try_set_realm_obj " + e.getMessage());
+        }
     }
 
     private void CurrentSensor() {
@@ -101,14 +105,19 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
     }
 
     private boolean isSensorActive() {
-        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
-        String lastUUID = results.last().getuuid();
-        SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
-        mRealm.beginTransaction();
-        mRealm.commitTransaction();
-        mRealm.close();
-        if (mSensorData.getstopped_at() == 0L) {
-            return true;
+        try {
+            RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+            String lastUUID = results.last().getuuid();
+            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+            mRealm.beginTransaction();
+            mRealm.commitTransaction();
+            mRealm.close();
+            if (mSensorData.getstopped_at() == 0L) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            Log.v(TAG, "isSensorActive try_get_realm_obj " + e.getMessage());
         }
         return false;
     }
@@ -135,11 +144,15 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
         String uuid = UUID.randomUUID().toString();
-        mRealm.beginTransaction();
-        SensorData mSensorData = mRealm.createObject(SensorData.class, uuid);
-        mSensorData.setstarted_at(startTime);
-        mRealm.commitTransaction();
-        mRealm.close();
+        try {
+            mRealm.beginTransaction();
+            SensorData mSensorData = mRealm.createObject(SensorData.class, uuid);
+            mSensorData.setstarted_at(startTime);
+            mRealm.commitTransaction();
+            mRealm.close();
+        } catch (Exception e) {
+            Log.v(TAG, "onTimeSet try_set_realm_obj " + e.getMessage());
+        }
         getActivity().getFragmentManager().popBackStack();
     }
 }
