@@ -14,14 +14,15 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
-public class StartActionFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class SensorActionFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
-    private final static String TAG = StartActionFragment.class.getSimpleName();
+    private final static String TAG = SensorActionFragment.class.getSimpleName();
 
-    public StartActionFragment() {
+    public SensorActionFragment() {
     }
 
     Calendar SensorStart;
+    int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,7 +59,7 @@ public class StartActionFragment extends Fragment implements DatePickerDialog.On
     private void StartSensor() {
         Calendar now = Calendar.getInstance();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
-                StartActionFragment.this,
+                SensorActionFragment.this,
                 now.get(Calendar.YEAR),
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
@@ -72,27 +73,24 @@ public class StartActionFragment extends Fragment implements DatePickerDialog.On
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String date = "You picked the following date: "+dayOfMonth+"/"+(++monthOfYear)+"/"+year;
-        Log.v(TAG, date);
+        mYear = year;
+        mMonthOfYear = monthOfYear;
+        mDayOfMonth = dayOfMonth;
         Calendar now = Calendar.getInstance();
         TimePickerDialog tpd = TimePickerDialog.newInstance(
-                StartActionFragment.this,
+                SensorActionFragment.this,
                 now.get(Calendar.HOUR_OF_DAY),
                 now.get(Calendar.MINUTE),
                 true
         );
-        SensorStart.set(year, monthOfYear, year);
         tpd.show(getFragmentManager(), "Timepickerdialog");
     }
 
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
-        String minuteString = minute < 10 ? "0"+minute : ""+minute;
-        String secondString = second < 10 ? "0"+second : ""+second;
-        String time = "You picked the following time: "+hourString+"h"+minuteString+"m"+secondString+"s";
-        Log.v(TAG, time);
-        SensorStart.set(hourOfDay, minute, 0);
+        mHourOfDay = Integer.parseInt(hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay);
+        mMinute = Integer.parseInt(minute < 10 ? "0"+minute : ""+minute);
+        SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
         Log.v(TAG, String.valueOf(startTime));
         getActivity().getFragmentManager().popBackStack();

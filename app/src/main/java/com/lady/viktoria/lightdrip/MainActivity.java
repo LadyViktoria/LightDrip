@@ -150,7 +150,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             case R.id.fabLabel3:
                 android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.addToBackStack(null);
-                ft.replace(R.id.fragment, new StartActionFragment());
+                ft.replace(R.id.fragment, new SensorActionFragment());
                 ft.commit();
                 break;
             case R.id.fabBGLayout:
