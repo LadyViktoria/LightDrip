@@ -9,8 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
+import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -19,6 +24,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import io.realm.Realm;
+import io.realm.RealmObject;
 import io.realm.RealmResults;
 
 import static io.realm.Realm.getInstance;
@@ -33,6 +39,7 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
     Calendar SensorStart;
     int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
     private Realm mRealm;
+    private Gson gson;
 
 
     @Override
@@ -44,6 +51,12 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         Realm.init(getActivity());
         mRealm = getInstance(getRealmConfig());
         SensorDialog();
+        try {
+            serializeToJson();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        currentSensor();
         return view;
     }
 
@@ -58,7 +71,7 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
                     StartSensor();
                     dialog.dismiss();
                 } else {
-                    Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getView(), "Please stop current Sensor first!", Snackbar.LENGTH_LONG).show();
                 }
                 dialog.dismiss();
             }
@@ -100,8 +113,23 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         }
     }
 
-    private void CurrentSensor() {
-
+    private void currentSensor() {
+        if (isSensorActive()) {
+            try {
+                RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+                String lastUUID = results.last().getuuid();
+                SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+                //get realm object
+                Log.v(TAG, "currentSensor realm object" + String.valueOf(mSensorData));
+                // transform into json
+                String Json = gson.toJson(mRealm.copyFromRealm(mSensorData));
+                Log.v(TAG, "currentSensor json: "  + Json);
+            } catch (Exception e) {
+                Log.v(TAG, "currentSensor try_get_realm_obj " + e.getMessage());
+            }
+        } else {
+            //Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private boolean isSensorActive() {
@@ -117,6 +145,23 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
             Log.v(TAG, "isSensorActive try_get_realm_obj " + e.getMessage());
         }
         return false;
+    }
+
+    private void serializeToJson() throws ClassNotFoundException {
+        gson = new GsonBuilder()
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        return f.getDeclaringClass().equals(RealmObject.class);
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                })
+                .registerTypeAdapter(Class.forName("com.lady.viktoria.lightdrip.DatabaseModels.SensorData"), new SensorDataSerializer())
+                .create();
     }
 
     @Override
