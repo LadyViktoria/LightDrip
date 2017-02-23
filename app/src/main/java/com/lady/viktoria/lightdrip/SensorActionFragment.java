@@ -2,7 +2,9 @@ package com.lady.viktoria.lightdrip;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,8 +54,13 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         builder.setPositiveButton("Start Sensor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                StartSensor();
-                dialog.dismiss();
+                if (!isSensorActive()) {
+                    StartSensor();
+                    dialog.dismiss();
+                } else {
+                    Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
+                    dialog.dismiss();
+                }
             }
         });
 
@@ -68,14 +75,14 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
     }
 
     private void StartSensor() {
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog dpd = DatePickerDialog.newInstance(
-                SensorActionFragment.this,
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
-        );
-        dpd.show(getFragmentManager(), "Datepickerdialog");
+            Calendar now = Calendar.getInstance();
+            DatePickerDialog dpd = DatePickerDialog.newInstance(
+                    SensorActionFragment.this,
+                    now.get(Calendar.YEAR),
+                    now.get(Calendar.MONTH),
+                    now.get(Calendar.DAY_OF_MONTH)
+            );
+            dpd.show(getFragmentManager(), "Datepickerdialog");
     }
 
     private void StopSensor() {
@@ -91,6 +98,19 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
 
     private void CurrentSensor() {
 
+    }
+
+    private boolean isSensorActive() {
+        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+        String lastUUID = results.last().getuuid();
+        SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+        mRealm.beginTransaction();
+        mRealm.commitTransaction();
+        mRealm.close();
+        if (mSensorData.getstopped_at() == 0L) {
+            return true;
+        }
+        return false;
     }
 
     @Override
