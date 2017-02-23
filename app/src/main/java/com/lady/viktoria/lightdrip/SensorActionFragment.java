@@ -1,20 +1,27 @@
 package com.lady.viktoria.lightdrip;
 
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 
-public class SensorActionFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+import io.realm.Realm;
+import io.realm.RealmResults;
+
+import static io.realm.Realm.getInstance;
+
+public class SensorActionFragment extends RealmBaseFragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private final static String TAG = SensorActionFragment.class.getSimpleName();
 
@@ -23,6 +30,8 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
     Calendar SensorStart;
     int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
+    private Realm mRealm;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,6 +39,8 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
         View view = inflater.inflate(R.layout.fragment_sensoraction, container, false);
         SensorStart = Calendar.getInstance();
+        Realm.init(getActivity());
+        mRealm = getInstance(getRealmConfig());
         SensorDialog();
         return view;
     }
@@ -68,6 +79,17 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     }
 
     private void StopSensor() {
+        long stopped_at = new Date().getTime();
+        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+        String lastUUID = results.last().getuuid();
+        SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+        mRealm.beginTransaction();
+        mSensorData.setstopped_at(stopped_at);
+        mRealm.commitTransaction();
+        mRealm.close();
+    }
+
+    private void CurrentSensor() {
 
     }
 
@@ -92,7 +114,12 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         mMinute = Integer.parseInt(minute < 10 ? "0"+minute : ""+minute);
         SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
-        Log.v(TAG, String.valueOf(startTime));
+        String uuid = UUID.randomUUID().toString();
+        mRealm.beginTransaction();
+        SensorData mSensorData = mRealm.createObject(SensorData.class, uuid);
+        mSensorData.setstarted_at(startTime);
+        mRealm.commitTransaction();
+        mRealm.close();
         getActivity().getFragmentManager().popBackStack();
     }
 }

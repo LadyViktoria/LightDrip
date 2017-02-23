@@ -1,6 +1,8 @@
 package com.lady.viktoria.lightdrip.DatabaseModels;
 
 import io.realm.RealmObject;
+import io.realm.annotations.Index;
+import io.realm.annotations.PrimaryKey;
 
 
 public class SensorData extends RealmObject {
@@ -29,6 +31,8 @@ public class SensorData extends RealmObject {
         this.latest_battery_level = latest_battery_level;
     }
 
+    @PrimaryKey
+    @Index
     private String uuid;
     public String getuuid() {
         return uuid;

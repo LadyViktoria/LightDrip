@@ -32,7 +32,6 @@ public class TransmitterDataRx extends RealmBase {
 
     private TransmitterDataRx() {
         Realm.init(context);
-        Log.v(TAG, "Realm init");
         mRealm = getInstance(getRealmConfig());
     }
 
