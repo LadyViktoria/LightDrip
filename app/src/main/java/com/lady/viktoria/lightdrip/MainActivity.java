@@ -1,9 +1,6 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.ActivityManager;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,11 +26,8 @@ import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
-import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.io.File;
-import java.util.Calendar;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
@@ -43,7 +37,7 @@ import io.realm.RealmResults;
 import static io.realm.Realm.getInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -62,13 +56,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     boolean isFABOpen = false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
-    Calendar SensorStart;
 
     public Context getcontext() {
         return context;
     }
     public MainActivity() {
-        // Required empty public constructor
     }
 
     @Override
@@ -116,7 +108,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getLastBTDevice();
         getDatabaseSize();
-        SensorStart = Calendar.getInstance();
         try {
             realmListener = new RealmChangeListener() {
 
@@ -157,15 +148,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
-                Calendar now = Calendar.getInstance();
-                DatePickerDialog dpd = DatePickerDialog.newInstance(
-                        MainActivity.this,
-                        now.get(Calendar.YEAR),
-                        now.get(Calendar.MONTH),
-                        now.get(Calendar.DAY_OF_MONTH)
-                );
-                dpd.show(getFragmentManager(), "Datepickerdialog");
-
+                android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.addToBackStack(null);
+                ft.replace(R.id.fragment, new StartActionFragment());
+                ft.commit();
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -174,9 +160,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
         }
     }
-
-
-
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
@@ -229,24 +212,17 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_preferences) {
             startActivity(new Intent(this, PreferncesActivity.class));
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -388,33 +364,5 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         } catch (Exception e) {
         Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
         }
-    }
-
-    @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        String date = "You picked the following date: "+dayOfMonth+"/"+(++monthOfYear)+"/"+year;
-        Log.v(TAG, date);
-        Calendar now = Calendar.getInstance();
-        TimePickerDialog tpd = TimePickerDialog.newInstance(
-                MainActivity.this,
-                now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
-                true
-        );
-        SensorStart.set(year, monthOfYear, year);
-        tpd.show(getFragmentManager(), "Timepickerdialog");
-    }
-
-    @Override
-    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        String hourString = hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay;
-        String minuteString = minute < 10 ? "0"+minute : ""+minute;
-        String secondString = second < 10 ? "0"+second : ""+second;
-        String time = "You picked the following time: "+hourString+"h"+minuteString+"m"+secondString+"s";
-        Log.v(TAG, time);
-        SensorStart.set(hourOfDay, minute, 0);
-        long startTime = SensorStart.getTime().getTime();
-        Log.v(TAG, String.valueOf(startTime));
-
     }
 }

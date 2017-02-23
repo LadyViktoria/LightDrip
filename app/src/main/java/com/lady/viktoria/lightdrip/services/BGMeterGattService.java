@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip.services;
 
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -35,7 +34,6 @@ import io.realm.RealmResults;
 
 import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
-import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
 public class BGMeterGattService extends RealmBaseService {
