@@ -13,9 +13,9 @@ public class SensorDataSerializer implements JsonSerializer<SensorData> {
     @Override
     public JsonElement serialize(SensorData src, Type typeOfSrc, JsonSerializationContext context) {
         final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", src.getid());
         jsonObject.addProperty("started_at", src.getstarted_at());
         jsonObject.addProperty("stopped_at", src.getstopped_at());
-        jsonObject.addProperty("id", src.getid());
         return jsonObject;
     }
 }
