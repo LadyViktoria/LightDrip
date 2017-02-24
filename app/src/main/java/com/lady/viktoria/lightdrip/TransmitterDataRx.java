@@ -3,6 +3,7 @@ package com.lady.viktoria.lightdrip;
 import android.content.Context;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 
@@ -33,6 +34,11 @@ public class TransmitterDataRx extends RealmBase {
     private TransmitterDataRx() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        try {
+            PrimaryKeyFactory.getInstance().initialize(mRealm);
+        } catch (Exception e) {
+            Log.v(TAG, "onCreateView PrimaryKeyFactory " + e.getMessage());
+        }
     }
 
     public static synchronized TransmitterDataRx create(byte[] buffer, int len, Long timestamp) {
@@ -73,13 +79,13 @@ public class TransmitterDataRx extends RealmBase {
     }
 
     private void writeTransmitterDataToRealm() {
+        long newprimekey = PrimaryKeyFactory.getInstance().nextKey(TransmitterData.class);
         mRealm.beginTransaction();
-        TransmitterData mTransmitterData = mRealm.createObject(TransmitterData.class);
+        TransmitterData mTransmitterData = mRealm.createObject(TransmitterData.class, newprimekey);
         mTransmitterData.settimestamp(timestamp);
         mTransmitterData.setraw_data(raw_data);
         mTransmitterData.setfiltered_data(filtered_data);
         mTransmitterData.setsensor_battery_level(sensor_battery_level);
-        mTransmitterData.setuuid(uuid);
         mRealm.commitTransaction();
     }
 }

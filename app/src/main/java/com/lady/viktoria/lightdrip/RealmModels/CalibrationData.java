@@ -5,6 +5,14 @@ import io.realm.RealmObject;
 
 public class CalibrationData extends RealmObject {
 
+    private long id;
+    public long getid() {
+        return id;
+    }
+    public void setid(final long id) {
+        this.id = id;
+    }
+
     private long timestamp;
     public long gettimestamp() {
         return timestamp;
@@ -109,14 +117,6 @@ public class CalibrationData extends RealmObject {
     }
     public void setestimate_bg_at_time_of_calibration(final double estimate_bg_at_time_of_calibration) {
         this.estimate_bg_at_time_of_calibration = estimate_bg_at_time_of_calibration;
-    }
-
-    private String uuid;
-    public String getuuid() {
-        return uuid;
-    }
-    public void setuuid(final String uuid) {
-        this.uuid = uuid;
     }
 
     private String sensor_uuid;

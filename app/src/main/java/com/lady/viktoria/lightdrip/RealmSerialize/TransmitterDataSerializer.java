@@ -13,11 +13,11 @@ public class TransmitterDataSerializer implements JsonSerializer<TransmitterData
     @Override
     public JsonElement serialize(TransmitterData src, Type typeOfSrc, JsonSerializationContext context) {
         final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", src.getid());
         jsonObject.addProperty("timestamp", src.gettimestamp());
         jsonObject.addProperty("raw_data", src.getraw_data());
         jsonObject.addProperty("filtered_data", src.getfiltered_data());
         jsonObject.addProperty("sensor_battery_level", src.getsensor_battery_level());
-        jsonObject.addProperty("uuid", src.getuuid());
         return jsonObject;
     }
 }

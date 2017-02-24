@@ -8,7 +8,6 @@ import io.realm.annotations.PrimaryKey;
 public class SensorData extends RealmObject {
 
     @PrimaryKey
-    @Index
     private long id;
     public long getid() {
         return id;

@@ -1,8 +1,18 @@
 package com.lady.viktoria.lightdrip.RealmModels;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class TransmitterData extends RealmObject {
+
+    @PrimaryKey
+    private long id;
+    public long getid() {
+        return id;
+    }
+    public void setid(final long id) {
+        this.id = id;
+    }
 
     private long timestamp;
     public long gettimestamp() {
@@ -34,14 +44,6 @@ public class TransmitterData extends RealmObject {
     }
     public void setsensor_battery_level(final int sensor_battery_level) {
         this.sensor_battery_level = sensor_battery_level;
-    }
-
-    private String uuid;
-    public String getuuid() {
-        return uuid;
-    }
-    public void setuuid(final String uuid) {
-        this.uuid = uuid;
     }
 
 }
