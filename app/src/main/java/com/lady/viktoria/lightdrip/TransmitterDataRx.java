@@ -37,7 +37,7 @@ public class TransmitterDataRx extends RealmBase {
         try {
             PrimaryKeyFactory.getInstance().initialize(mRealm);
         } catch (Exception e) {
-            Log.v(TAG, "onCreateView PrimaryKeyFactory " + e.getMessage());
+            Log.v(TAG, "TransmitterDataRx() PrimaryKeyFactory " + e.getMessage());
         }
     }
 
