@@ -18,11 +18,11 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
-import com.lady.viktoria.lightdrip.DatabaseModels.BGData;
-import com.lady.viktoria.lightdrip.DatabaseModels.CalibrationData;
-import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
-import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
+import com.lady.viktoria.lightdrip.RealmModels.ActiveBluetoothDevice;
+import com.lady.viktoria.lightdrip.RealmModels.BGData;
+import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
+import com.lady.viktoria.lightdrip.RealmModels.SensorData;
+import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;

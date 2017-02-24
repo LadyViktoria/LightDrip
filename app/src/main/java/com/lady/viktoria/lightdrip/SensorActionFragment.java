@@ -13,7 +13,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
+import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
 import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;

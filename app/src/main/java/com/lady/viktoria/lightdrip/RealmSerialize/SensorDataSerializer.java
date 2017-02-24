@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.lady.viktoria.lightdrip.DatabaseModels.SensorData;
+import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 
 import java.lang.reflect.Type;
 

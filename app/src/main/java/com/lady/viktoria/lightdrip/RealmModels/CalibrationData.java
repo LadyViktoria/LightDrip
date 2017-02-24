@@ -1,5 +1,4 @@
-package com.lady.viktoria.lightdrip.DatabaseModels;
-
+package com.lady.viktoria.lightdrip.RealmModels;
 
 import io.realm.RealmObject;
 

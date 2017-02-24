@@ -18,7 +18,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.DatabaseModels.ActiveBluetoothDevice;
+import com.lady.viktoria.lightdrip.RealmModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 import com.lady.viktoria.lightdrip.TransmitterDataRx;
 

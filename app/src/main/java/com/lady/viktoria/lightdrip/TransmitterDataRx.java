@@ -3,7 +3,7 @@ package com.lady.viktoria.lightdrip;
 import android.content.Context;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.DatabaseModels.TransmitterData;
+import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 
 import java.nio.ByteBuffer;
