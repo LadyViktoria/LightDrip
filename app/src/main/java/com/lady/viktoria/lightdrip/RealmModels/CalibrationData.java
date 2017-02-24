@@ -24,7 +24,7 @@ public class CalibrationData extends RealmObject {
     //public Sensor sensor;
 
     private double bg;
-    public double gettbg() {
+    public double getbg() {
         return bg;
     }
     public void setbg(final double bg) {

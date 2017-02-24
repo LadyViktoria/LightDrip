@@ -5,10 +5,10 @@ import io.realm.RealmObject;
 public class BGData extends RealmObject {
 
     private double a;
-    public double geta() {
+    public double getA() {
         return a;
     }
-    public void seta(final double a) {
+    public void setA(final double a) {
         this.a = a;
     }
 
