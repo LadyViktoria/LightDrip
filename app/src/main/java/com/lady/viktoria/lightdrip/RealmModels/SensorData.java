@@ -7,6 +7,9 @@ import io.realm.annotations.PrimaryKey;
 
 public class SensorData extends RealmObject {
 
+
+
+
     private long started_at;
     public long getstarted_at() {
         return started_at;
@@ -25,12 +28,12 @@ public class SensorData extends RealmObject {
 
     @PrimaryKey
     @Index
-    private String uuid;
-    public String getuuid() {
-        return uuid;
+    private long id;
+    public long getid() {
+        return id;
     }
-    public void setuuid(final String uuid) {
-        this.uuid = uuid;
+    public void setid(final long id) {
+        this.id = id;
     }
 
 }

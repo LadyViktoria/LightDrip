@@ -13,6 +13,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
 import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
@@ -50,6 +51,11 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         SensorStart = Calendar.getInstance();
         Realm.init(getActivity());
         mRealm = getInstance(getRealmConfig());
+        try {
+            PrimaryKeyFactory.getInstance().initialize(mRealm);
+        } catch (Exception e) {
+            Log.v(TAG, "onCreateView PrimaryKeyFactory " + e.getMessage());
+        }
         SensorDialog();
         try {
             serializeToJson();
@@ -102,8 +108,8 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         try {
             long stopped_at = new Date().getTime();
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
-            String lastUUID = results.last().getuuid();
-            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+            long lastID = results.last().getid();
+            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
             mRealm.beginTransaction();
             mSensorData.setstopped_at(stopped_at);
             mRealm.commitTransaction();
@@ -117,8 +123,8 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         if (isSensorActive()) {
             try {
                 RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
-                String lastUUID = results.last().getuuid();
-                SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+                long lastID = results.last().getid();
+                SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
                 //get realm object
                 Log.v(TAG, "currentSensor realm object" + String.valueOf(mSensorData));
                 // transform into json
@@ -135,8 +141,8 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
     private boolean isSensorActive() {
         try {
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
-            String lastUUID = results.last().getuuid();
-            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("uuid", lastUUID).findFirst();
+            long lastID = results.last().getid();
+            SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
             if (mSensorData.getstopped_at() == 0L) {
                 return true;
             }
@@ -160,7 +166,7 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
                         return false;
                     }
                 })
-                .registerTypeAdapter(Class.forName("com.lady.viktoria.lightdrip.DatabaseModels.SensorData"), new SensorDataSerializer())
+                .registerTypeAdapter(Class.forName("com.lady.viktoria.lightdrip.RealmModels.SensorData"), new SensorDataSerializer())
                 .create();
     }
 
@@ -185,10 +191,10 @@ public class SensorActionFragment extends RealmBaseFragment implements DatePicke
         mMinute = Integer.parseInt(minute < 10 ? "0"+minute : ""+minute);
         SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
-        String uuid = UUID.randomUUID().toString();
+        long newprimekey = PrimaryKeyFactory.getInstance().nextKey(SensorData.class);
         try {
             mRealm.beginTransaction();
-            SensorData mSensorData = mRealm.createObject(SensorData.class, uuid);
+            SensorData mSensorData = mRealm.createObject(SensorData.class, newprimekey);
             mSensorData.setstarted_at(startTime);
             mRealm.commitTransaction();
             mRealm.close();
