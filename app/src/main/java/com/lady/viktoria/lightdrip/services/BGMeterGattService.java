@@ -18,7 +18,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.RealmModels.ActiveBluetoothDevice;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 import com.lady.viktoria.lightdrip.TransmitterDataRx;
 
@@ -388,12 +387,8 @@ public class BGMeterGattService extends RealmBaseService {
     }
 
     private String getBTDeviceMAC() {
-        try {
-            RealmResults<ActiveBluetoothDevice> results = mRealm.where(ActiveBluetoothDevice.class).findAll();
-            BTDeviceAddress = results.last().getaddress();
-        } catch (Exception e) {
-            Log.v(TAG, "Error: try_get_realm_obj " + e.getMessage());
-        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        BTDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         return BTDeviceAddress;
     }
 
