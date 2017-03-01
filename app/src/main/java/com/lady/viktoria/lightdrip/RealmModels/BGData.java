@@ -70,12 +70,12 @@ public class BGData extends RealmObject {
         this.calibrationFlag = calibrationFlag;
     }
 
-    private String calibrationUuid;
-    public String getCalibrationUuid() {
-        return calibrationUuid;
+    private long calibration_id;
+    public long getCalibration_id() {
+        return calibration_id;
     }
-    public void setCalibrationUuid(String calibrationUuid) {
-        this.calibrationUuid = calibrationUuid;
+    public void setCalibration_id(long calibration_id) {
+        this.calibration_id = calibration_id;
     }
 
     private double filteredData;
@@ -118,12 +118,12 @@ public class BGData extends RealmObject {
         this.rc = rc;
     }
 
-    private String sensorUuid;
-    public String getSensorUuid() {
-        return sensorUuid;
+    private long sensor_id;
+    public long getSensor_id() {
+        return sensor_id;
     }
-    public void setSensorUuid(String sensorUuid) {
-        this.sensorUuid = sensorUuid;
+    public void setSensor_id(long sensor_id) {
+        this.sensor_id = sensor_id;
     }
 
     private double timeSinceSensorStarted;

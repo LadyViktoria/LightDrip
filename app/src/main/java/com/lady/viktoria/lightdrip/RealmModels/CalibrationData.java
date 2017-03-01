@@ -121,12 +121,12 @@ public class CalibrationData extends RealmObject {
         this.estimate_bg_at_time_of_calibration = estimate_bg_at_time_of_calibration;
     }
 
-    private String sensor_uuid;
-    public String getsensor_uuid() {
-        return sensor_uuid;
+    private long sensor_id;
+    public long getsensor_id() {
+        return sensor_id;
     }
-    public void setsensor_uuid(final String sensor_uuid) {
-        this.sensor_uuid = sensor_uuid;
+    public void setsensor_id(final long sensor_id) {
+        this.sensor_id = sensor_id;
     }
 
     private boolean possible_bad;

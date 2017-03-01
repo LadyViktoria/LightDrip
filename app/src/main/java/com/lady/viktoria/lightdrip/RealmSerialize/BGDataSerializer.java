@@ -21,13 +21,13 @@ public class BGDataSerializer implements JsonSerializer<BGData> {
         jsonObject.addProperty("calculatedValue", src.getCalculatedValue());
         jsonObject.addProperty("calculatedValueSlope", src.getCalculatedValueSlope());
         jsonObject.addProperty("calibrationFlag", src.getCalibrationFlag());
-        jsonObject.addProperty("calibrationUuid", src.getCalibrationUuid());
+        jsonObject.addProperty("calibration_id", src.getCalibration_id());
         jsonObject.addProperty("filteredData", src.getFilteredData());
         jsonObject.addProperty("ra", src.getRa());
         jsonObject.addProperty("rawData", src.getRawData());
         jsonObject.addProperty("rb", src.getRb());
         jsonObject.addProperty("rc", src.getRc());
-        jsonObject.addProperty("sensorUuid", src.getSensorUuid());
+        jsonObject.addProperty("sensor_id", src.getSensor_id());
         jsonObject.addProperty("timeSinceSensorStarted", src.getTimeSinceSensorStarted());
         jsonObject.addProperty("timestamp", src.getTimestamp());
         return jsonObject;

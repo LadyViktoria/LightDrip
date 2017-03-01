@@ -27,7 +27,7 @@ public class CalibrationDataSerializer implements JsonSerializer<CalibrationData
         jsonObject.addProperty("distance_from_estimate", src.getdistance_from_estimate());
         jsonObject.addProperty("estimate_raw_at_time_of_calibration", src.getestimate_raw_at_time_of_calibration());
         jsonObject.addProperty("estimate_bg_at_time_of_calibration", src.getestimate_bg_at_time_of_calibration());
-        jsonObject.addProperty("sensor_uuid", src.getsensor_uuid());
+        jsonObject.addProperty("sensor_id", src.getsensor_id());
         jsonObject.addProperty("possible_bad", src.getpossible_bad());
         jsonObject.addProperty("check_in", src.getcheck_in());
         jsonObject.addProperty("first_decay", src.getfirst_decay());
