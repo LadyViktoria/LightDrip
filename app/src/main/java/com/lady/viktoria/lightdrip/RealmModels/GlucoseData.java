@@ -126,6 +126,14 @@ public class GlucoseData extends RealmObject {
         this.sensor_id = sensor_id;
     }
 
+    public boolean synced;
+    public boolean getsynced() {
+        return synced;
+    }
+    public void setsynced(boolean synced) {
+        this.synced = synced;
+    }
+
     private double timeSinceSensorStarted;
     public double getTimeSinceSensorStarted() {
         return timeSinceSensorStarted;

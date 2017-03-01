@@ -25,9 +25,6 @@ public class SensorRecord extends RealmBase {
     private Realm mRealm;
     private Gson gson;
     Context context;
-    public Context getcontext() {
-        return context;
-    }
 
     public SensorRecord() {
         Realm.init(context);
@@ -38,7 +35,6 @@ public class SensorRecord extends RealmBase {
             Log.v(TAG, "onCreateView PrimaryKeyFactory " + e.getMessage());
         }
     }
-
 
     public void StartSensor(long startTime) {
         long newprimekey = PrimaryKeyFactory.getInstance().nextKey(SensorData.class);
@@ -52,7 +48,6 @@ public class SensorRecord extends RealmBase {
             Log.v(TAG, "onTimeSet try_set_realm_obj " + e.getMessage());
         }
     }
-
 
     public void StopSensor() {
         try {
@@ -69,23 +64,25 @@ public class SensorRecord extends RealmBase {
         }
     }
 
-    private void currentSensor() {
+    public long currentSensorID() {
         if (isSensorActive()) {
             try {
                 RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
                 long lastID = results.last().getid();
-                SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
+                long mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst().getid();
                 //get realm object
                 Log.v(TAG, "currentSensor realm object" + String.valueOf(mSensorData));
                 // transform into json
-                String Json = gson.toJson(mRealm.copyFromRealm(mSensorData));
-                Log.v(TAG, "currentSensor json: "  + Json);
+                //String Json = gson.toJson(mRealm.copyFromRealm(mSensorData));
+                //Log.v(TAG, "currentSensor json: "  + Json);
+                return mSensorData;
             } catch (Exception e) {
                 Log.v(TAG, "currentSensor try_get_realm_obj " + e.getMessage());
             }
         } else {
-            //Snackbar.make(getView(), "Please stop current Sensor fist!", Snackbar.LENGTH_LONG).show();
+            return 0L;
         }
+        return 0L;
     }
 
     public boolean isSensorActive() {

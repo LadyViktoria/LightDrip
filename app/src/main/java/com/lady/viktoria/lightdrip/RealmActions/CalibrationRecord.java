@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.Models.Sensor;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
@@ -37,9 +38,7 @@ public class CalibrationRecord extends RealmBase {
 
     Realm mRealm;
     Context context;
-    public Context getcontext() {
-        return context;
-    }
+    SensorRecord sensorRecord = new SensorRecord();
 
     public CalibrationRecord() {
         Realm.init(context);
@@ -52,12 +51,12 @@ public class CalibrationRecord extends RealmBase {
     }
 
     public void initialCalibration() {
+        long currentsensor_id = sensorRecord.currentSensorID();
 
         double bg1 = 100;
         double bg2 = 102;
         CalibrationRecord higherCalibration = new CalibrationRecord();
         CalibrationRecord lowerCalibration = new CalibrationRecord();
-        //Sensor sensor = Sensor.currentSensor();
         double bgReading1 = 0;
         double bgReading2 = 0;
         try {
@@ -84,17 +83,33 @@ public class CalibrationRecord extends RealmBase {
         }
 
 
-        long newprimekey = PrimaryKeyFactory.getInstance().nextKey(CalibrationData.class);
+        long newprimekeyLowCal = PrimaryKeyFactory.getInstance().nextKey(CalibrationData.class);
         mRealm.beginTransaction();
-        CalibrationData mCalibrationData = mRealm.createObject(CalibrationData.class, newprimekey);
-        mCalibrationData.setbg(higher_bg);
-        mCalibrationData.setslope(1);
-        mCalibrationData.setintercept(higher_bg);
-        //mCalibrationData.setestimate_raw_at_time_of_calibration();
-        //mCalibrationData.setadjusted_raw_value();
-        //mCalibrationData.setraw_value();
-        //mCalibrationData.setraw_timestamp();
+        CalibrationData mCalibrationDataLowCal = mRealm.createObject(CalibrationData.class, newprimekeyLowCal);
+        mCalibrationDataLowCal.setbg(lower_bg);
+        mCalibrationDataLowCal.setslope(1);
+        mCalibrationDataLowCal.setintercept(lower_bg);
+        mCalibrationDataLowCal.setsensor_id(currentsensor_id);
+        //mCalibrationDataLowCal.setestimate_raw_at_time_of_calibration();
+        //mCalibrationDataLowCal.setadjusted_raw_value();
+        //mCalibrationDataLowCal.setraw_value();
+        //mCalibrationDataLowCal.setraw_timestamp();
         mRealm.commitTransaction();
+        mRealm.close();
+
+        long newprimekeyHighCal = PrimaryKeyFactory.getInstance().nextKey(CalibrationData.class);
+        mRealm.beginTransaction();
+        CalibrationData mCalibrationDataHighCal = mRealm.createObject(CalibrationData.class, newprimekeyHighCal);
+        mCalibrationDataHighCal.setbg(higher_bg);
+        mCalibrationDataHighCal.setslope(1);
+        mCalibrationDataHighCal.setintercept(higher_bg);
+        mCalibrationDataHighCal.setsensor_id(currentsensor_id);
+        //mCalibrationDataHighCal.setestimate_raw_at_time_of_calibration(highBgReading.age_adjusted_raw_value);
+        //mCalibrationDataHighCal.setadjusted_raw_value();
+        //mCalibrationDataHighCal.setraw_value();
+        //mCalibrationDataHighCal.setraw_timestamp();
+        mRealm.commitTransaction();
+        mRealm.close();
 
 
         //higherCalibration.estimate_raw_at_time_of_calibration = highBgReading.age_adjusted_raw_value;
@@ -109,5 +124,4 @@ public class CalibrationRecord extends RealmBase {
         //higherCalibration.save();
 
     }
-
 }

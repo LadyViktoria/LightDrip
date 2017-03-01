@@ -25,10 +25,6 @@ public class TransmitterRecord extends RealmBase {
     private int bridge_battery_level;
     private Realm mRealm;
     Context context;
-    public Context getcontext() {
-        return context;
-    }
-
 
     private TransmitterRecord() {
         Realm.init(context);
@@ -89,5 +85,7 @@ public class TransmitterRecord extends RealmBase {
         mRealm.commitTransaction();
         CalibrationRecord calibration = new CalibrationRecord();
         calibration.initialCalibration();
+        GlucoseRecord gluciserecord = new GlucoseRecord();
+        gluciserecord.create(raw_data,filtered_data,timestamp);
     }
 }
