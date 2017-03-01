@@ -1,10 +1,12 @@
 package com.lady.viktoria.lightdrip.RealmModels;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 
 public class CalibrationData extends RealmObject {
 
+    @PrimaryKey
     private long id;
     public long getid() {
         return id;

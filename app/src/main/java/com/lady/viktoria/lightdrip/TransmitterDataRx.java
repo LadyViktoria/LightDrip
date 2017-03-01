@@ -87,5 +87,7 @@ public class TransmitterDataRx extends RealmBase {
         mTransmitterData.settransmitter_battery_level(transmitter_battery_level);
         mTransmitterData.setbridge_battery_level(bridge_battery_level);
         mRealm.commitTransaction();
+        Calibration calibration = new Calibration();
+        calibration.initialCalibration();
     }
 }
