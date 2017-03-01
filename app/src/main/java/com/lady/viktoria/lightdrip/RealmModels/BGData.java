@@ -1,8 +1,18 @@
 package com.lady.viktoria.lightdrip.RealmModels;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class BGData extends RealmObject {
+
+    @PrimaryKey
+    private long id;
+    public long getid() {
+        return id;
+    }
+    public void setid(final long id) {
+        this.id = id;
+    }
 
     private double a;
     public double getA() {
@@ -130,14 +140,6 @@ public class BGData extends RealmObject {
     }
     public void setTimestamp(double timestamp) {
         this.timestamp = timestamp;
-    }
-
-    private String uuid;
-    public String getUuid() {
-        return uuid;
-    }
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
 }

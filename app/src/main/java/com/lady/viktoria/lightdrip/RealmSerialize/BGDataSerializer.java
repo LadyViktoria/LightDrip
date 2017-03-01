@@ -13,6 +13,7 @@ public class BGDataSerializer implements JsonSerializer<BGData> {
     @Override
     public JsonElement serialize(BGData src, Type typeOfSrc, JsonSerializationContext context) {
         final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", src.getid());
         jsonObject.addProperty("a", src.getA());
         jsonObject.addProperty("ageAdjustedRawValue", src.getageAdjustedRawValue());
         jsonObject.addProperty("b", src.getB());
@@ -29,7 +30,6 @@ public class BGDataSerializer implements JsonSerializer<BGData> {
         jsonObject.addProperty("sensorUuid", src.getSensorUuid());
         jsonObject.addProperty("timeSinceSensorStarted", src.getTimeSinceSensorStarted());
         jsonObject.addProperty("timestamp", src.getTimestamp());
-        jsonObject.addProperty("uuid", src.getUuid());
         return jsonObject;
     }
 }
