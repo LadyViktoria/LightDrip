@@ -8,11 +8,14 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.bind.DateTypeAdapter;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
+
+import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -55,7 +58,6 @@ public class GlucoseRecord extends RealmBase {
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
-        serializeToJson();
         try {
             PrimaryKeyFactory.getInstance().initialize(mRealm);
         } catch (Exception e) {
@@ -67,7 +69,7 @@ public class GlucoseRecord extends RealmBase {
         GlucoseRecord glucoseRecord = new GlucoseRecord();
         SensorRecord sensorRecord = new SensorRecord();
         if (!sensorRecord.isSensorActive()) {
-            Log.i("BG GSON: ", gson.toJson(glucoseRecord));
+            Log.i("BG GSON: ", glucoseRecord.toS());
             return glucoseRecord;
         }
 
@@ -93,10 +95,11 @@ public class GlucoseRecord extends RealmBase {
         //bgReading.save();
         //bgReading.perform_calculations();
 
-        json = gson.toJson(mRealm.copyFromRealm(mRealm.where(GlucoseData.class).
-                findAllSorted("id", Sort.DESCENDING).
-                where().
-                findFirst()));
+        serializeToJson();
+        json = gson.toJson(mRealm.copyFromRealm(mRealm.where(GlucoseData.class)
+                .findAllSorted("id", Sort.DESCENDING)
+                .where()
+                .findFirst()));
         Log.v(TAG, "glucoseRecord json: "  + json);
 
 
@@ -133,5 +136,14 @@ public class GlucoseRecord extends RealmBase {
                 })
                 .registerTypeAdapter(GlucoseData.class, new GlucoseDataSerializer())
                 .create();
+    }
+
+    public String toS() {
+        gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                .serializeSpecialFloatingPointValues()
+                .create();
+        return gson.toJson(this);
     }
 }
