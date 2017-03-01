@@ -8,6 +8,6 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.lady.viktoria.lightdrip.RealmActions.SensorActionFragment"
+    tools:context="com.lady.viktoria.lightdrip.SensorActionFragment"
     tools:showIn="@layout/activity_main"
     android:orientation="horizontal" />

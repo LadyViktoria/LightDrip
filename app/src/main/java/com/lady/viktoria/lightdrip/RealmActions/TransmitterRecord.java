@@ -15,8 +15,8 @@ import io.realm.RealmResults;
 
 import static io.realm.Realm.getInstance;
 
-public class TransmitterDataRx extends RealmBase {
-    private final static String TAG = TransmitterDataRx.class.getSimpleName();
+public class TransmitterRecord extends RealmBase {
+    private final static String TAG = TransmitterRecord.class.getSimpleName();
 
     private long timestamp;
     private double raw_data;
@@ -30,7 +30,7 @@ public class TransmitterDataRx extends RealmBase {
     }
 
 
-    private TransmitterDataRx() {
+    private TransmitterRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
         try {
@@ -40,26 +40,26 @@ public class TransmitterDataRx extends RealmBase {
         }
     }
 
-    public static synchronized TransmitterDataRx create(byte[] buffer, int len, Long timestamp) {
+    public static synchronized TransmitterRecord create(byte[] buffer, int len, Long timestamp) {
         if (buffer[0] < 6) {
             return null;
         }
-        TransmitterDataRx mTransmitterDataRx = new TransmitterDataRx();
-        mTransmitterDataRx.timestamp = timestamp;
+        TransmitterRecord mTransmitterRecord = new TransmitterRecord();
+        mTransmitterRecord.timestamp = timestamp;
         ByteBuffer txData = ByteBuffer.allocate(len);
         txData.order(ByteOrder.LITTLE_ENDIAN);
         txData.put(buffer, 0, len);
-        mTransmitterDataRx.raw_data = txData.getInt(2);
-        mTransmitterDataRx.filtered_data = txData.getInt(6);
-        mTransmitterDataRx.transmitter_battery_level = txData.get(10) & 0xff;
-        mTransmitterDataRx.bridge_battery_level = txData.get(11) & 0xff;
+        mTransmitterRecord.raw_data = txData.getInt(2);
+        mTransmitterRecord.filtered_data = txData.getInt(6);
+        mTransmitterRecord.transmitter_battery_level = txData.get(10) & 0xff;
+        mTransmitterRecord.bridge_battery_level = txData.get(11) & 0xff;
         //Stop allowing duplicate data, its bad!
-        if (mTransmitterDataRx.lastData("raw_data") == mTransmitterDataRx
-                .raw_data && Math.abs(mTransmitterDataRx.lastData("timestamp") - timestamp) < (120000)) {
+        if (mTransmitterRecord.lastData("raw_data") == mTransmitterRecord
+                .raw_data && Math.abs(mTransmitterRecord.lastData("timestamp") - timestamp) < (120000)) {
             return null;
         }
-        mTransmitterDataRx.writeTransmitterDataToRealm();
-        return mTransmitterDataRx;
+        mTransmitterRecord.writeTransmitterDataToRealm();
+        return mTransmitterRecord;
     }
 
     private double lastData(String identifyer) {
@@ -87,7 +87,7 @@ public class TransmitterDataRx extends RealmBase {
         mTransmitterData.settransmitter_battery_level(transmitter_battery_level);
         mTransmitterData.setbridge_battery_level(bridge_battery_level);
         mRealm.commitTransaction();
-        Calibration calibration = new Calibration();
+        CalibrationRecord calibration = new CalibrationRecord();
         calibration.initialCalibration();
     }
 }

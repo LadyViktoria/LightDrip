@@ -20,8 +20,8 @@ import io.realm.Sort;
 
 import static io.realm.Realm.getInstance;
 
-public class Calibration extends RealmBase {
-    private final static String TAG = Calibration.class.getSimpleName();
+public class CalibrationRecord extends RealmBase {
+    private final static String TAG = CalibrationRecord.class.getSimpleName();
 
     public static final double LOW_SLOPE_1 = 0.95;
     public static final double LOW_SLOPE_2 = 0.85;
@@ -41,7 +41,7 @@ public class Calibration extends RealmBase {
         return context;
     }
 
-    public Calibration() {
+    public CalibrationRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
         try {
@@ -55,8 +55,8 @@ public class Calibration extends RealmBase {
 
         double bg1 = 100;
         double bg2 = 102;
-        Calibration higherCalibration = new Calibration();
-        Calibration lowerCalibration = new Calibration();
+        CalibrationRecord higherCalibration = new CalibrationRecord();
+        CalibrationRecord lowerCalibration = new CalibrationRecord();
         //Sensor sensor = Sensor.currentSensor();
         double bgReading1 = 0;
         double bgReading2 = 0;

@@ -18,7 +18,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.RealmActions.TransmitterDataRx;
+import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 
 import java.nio.ByteBuffer;
@@ -190,7 +190,7 @@ public class BGMeterGattService extends RealmBaseService {
             int packatlength = data[0];
             if (data != null && packatlength >= 2) {
                 if (CheckTransmitterID(data, data.length)) {
-                    TransmitterDataRx.create(data, data.length, timestamp);
+                    TransmitterRecord.create(data, data.length, timestamp);
                 }
             } else if (data != null && packatlength <= 1) {
                 writeAcknowledgePacket();
