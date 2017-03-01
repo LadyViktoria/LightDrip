@@ -9,7 +9,6 @@ import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -22,8 +21,8 @@ public class TransmitterDataRx extends RealmBase {
     private long timestamp;
     private double raw_data;
     private double filtered_data;
-    private int sensor_battery_level;
-    private String uuid;
+    private int transmitter_battery_level;
+    private int bridge_battery_level;
     private Realm mRealm;
     Context context;
     public Context getcontext() {
@@ -47,13 +46,13 @@ public class TransmitterDataRx extends RealmBase {
         }
         TransmitterDataRx mTransmitterDataRx = new TransmitterDataRx();
         mTransmitterDataRx.timestamp = timestamp;
-        mTransmitterDataRx.uuid = UUID.randomUUID().toString();
         ByteBuffer txData = ByteBuffer.allocate(len);
         txData.order(ByteOrder.LITTLE_ENDIAN);
         txData.put(buffer, 0, len);
         mTransmitterDataRx.raw_data = txData.getInt(2);
         mTransmitterDataRx.filtered_data = txData.getInt(6);
-        mTransmitterDataRx.sensor_battery_level = txData.get(10) & 0xff;
+        mTransmitterDataRx.transmitter_battery_level = txData.get(10) & 0xff;
+        mTransmitterDataRx.bridge_battery_level = txData.get(11) & 0xff;
         //Stop allowing duplicate data, its bad!
         if (mTransmitterDataRx.lastData("raw_data") == mTransmitterDataRx
                 .raw_data && Math.abs(mTransmitterDataRx.lastData("timestamp") - timestamp) < (120000)) {
@@ -85,7 +84,8 @@ public class TransmitterDataRx extends RealmBase {
         mTransmitterData.settimestamp(timestamp);
         mTransmitterData.setraw_data(raw_data);
         mTransmitterData.setfiltered_data(filtered_data);
-        mTransmitterData.setsensor_battery_level(sensor_battery_level);
+        mTransmitterData.settransmitter_battery_level(transmitter_battery_level);
+        mTransmitterData.setbridge_battery_level(bridge_battery_level);
         mRealm.commitTransaction();
     }
 }

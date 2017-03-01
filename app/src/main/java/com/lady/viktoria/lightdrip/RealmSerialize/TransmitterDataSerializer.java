@@ -17,7 +17,8 @@ public class TransmitterDataSerializer implements JsonSerializer<TransmitterData
         jsonObject.addProperty("timestamp", src.gettimestamp());
         jsonObject.addProperty("raw_data", src.getraw_data());
         jsonObject.addProperty("filtered_data", src.getfiltered_data());
-        jsonObject.addProperty("sensor_battery_level", src.getsensor_battery_level());
+        jsonObject.addProperty("transmitter_battery_level", src.gettransmitter_battery_level());
+        jsonObject.addProperty("bridge_battery_level", src.getbridge_battery_level());
         return jsonObject;
     }
 }

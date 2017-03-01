@@ -190,9 +190,6 @@ public class BGMeterGattService extends RealmBaseService {
             int packatlength = data[0];
             if (data != null && packatlength >= 2) {
                 if (CheckTransmitterID(data, data.length)) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    preferences.edit().putInt("bridge_battery", ByteBuffer.wrap(data).get(11)).apply();
-                    Log.v(TAG, "bridge_battery " + ByteBuffer.wrap(data).get(11));
                     TransmitterDataRx.create(data, data.length, timestamp);
                 }
             } else if (data != null && packatlength <= 1) {

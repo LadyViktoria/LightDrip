@@ -38,12 +38,20 @@ public class TransmitterData extends RealmObject {
         this.filtered_data = filtered_data;
     }
 
-    private int sensor_battery_level;
-    public int getsensor_battery_level() {
-        return sensor_battery_level;
+    private int transmitter_battery_level;
+    public int gettransmitter_battery_level() {
+        return transmitter_battery_level;
     }
-    public void setsensor_battery_level(final int sensor_battery_level) {
-        this.sensor_battery_level = sensor_battery_level;
+    public void settransmitter_battery_level(final int transmitter_battery_level) {
+        this.transmitter_battery_level = transmitter_battery_level;
+    }
+
+    private int bridge_battery_level;
+    public int getbridge_battery_level() {
+        return bridge_battery_level;
+    }
+    public void setbridge_battery_level(final int bridge_battery_level) {
+        this.bridge_battery_level = bridge_battery_level;
     }
 
 }
