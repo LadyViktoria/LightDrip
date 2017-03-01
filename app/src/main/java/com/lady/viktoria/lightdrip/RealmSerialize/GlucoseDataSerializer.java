@@ -28,6 +28,7 @@ public class GlucoseDataSerializer implements JsonSerializer<GlucoseData> {
         jsonObject.addProperty("rb", src.getRb());
         jsonObject.addProperty("rc", src.getRc());
         jsonObject.addProperty("sensor_id", src.getSensor_id());
+        jsonObject.addProperty("synced", src.getsynced());
         jsonObject.addProperty("timeSinceSensorStarted", src.getTimeSinceSensorStarted());
         jsonObject.addProperty("timestamp", src.getTimestamp());
         return jsonObject;

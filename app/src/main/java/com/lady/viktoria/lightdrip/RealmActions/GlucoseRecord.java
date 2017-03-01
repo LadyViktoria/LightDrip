@@ -8,18 +8,11 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.lady.viktoria.lightdrip.Models.BgReading;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
-import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
-import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
-
-import java.util.Date;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -57,10 +50,12 @@ public class GlucoseRecord extends RealmBase {
     Realm mRealm;
     Context context;
     private Gson gson;
+    String json;
 
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        serializeToJson();
         try {
             PrimaryKeyFactory.getInstance().initialize(mRealm);
         } catch (Exception e) {
@@ -72,7 +67,7 @@ public class GlucoseRecord extends RealmBase {
         GlucoseRecord glucoseRecord = new GlucoseRecord();
         SensorRecord sensorRecord = new SensorRecord();
         if (!sensorRecord.isSensorActive()) {
-            //Log.i("BG GSON: ", glucoseRecord.toS());
+            Log.i("BG GSON: ", gson.toJson(glucoseRecord));
             return glucoseRecord;
         }
 
@@ -98,13 +93,12 @@ public class GlucoseRecord extends RealmBase {
         //bgReading.save();
         //bgReading.perform_calculations();
 
-        try {
-            serializeToJson();
-            String json = gson.toJson(mRealm.where(GlucoseData.class).findAllSorted("id", Sort.DESCENDING).where().findFirst());
-            Log.v(TAG, "glucoseRecord json: "  + json);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        json = gson.toJson(mRealm.copyFromRealm(mRealm.where(GlucoseData.class).
+                findAllSorted("id", Sort.DESCENDING).
+                where().
+                findFirst()));
+        Log.v(TAG, "glucoseRecord json: "  + json);
+
 
         return glucoseRecord;
     }
@@ -124,7 +118,7 @@ public class GlucoseRecord extends RealmBase {
         }
     }
 
-    private void serializeToJson() throws ClassNotFoundException {
+    private void serializeToJson() {
         gson = new GsonBuilder()
                 .setExclusionStrategies(new ExclusionStrategy() {
                     @Override
@@ -137,7 +131,6 @@ public class GlucoseRecord extends RealmBase {
                         return false;
                     }
                 })
-
                 .registerTypeAdapter(GlucoseData.class, new GlucoseDataSerializer())
                 .create();
     }
