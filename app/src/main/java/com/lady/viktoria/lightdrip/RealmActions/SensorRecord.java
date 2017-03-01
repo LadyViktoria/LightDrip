@@ -64,11 +64,10 @@ public class SensorRecord extends RealmBase {
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
             long lastID = results.last().getid();
             SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
-            RealmResults<CalibrationData> toDrop = mRealm.where(CalibrationData.class).findAll();
+            RealmResults<CalibrationData> CalibrationDataToDrop = mRealm.where(CalibrationData.class).findAll();
             mRealm.beginTransaction();
             mSensorData.setstopped_at(stopped_at);
-            toDrop.deleteAllFromRealm();
-
+            CalibrationDataToDrop.deleteAllFromRealm();
             mRealm.commitTransaction();
             mRealm.close();
         } catch (Exception e) {
