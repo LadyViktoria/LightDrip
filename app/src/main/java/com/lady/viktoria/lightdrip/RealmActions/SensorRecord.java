@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
+import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.Date;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 import static io.realm.Realm.getInstance;
 
@@ -39,7 +41,14 @@ public class SensorRecord extends RealmBase {
     public void StartSensor(long startTime) {
         long newprimekey = PrimaryKeyFactory.getInstance().nextKey(SensorData.class);
         try {
+            RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+            int sensorTableSize = results.size();
             mRealm.beginTransaction();
+            if (sensorTableSize >= 10) {
+                mRealm.where(SensorData.class).findAllSorted("id", Sort.ASCENDING)
+                        .where()
+                        .findFirst().deleteFromRealm();
+            }
             SensorData mSensorData = mRealm.createObject(SensorData.class, newprimekey);
             mSensorData.setstarted_at(startTime);
             mRealm.commitTransaction();
@@ -55,8 +64,11 @@ public class SensorRecord extends RealmBase {
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
             long lastID = results.last().getid();
             SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
+            RealmResults<CalibrationData> toDrop = mRealm.where(CalibrationData.class).findAll();
             mRealm.beginTransaction();
             mSensorData.setstopped_at(stopped_at);
+            toDrop.deleteAllFromRealm();
+
             mRealm.commitTransaction();
             mRealm.close();
         } catch (Exception e) {

@@ -65,7 +65,7 @@ public class GlucoseRecord extends RealmBase {
         }
     }
 
-    public GlucoseRecord create(double raw_data, double filtered_data, Long timestamp) {
+    public static GlucoseRecord create(double raw_data, double filtered_data, Long timestamp) {
         GlucoseRecord glucoseRecord = new GlucoseRecord();
         SensorRecord sensorRecord = new SensorRecord();
         if (!sensorRecord.isSensorActive()) {
@@ -76,31 +76,34 @@ public class GlucoseRecord extends RealmBase {
             Log.d(TAG, "create: No calibration yet");
         long newprimekey = PrimaryKeyFactory.getInstance().nextKey(GlucoseData.class);
 
-        mRealm.beginTransaction();
-        GlucoseData mGlucoseData = mRealm.createObject(GlucoseData.class, newprimekey);
+        glucoseRecord.mRealm.beginTransaction();
+        GlucoseData mGlucoseData = glucoseRecord.mRealm.createObject(GlucoseData.class, newprimekey);
         mGlucoseData.setSensor_id(sensorRecord.currentSensorID());
         mGlucoseData.setRawData(raw_data / 1000);
         mGlucoseData.setFilteredData(filtered_data / 1000);
         mGlucoseData.setTimestamp(timestamp);
-        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+        RealmResults<SensorData> results = glucoseRecord.mRealm.where(SensorData.class).findAll();
         long lastID = results.last().getid();
-        SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
+        SensorData mSensorData = glucoseRecord.mRealm.where(SensorData.class)
+                .equalTo("id", lastID)
+                .findFirst();
         long started_at = mSensorData.getstarted_at();
         mGlucoseData.setTimeSinceSensorStarted(timestamp - started_at);
         mGlucoseData.setsynced(false);
         mGlucoseData.setCalibrationFlag(false);
-        mRealm.commitTransaction();
-        mRealm.close();
-        calculateAgeAdjustedRawValue();
-        //bgReading.save();
-        //bgReading.perform_calculations();
+        glucoseRecord.mRealm.commitTransaction();
+        glucoseRecord.mRealm.close();
 
-        serializeToJson();
-        json = gson.toJson(mRealm.copyFromRealm(mRealm.where(GlucoseData.class)
+        glucoseRecord.calculateAgeAdjustedRawValue();
+        //glucoseRecord.perform_calculations();
+
+        glucoseRecord.serializeToJson();
+        glucoseRecord.json = glucoseRecord.gson.toJson(glucoseRecord.mRealm.copyFromRealm(glucoseRecord.mRealm
+                .where(GlucoseData.class)
                 .findAllSorted("id", Sort.DESCENDING)
                 .where()
                 .findFirst()));
-        Log.v(TAG, "glucoseRecord json: "  + json);
+        Log.v(TAG, "glucoseRecord json: "  + glucoseRecord.json);
 
 
         return glucoseRecord;
