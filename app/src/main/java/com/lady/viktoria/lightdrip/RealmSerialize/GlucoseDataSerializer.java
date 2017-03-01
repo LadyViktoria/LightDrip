@@ -4,14 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.lady.viktoria.lightdrip.RealmModels.BGData;
+import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 
 import java.lang.reflect.Type;
 
-public class BGDataSerializer implements JsonSerializer<BGData> {
+public class GlucoseDataSerializer implements JsonSerializer<GlucoseData> {
 
     @Override
-    public JsonElement serialize(BGData src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(GlucoseData src, Type typeOfSrc, JsonSerializationContext context) {
         final JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id", src.getid());
         jsonObject.addProperty("a", src.getA());

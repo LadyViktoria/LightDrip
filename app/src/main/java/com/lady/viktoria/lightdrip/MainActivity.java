@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -18,8 +17,9 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.lady.viktoria.lightdrip.RealmModels.BGData;
+import com.lady.viktoria.lightdrip.RealmActions.SensorActionFragment;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
+import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
@@ -285,12 +285,12 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getDatabaseSize() {
         try {
-            int itemSizeBGData = mRealm.where(BGData.class).findAll().size();
+            int itemSizeGlucoseData = mRealm.where(GlucoseData.class).findAll().size();
             int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
             int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
             int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
-            int itemSizeAll = itemSizeBGData
-                    + itemSizeCalibrationData + itemSizeSensorData + itemSizeTransmitterData;
+            int itemSizeAll = itemSizeGlucoseData + itemSizeCalibrationData
+                    + itemSizeSensorData + itemSizeTransmitterData;
 
             String FileSize = null;
             File writableFolder = MainActivity.this.getFilesDir();
@@ -305,7 +305,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 FileSize = realmFile.length() / 1024 / 1024 + " Mb";
             }
             mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
-                    + String.format("\nItems in BGData: %d",itemSizeBGData)
+                    + String.format("\nItems in GlucoseData: %d",itemSizeGlucoseData)
                     + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
                     + String.format("\nItems in SensorData: %d",itemSizeSensorData)
                     + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)

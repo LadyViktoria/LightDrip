@@ -3,7 +3,7 @@ package com.lady.viktoria.lightdrip.RealmModels;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class BGData extends RealmObject {
+public class GlucoseData extends RealmObject {
 
     @PrimaryKey
     private long id;

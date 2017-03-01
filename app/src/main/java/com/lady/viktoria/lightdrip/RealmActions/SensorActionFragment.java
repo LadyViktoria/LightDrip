@@ -1,4 +1,4 @@
-package com.lady.viktoria.lightdrip;
+package com.lady.viktoria.lightdrip.RealmActions;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.lady.viktoria.lightdrip.R;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseFragment;
@@ -22,7 +23,6 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
