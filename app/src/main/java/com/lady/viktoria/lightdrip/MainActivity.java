@@ -206,6 +206,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         super.onDestroy();
         mRealm.removeChangeListener(realmListener);
         mRealm.close();
+        Realm.compactRealm(getRealmConfig());
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {

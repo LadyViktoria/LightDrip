@@ -17,6 +17,8 @@ import io.realm.Realm;
 public class RealmService extends RealmBaseService {
     private final static String TAG = RealmService.class.getSimpleName();
 
+    Realm mRealm;
+
     public RealmService(Context applicationContext) {
         super();
     }
@@ -38,6 +40,8 @@ public class RealmService extends RealmBaseService {
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartRealmervice");
         sendBroadcast(broadcastIntent);
         stoptimertask();
+        mRealm.close();
+        Realm.compactRealm(getRealmConfig());
     }
 
     private Timer timer;
