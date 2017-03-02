@@ -117,7 +117,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     getDatabaseSize();
                     GlucoseRecord glucoserecord = new GlucoseRecord();
                     CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
-                    Log.v(TAG, "calibrationsrecords: " + calibrationRecords);
                     if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
                         calibrationSnackbar();
                     }
@@ -146,7 +145,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
                     startSensorSnackbar();
-                } else if (glucoserecord.countRecordsByLastSensorID() <= 2) {
+                } else if (glucoserecord.countRecordsByLastSensorID() < 2) {
                     closeFABMenu();
                     Snackbar.make(view, "Please wait until we got 2 Sensor Readings!", Snackbar.LENGTH_LONG).show();
                 } else {

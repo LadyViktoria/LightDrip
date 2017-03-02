@@ -19,6 +19,7 @@ import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -159,7 +160,7 @@ public class GlucoseRecord extends RealmBase {
     }
 
     public int countRecordsByLastSensorID() {
-        RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
+        RealmResults<SensorData> results = mRealm.where(SensorData.class).equalTo("stopped_at", 0L).findAll();
         long lastID = results.last().getid();
         RealmResults<GlucoseData> glucoseRecord = mRealm.where(GlucoseData.class)
                 .equalTo("sensor_id", lastID)
