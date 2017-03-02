@@ -151,14 +151,6 @@ public class GlucoseRecord extends RealmBase {
         return gson.toJson(this);
     }
 
-    public int countRecordsBySensorID(long sensorID) {
-        RealmResults<GlucoseData> glucoseRecord = mRealm.where(GlucoseData.class)
-                .equalTo("sensor_id", sensorID)
-                .findAll();
-        int size = glucoseRecord.size();
-        return size;
-    }
-
     public int countRecordsByLastSensorID() {
         RealmResults<SensorData> results = mRealm.where(SensorData.class).equalTo("stopped_at", 0L).findAll();
         long lastID = results.last().getid();
