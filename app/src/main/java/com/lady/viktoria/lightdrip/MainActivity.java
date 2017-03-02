@@ -50,6 +50,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private Realm mRealm;
     private RealmService mRealmService;
     private RealmChangeListener realmListener;
+
     FloatingActionButton fab, fab1, fab2, fab3;
     LinearLayout fabLabel1, fabLabel2, fabLabel3;
     View fabBGLayout;
@@ -114,13 +115,17 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 @Override
                 public void onChange(Object element) {
                     getDatabaseSize();
-                }
-            };
+                    GlucoseRecord glucoserecord = new GlucoseRecord();
+                    CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+                    Log.v(TAG, "calibrationsrecords: " + calibrationRecords);
+                    if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
+                        calibrationSnackbar();
+                    }
+                }};
             mRealm.addChangeListener(realmListener);
         } catch (Exception e) {
             Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
         }
-
     }
 
     public void onClick(View view) {
@@ -131,8 +136,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab1:
             case R.id.fabLabel1:
-                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 closeFABMenu();
+                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
@@ -140,19 +145,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 GlucoseRecord glucoserecord = new GlucoseRecord();
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
-                    final Snackbar snackBar = Snackbar
-                            .make(view, "Please start Sensor first!", Snackbar.LENGTH_LONG);
-                    snackBar.setAction("Start Sensor", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            snackBar.dismiss();
-                            android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
-                            ft3.replace(R.id.fragment, new SensorActionFragment());
-                            ft3.commit();
-                        }
-                    });
-                    snackBar.show();
+                    startSensorSnackbar();
                 } else if (glucoserecord.countRecordsByLastSensorID() <= 2) {
+                    closeFABMenu();
                     Snackbar.make(view, "Please wait until we got 2 Sensor Readings!", Snackbar.LENGTH_LONG).show();
                 } else {
                     closeFABMenu();
@@ -163,11 +158,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
+                closeFABMenu();
                 android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
                 //ft.addToBackStack(null);
                 ft3.replace(R.id.fragment, new SensorActionFragment());
                 ft3.commit();
-                closeFABMenu();
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
@@ -310,6 +305,38 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             }
         }
         return false;
+    }
+
+    private void calibrationSnackbar() {
+        final Snackbar snackBar = Snackbar.make(fabBGLayout
+                , "We have got 2 Readings please Add double Calibration"
+                , Snackbar.LENGTH_INDEFINITE);
+        snackBar.setAction("Add Calibration", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackBar.dismiss();
+                FragmentManager fm = getFragmentManager();
+                CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+                dialogFragment.show(fm, "Calibration Dialog Fragment");
+            }
+        });
+        snackBar.show();
+    }
+
+    private void startSensorSnackbar() {
+        final Snackbar snackBar = Snackbar.make(fabBGLayout
+                , "Please start Sensor first!"
+                , Snackbar.LENGTH_LONG);
+        snackBar.setAction("Start Sensor", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackBar.dismiss();
+                android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
+                ft3.replace(R.id.fragment, new SensorActionFragment());
+                ft3.commit();
+            }
+        });
+        snackBar.show();
     }
 
     private void getDatabaseSize() {
