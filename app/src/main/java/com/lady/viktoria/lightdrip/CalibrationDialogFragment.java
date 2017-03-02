@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip;
 
-import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,14 +12,23 @@ import android.widget.EditText;
 import android.widget.Switch;
 
 import com.lady.viktoria.lightdrip.RealmActions.CalibrationRecord;
+import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseDialogFragment;
+import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 
-public class CalibrationDialogFragment extends DialogFragment {
+import io.realm.Realm;
+
+import static io.realm.Realm.getInstance;
+
+
+public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
 
     Switch sButton;
     Button calButton;
     EditText glucosereading1, glucosereading2;
     Boolean doubleCalFlag = false;
+    Realm mRealm;
 
     public CalibrationDialogFragment() {}
 
@@ -38,6 +46,18 @@ public class CalibrationDialogFragment extends DialogFragment {
         glucosereading2 = (EditText) view.findViewById(R.id.glucosereading2);
         sButton = (Switch) view.findViewById(R.id.switch_doublecalibration);
         calButton = (Button) view.findViewById(R.id.btn_addcalibration);
+        Realm.init(getActivity());
+        mRealm = getInstance(getRealmConfig());
+
+        GlucoseRecord glucoserecord = new GlucoseRecord();
+        CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+        if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
+            sButton.setChecked(true);
+            glucosereading2.setVisibility(View.VISIBLE);
+            sButton.setEnabled(false);
+            sButton.setText("Double Calibration");
+            doubleCalFlag = true;
+        }
 
         calButton.setOnClickListener(new Button.OnClickListener() {
 
