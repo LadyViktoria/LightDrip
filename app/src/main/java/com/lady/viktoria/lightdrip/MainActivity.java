@@ -137,13 +137,24 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             case R.id.fabLabel2:
                 SensorRecord sensorRecord = new SensorRecord();
                 if (!sensorRecord.isSensorActive()) {
-                    Snackbar.make(view, "Please start Sensor first!", Snackbar.LENGTH_LONG).show();
                     closeFABMenu();
+                    final Snackbar snackBar = Snackbar
+                            .make(view, "Please start Sensor first!", Snackbar.LENGTH_LONG);
+                    snackBar.setAction("Start Sensor", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackBar.dismiss();
+                            android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
+                            ft3.replace(R.id.fragment, new SensorActionFragment());
+                            ft3.commit();
+                        }
+                    });
+                    snackBar.show();
                 } else {
+                    closeFABMenu();
                     FragmentManager fm = getFragmentManager();
                     CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
                     dialogFragment.show(fm, "Calibration Dialog Fragment");
-                    closeFABMenu();
                 }
                 break;
             case R.id.fab3:
