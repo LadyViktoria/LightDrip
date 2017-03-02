@@ -27,11 +27,12 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile(name: 'realm-browser-debug', ext: 'aar')
+
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support:design:25.2.0'
-    compile (name:'realm-browser-debug', ext:'aar')
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'io.realm:android-adapters:1.4.0'
     compile 'com.wdullaer:materialdatetimepicker:3.1.2'
-
+    compile 'com.android.support:support-v4:25.2.0'
 }

@@ -1,6 +1,7 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.ActivityManager;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -128,16 +129,23 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             case R.id.fab1:
             case R.id.fabLabel1:
                 RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
+                closeFABMenu();
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
+                FragmentManager fm = getFragmentManager();
+                CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+                dialogFragment.show(fm, "Calibration Dialog Fragment");
+                closeFABMenu();
+
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:
-                android.app.FragmentTransaction ft = getFragmentManager().beginTransaction();
+                android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
                 //ft.addToBackStack(null);
-                ft.replace(R.id.fragment, new SensorActionFragment());
-                ft.commit();
+                ft3.replace(R.id.fragment, new SensorActionFragment());
+                ft3.commit();
+                closeFABMenu();
                 break;
             case R.id.fabBGLayout:
                 closeFABMenu();
