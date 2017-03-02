@@ -34,6 +34,7 @@ import java.io.File;
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.Sort;
 
 import static io.realm.Realm.getInstance;
 
@@ -116,9 +117,16 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 public void onChange(Object element) {
                     getDatabaseSize();
                     GlucoseRecord glucoserecord = new GlucoseRecord();
+                    SensorRecord sensorRecord = new SensorRecord();
                     CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+                    TransmitterData transmitterData = mRealm.where(TransmitterData.class)
+                            .findAllSorted("id", Sort.DESCENDING)
+                            .where()
+                            .findFirst();
                     if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
                         calibrationSnackbar();
+                    } else if(calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()){
+                        startSensorSnackbar("Received Transmitter Data please Start Sensor");
                     }
                 }};
             mRealm.addChangeListener(realmListener);
@@ -144,7 +152,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 GlucoseRecord glucoserecord = new GlucoseRecord();
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
-                    startSensorSnackbar();
+                    startSensorSnackbar("Please start Sensor first!");
                 } else if (glucoserecord.countRecordsByLastSensorID() < 2) {
                     closeFABMenu();
                     Snackbar.make(view, "Please wait until we got 2 Sensor Readings!", Snackbar.LENGTH_LONG).show();
@@ -322,10 +330,10 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         snackBar.show();
     }
 
-    private void startSensorSnackbar() {
+    private void startSensorSnackbar(String msg) {
         final Snackbar snackBar = Snackbar.make(fabBGLayout
-                , "Please start Sensor first!"
-                , Snackbar.LENGTH_LONG);
+                , msg
+                , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Start Sensor", new View.OnClickListener() {
             @Override
             public void onClick(View v) {

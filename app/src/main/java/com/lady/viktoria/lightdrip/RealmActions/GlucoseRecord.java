@@ -19,7 +19,6 @@ import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
-import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -152,12 +151,25 @@ public class GlucoseRecord extends RealmBase {
     }
 
     public int countRecordsByLastSensorID() {
-        RealmResults<SensorData> results = mRealm.where(SensorData.class).equalTo("stopped_at", 0L).findAll();
-        long lastID = results.last().getid();
-        RealmResults<GlucoseData> glucoseRecord = mRealm.where(GlucoseData.class)
-                .equalTo("sensor_id", lastID)
-                .findAll();
-        int size = glucoseRecord.size();
-        return size;
+        try {
+            RealmResults<SensorData> results = mRealm.where(SensorData.class).equalTo("stopped_at", 0L).findAll();
+            long lastID = results.last().getid();
+            RealmResults<GlucoseData> glucoseRecord = mRealm.where(GlucoseData.class)
+                    .equalTo("sensor_id", lastID)
+                    .findAll();
+            int size = glucoseRecord.size();
+            return size;
+        } catch (Exception e) {
+            Log.v(TAG, "countRecordsByLastSensorID " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public GlucoseData lastGluscoseEntry() {
+        GlucoseData glucoseRecord = mRealm.where(GlucoseData.class)
+                .findAllSorted("id", Sort.DESCENDING)
+                .where()
+                .findFirst();
+        return glucoseRecord;
     }
 }

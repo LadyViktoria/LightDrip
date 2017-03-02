@@ -1,19 +1,14 @@
 package com.lady.viktoria.lightdrip.RealmActions;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.Models.Sensor;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
-import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 
 import java.util.Date;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -38,7 +33,6 @@ public class CalibrationRecord extends RealmBase {
 
     Realm mRealm;
     Context context;
-    SensorRecord sensorRecord = new SensorRecord();
 
     public CalibrationRecord() {
         Realm.init(context);
@@ -51,6 +45,7 @@ public class CalibrationRecord extends RealmBase {
     }
 
     public void initialCalibration(double bg1, double bg2) {
+        SensorRecord sensorRecord = new SensorRecord();
         long currentsensor_id = sensorRecord.currentSensorID();
         CalibrationRecord higherCalibration = new CalibrationRecord();
         CalibrationRecord lowerCalibration = new CalibrationRecord();
@@ -68,8 +63,8 @@ public class CalibrationRecord extends RealmBase {
         }
         double highBgReading;
         double lowBgReading;
-        double higher_bg = Math.max(bg1, bg2)*1000;
-        double lower_bg = Math.min(bg1, bg2)*1000;
+        double higher_bg = Math.max(bg1, bg2) * 1000;
+        double lower_bg = Math.min(bg1, bg2) * 1000;
 
         if (bgReading1 > bgReading2) {
             highBgReading = bgReading1;
@@ -121,4 +116,43 @@ public class CalibrationRecord extends RealmBase {
         //higherCalibration.save();
 
     }
+
+    public void singleCalibration(double bg) {
+        SensorRecord sensorRecord = new SensorRecord();
+        boolean currentsensor = sensorRecord.isSensorActive();
+        long currentsensor_id = sensorRecord.currentSensorID();
+        GlucoseRecord glucoseRecord = new GlucoseRecord();
+        CalibrationRecord calibrationRecord = new CalibrationRecord();
+        if (currentsensor && glucoseRecord.lastGluscoseEntry() != null) {
+            long newprimekeyLowCal = PrimaryKeyFactory.getInstance().nextKey(CalibrationData.class);
+            mRealm.beginTransaction();
+            CalibrationData mCalibrationData = mRealm.createObject(CalibrationData.class, newprimekeyLowCal);
+            mCalibrationData.setbg(bg);
+            mCalibrationData.setcheck_in(false);
+            mCalibrationData.settimestamp(new Date().getTime());
+            //mCalibrationDataLowCal.setestimate_raw_at_time_of_calibration();
+            //mCalibrationDataLowCal.setadjusted_raw_value();
+            mCalibrationData.setsensor_id(currentsensor_id);
+
+
+            //mCalibrationDataLowCal.setraw_value();
+            //mCalibrationDataLowCal.setraw_timestamp();
+            mRealm.commitTransaction();
+            mRealm.close();
+
+        } else {
+        Log.d("CALIBRATION", "No sensor, cant save!");
+        }
+        //return lastCalibration();
+    }
+
+
+    public CalibrationData lastCalibration() {
+        CalibrationData calibrationData = mRealm.where(CalibrationData.class)
+                .findAllSorted("id", Sort.DESCENDING)
+                .where()
+                .findFirst();
+        return calibrationData;
+    }
+
 }

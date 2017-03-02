@@ -63,8 +63,8 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
 
             @Override
             public void onClick(View view) {
+                CalibrationRecord calibration = new CalibrationRecord();
                 if (doubleCalFlag) {
-                    CalibrationRecord calibration = new CalibrationRecord();
                     try {
                         double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
                         double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
@@ -77,6 +77,7 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
                 } else {
                     try {
                         double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                        calibration.singleCalibration(bg1);
                     } catch (Exception e) {
                         Log.v(TAG, e.getMessage());
                     } finally {
