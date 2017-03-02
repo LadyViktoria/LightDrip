@@ -16,6 +16,7 @@ import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
 
 import java.util.Date;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -49,6 +50,8 @@ public class GlucoseRecord extends RealmBase {
     public double raw_calculated;
     public boolean hide_slope;
     public String noise;
+    public long timestamp;
+
 
     Realm mRealm;
     Context context;
@@ -119,8 +122,16 @@ public class GlucoseRecord extends RealmBase {
         if (adjust_for > 0) {
             age_adjusted_raw_value = ((AGE_ADJUSTMENT_FACTOR * (adjust_for / AGE_ADJUSTMENT_TIME)) * raw_data) + raw_data;
             Log.i(TAG, "calculateAgeAdjustedRawValue: RAW VALUE ADJUSTMENT FROM:" + raw_data + " TO: " + age_adjusted_raw_value);
+            mRealm.beginTransaction();
+            lastGluscoseEntry().setageAdjustedRawValue(age_adjusted_raw_value);
+            mRealm.commitTransaction();
+            mRealm.close();
         } else {
             age_adjusted_raw_value = raw_data;
+            mRealm.beginTransaction();
+            lastGluscoseEntry().setageAdjustedRawValue(age_adjusted_raw_value);
+            mRealm.commitTransaction();
+            mRealm.close();
         }
     }
 
@@ -172,4 +183,49 @@ public class GlucoseRecord extends RealmBase {
                 .findFirst();
         return glucoseRecord;
     }
+
+    //*******INSTANCE METHODS***********//
+    public void perform_calculations() {
+      //  find_new_curve();
+     //   find_new_raw_curve();
+        find_slope();
+    }
+
+    public void find_slope() {
+        RealmResults<GlucoseData> results = mRealm.where(GlucoseData.class).findAll().sort("id", Sort.DESCENDING);
+        int resultsize = results.size();
+        double lastGlucose = results.get(resultsize - 2).getRawData();
+        double currentGlucose = results.get(resultsize - 1).getRawData();
+
+        //assert last_2.get(0) == this : "Invariant condition not fulfilled: calculating slope and current reading wasn't saved before";
+
+        if (lastGlucose != 0 && currentGlucose != 0) {
+            calculated_value_slope = calculateSlope(currentGlucose, lastGlucose);
+            //save();
+        } else if (currentGlucose != 0) {
+            calculated_value_slope = 0;
+            //save();
+        } else {
+            Log.w(TAG, "NO BG? COULDNT FIND SLOPE!");
+        }
+    }
+
+    public static double calculateSlope(double current, double last) {
+        /*
+        if (current.timestamp == last.timestamp || current.calculated_value == last.calculated_value) {
+            return 0;
+        } else {
+            return (last.calculated_value - current.calculated_value) / (last.timestamp - current.timestamp);
+        }
+        */
+        return current;
+    }
+
+    public static double weightedAverageRaw(double timeA, double timeB, double calibrationTime, double rawA, double rawB) {
+        double relativeSlope = (rawB - rawA) / (timeB - timeA);
+        double relativeIntercept = rawA - (relativeSlope * timeA);
+        return ((relativeSlope * calibrationTime) + relativeIntercept);
+    }
+
+
 }
