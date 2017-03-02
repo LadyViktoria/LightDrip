@@ -50,11 +50,8 @@ public class CalibrationRecord extends RealmBase {
         }
     }
 
-    public void initialCalibration() {
+    public void initialCalibration(double bg1, double bg2) {
         long currentsensor_id = sensorRecord.currentSensorID();
-
-        double bg1 = 100;
-        double bg2 = 102;
         CalibrationRecord higherCalibration = new CalibrationRecord();
         CalibrationRecord lowerCalibration = new CalibrationRecord();
         double bgReading1 = 0;

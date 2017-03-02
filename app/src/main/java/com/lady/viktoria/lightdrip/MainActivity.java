@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
@@ -133,11 +135,16 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
-                FragmentManager fm = getFragmentManager();
-                CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
-                dialogFragment.show(fm, "Calibration Dialog Fragment");
-                closeFABMenu();
-
+                SensorRecord sensorRecord = new SensorRecord();
+                if (!sensorRecord.isSensorActive()) {
+                    Snackbar.make(view, "Please start Sensor first!", Snackbar.LENGTH_LONG).show();
+                    closeFABMenu();
+                } else {
+                    FragmentManager fm = getFragmentManager();
+                    CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+                    dialogFragment.show(fm, "Calibration Dialog Fragment");
+                    closeFABMenu();
+                }
                 break;
             case R.id.fab3:
             case R.id.fabLabel3:

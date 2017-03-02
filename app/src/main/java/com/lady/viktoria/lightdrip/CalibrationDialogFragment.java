@@ -2,26 +2,30 @@ package com.lady.viktoria.lightdrip;
 
 import android.app.DialogFragment;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
+import com.lady.viktoria.lightdrip.RealmActions.CalibrationRecord;
+import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
+
 public class CalibrationDialogFragment extends DialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
 
-    private CalibrationDialogFragment.OnFragmentInteractionListener mListener;
-
     Switch sButton;
+    Button calButton;
     EditText glucosereading1, glucosereading2;
+    Boolean doubleCalFlag = false;
+    CalibrationRecord calibration = new CalibrationRecord();
 
 
-    public CalibrationDialogFragment() {
-    }
+
+    public CalibrationDialogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,27 +38,42 @@ public class CalibrationDialogFragment extends DialogFragment {
 
         View view = inflater.inflate(R.layout.fragment_calibrationdialog, container, false);
         getDialog().setTitle("Calibration Dialog");
+        glucosereading1 = (EditText) view.findViewById(R.id.glucosereading1);
         glucosereading2 = (EditText) view.findViewById(R.id.glucosereading2);
         sButton = (Switch) view.findViewById(R.id.switch_doublecalibration);
-        sButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+        calButton = (Button) view.findViewById(R.id.btn_addcalibration);
+
+        calButton.setOnClickListener(new Button.OnClickListener() {
+
             @Override
-            public void onCheckedChanged(CompoundButton cb, boolean on){
-                if(on) {
-                    sButton.setText("Double Calibration");
-                    glucosereading2.setVisibility(View.VISIBLE);
+            public void onClick(View view) {
+                if (doubleCalFlag) {
+                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                    double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
+                    calibration.initialCalibration(bg1, bg2);
                 } else {
-                    sButton.setText("Single Calibration");
-                    glucosereading2.setVisibility(View.GONE);
+                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
                 }
             }
         });
-        return view;
-    }
 
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        sButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton cb, boolean on) {
+                if (on) {
+                    sButton.setText("Double Calibration");
+                    glucosereading2.setVisibility(View.VISIBLE);
+                    doubleCalFlag = true;
+                } else {
+                    sButton.setText("Single Calibration");
+                    glucosereading2.setVisibility(View.GONE);
+                    doubleCalFlag = false;
+                }
+            }
+        });
+
+        return view;
     }
 
     @Override
@@ -65,10 +84,5 @@ public class CalibrationDialogFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
     }
 }

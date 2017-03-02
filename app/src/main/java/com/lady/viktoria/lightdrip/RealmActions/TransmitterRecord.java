@@ -83,8 +83,6 @@ public class TransmitterRecord extends RealmBase {
         mTransmitterData.settransmitter_battery_level(transmitter_battery_level);
         mTransmitterData.setbridge_battery_level(bridge_battery_level);
         mRealm.commitTransaction();
-        CalibrationRecord calibration = new CalibrationRecord();
-        calibration.initialCalibration();
         GlucoseRecord gluciserecord = new GlucoseRecord();
         gluciserecord.create(raw_data,filtered_data,timestamp);
     }
