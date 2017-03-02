@@ -3,6 +3,7 @@ package com.lady.viktoria.lightdrip;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,6 @@ import android.widget.EditText;
 import android.widget.Switch;
 
 import com.lady.viktoria.lightdrip.RealmActions.CalibrationRecord;
-import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
 
 public class CalibrationDialogFragment extends DialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
@@ -21,9 +21,6 @@ public class CalibrationDialogFragment extends DialogFragment {
     Button calButton;
     EditText glucosereading1, glucosereading2;
     Boolean doubleCalFlag = false;
-    CalibrationRecord calibration = new CalibrationRecord();
-
-
 
     public CalibrationDialogFragment() {}
 
@@ -37,7 +34,6 @@ public class CalibrationDialogFragment extends DialogFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_calibrationdialog, container, false);
-        getDialog().setTitle("Calibration Dialog");
         glucosereading1 = (EditText) view.findViewById(R.id.glucosereading1);
         glucosereading2 = (EditText) view.findViewById(R.id.glucosereading2);
         sButton = (Switch) view.findViewById(R.id.switch_doublecalibration);
@@ -48,11 +44,24 @@ public class CalibrationDialogFragment extends DialogFragment {
             @Override
             public void onClick(View view) {
                 if (doubleCalFlag) {
-                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
-                    double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
-                    calibration.initialCalibration(bg1, bg2);
+                    CalibrationRecord calibration = new CalibrationRecord();
+                    try {
+                        double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                        double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
+                        calibration.initialCalibration(bg1, bg2);
+                    } catch (Exception e) {
+                        Log.v(TAG, e.getMessage());
+                    } finally {
+                        dismiss();
+                    }
                 } else {
-                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                    try {
+                        double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                    } catch (Exception e) {
+                        Log.v(TAG, e.getMessage());
+                    } finally {
+                        dismiss();
+                    }
                 }
             }
         });

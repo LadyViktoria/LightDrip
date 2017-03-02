@@ -176,7 +176,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
        getBTDevice();
-
     }
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
