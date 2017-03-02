@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
 import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
@@ -136,6 +137,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             case R.id.fab2:
             case R.id.fabLabel2:
                 SensorRecord sensorRecord = new SensorRecord();
+                GlucoseRecord glucoserecord = new GlucoseRecord();
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
                     final Snackbar snackBar = Snackbar
@@ -150,6 +152,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                         }
                     });
                     snackBar.show();
+                } else if (glucoserecord.countRecordsByLastSensorID() <= 2) {
+                    Snackbar.make(view, "Please wait until we got 2 Sensor Readings!", Snackbar.LENGTH_LONG).show();
                 } else {
                     closeFABMenu();
                     FragmentManager fm = getFragmentManager();
