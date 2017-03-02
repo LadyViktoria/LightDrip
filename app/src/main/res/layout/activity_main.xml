@@ -70,14 +70,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Realm Action"/>
+            android:text="Calibration Action"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_priority_high_white_24px"
+            app:srcCompat="@drawable/ic_opacity_white_24px"
             app:fabSize="mini"/>
     </LinearLayout>
 
