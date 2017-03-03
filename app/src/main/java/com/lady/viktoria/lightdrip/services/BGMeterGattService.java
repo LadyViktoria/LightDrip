@@ -29,7 +29,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;

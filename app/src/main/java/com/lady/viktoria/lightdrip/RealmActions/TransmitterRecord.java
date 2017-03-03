@@ -29,11 +29,6 @@ public class TransmitterRecord extends RealmBase {
     private TransmitterRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
-        try {
-            PrimaryKeyFactory.getInstance().initialize(mRealm);
-        } catch (Exception e) {
-            Log.v(TAG, "TransmitterDataRx() PrimaryKeyFactory " + e.getMessage());
-        }
     }
 
     public static synchronized TransmitterRecord create(byte[] buffer, int len, Long timestamp) {
@@ -68,7 +63,7 @@ public class TransmitterRecord extends RealmBase {
             }
 
         } catch (Exception e) {
-            Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
+            Log.v(TAG, "lastData " + e.getMessage());
         }
         return 0;
     }

@@ -13,12 +13,8 @@ import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.CalibrationDataSerializer;
-import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -61,12 +57,6 @@ public class CalibrationRecord extends RealmBase {
         lowerCalibration = new CalibrationRecord();
         glucoseRecord = new GlucoseRecord();
         calibrationRecord = new CalibrationRecord();
-
-        try {
-            PrimaryKeyFactory.getInstance().initialize(mRealm);
-        } catch (Exception e) {
-            Log.v(TAG, "CalibrationData() PrimaryKeyFactory " + e.getMessage());
-        }
     }
 
     public void initialCalibration(double bg1, double bg2) {
@@ -96,7 +86,7 @@ public class CalibrationRecord extends RealmBase {
             started_at = mSensorData.getstarted_at();
 
         } catch (Exception e) {
-            Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
+            Log.v(TAG, "initialCalibration " + e.getMessage());
         }
         double highBgReading;
         double lowBgReading;

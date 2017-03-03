@@ -134,7 +134,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 }};
             mRealm.addChangeListener(realmListener);
         } catch (Exception e) {
-            Log.v(TAG, "Error try_delete_realm_obj " + e.getMessage());
+            Log.v(TAG, "onCreate " + e.getMessage());
         }
     }
 
@@ -376,7 +376,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     + "\nDatabase Size: " + FileSize);
             mDatabaseSize.invalidate();
         } catch (Exception e) {
-        Log.v(TAG, "Error try_get_realm_obj " + e.getMessage());
+        Log.v(TAG, "getDatabaseSize " + e.getMessage());
         }
     }
 }

@@ -63,12 +63,6 @@ public class GlucoseRecord extends RealmBase {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
         sensorRecord = new SensorRecord();
-
-        try {
-            PrimaryKeyFactory.getInstance().initialize(mRealm);
-        } catch (Exception e) {
-            Log.v(TAG, "CalibrationData() PrimaryKeyFactory " + e.getMessage());
-        }
     }
 
     public void create(double raw_data, double filtered_data, Long timestamp) {

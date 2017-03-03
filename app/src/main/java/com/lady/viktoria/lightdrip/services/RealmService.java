@@ -7,12 +7,15 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 
+import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.realm.Realm;
+
+import static io.realm.Realm.getInstance;
 
 public class RealmService extends RealmBaseService {
     private final static String TAG = RealmService.class.getSimpleName();
@@ -24,12 +27,15 @@ public class RealmService extends RealmBaseService {
     }
 
     public RealmService() {
+
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startTimer();
         Realm.init(this);
+        mRealm = getInstance(getRealmConfig());
+        initializePrimaryKeyFactory();
         return START_STICKY;
     }
 
@@ -80,5 +86,14 @@ public class RealmService extends RealmBaseService {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public void initializePrimaryKeyFactory() {
+        try {
+            Log.v(TAG, "Start PrimaryKeyFactory ");
+            PrimaryKeyFactory.getInstance().initialize(mRealm);
+        } catch (Exception e) {
+            Log.v(TAG, "initializePrimaryKeyFactory " + e.getMessage());
+        }
     }
 }

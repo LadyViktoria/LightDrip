@@ -31,11 +31,6 @@ public class SensorRecord extends RealmBase {
     public SensorRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
-        try {
-            PrimaryKeyFactory.getInstance().initialize(mRealm);
-        } catch (Exception e) {
-            Log.v(TAG, "onCreateView PrimaryKeyFactory " + e.getMessage());
-        }
     }
 
     public void StartSensor(long startTime) {
@@ -47,14 +42,15 @@ public class SensorRecord extends RealmBase {
             if (sensorTableSize >= 10) {
                 mRealm.where(SensorData.class).findAllSorted("id", Sort.ASCENDING)
                         .where()
-                        .findFirst().deleteFromRealm();
+                        .findFirst()
+                        .deleteFromRealm();
             }
             SensorData mSensorData = mRealm.createObject(SensorData.class, newprimekey);
             mSensorData.setstarted_at(startTime);
             mRealm.commitTransaction();
             mRealm.close();
         } catch (Exception e) {
-            Log.v(TAG, "onTimeSet try_set_realm_obj " + e.getMessage());
+            Log.v(TAG, "StartSensor " + e.getMessage());
         }
     }
 
@@ -71,7 +67,7 @@ public class SensorRecord extends RealmBase {
             mRealm.commitTransaction();
             mRealm.close();
         } catch (Exception e) {
-            Log.v(TAG, "stopSensor try_set_realm_obj " + e.getMessage());
+            Log.v(TAG, "stopSensor " + e.getMessage());
         }
     }
 
@@ -88,7 +84,7 @@ public class SensorRecord extends RealmBase {
                 //Log.v(TAG, "currentSensor json: "  + Json);
                 return mSensorData;
             } catch (Exception e) {
-                Log.v(TAG, "currentSensor try_get_realm_obj " + e.getMessage());
+                Log.v(TAG, "currentSensor " + e.getMessage());
             }
         } else {
             return 0L;
@@ -106,7 +102,7 @@ public class SensorRecord extends RealmBase {
             }
             return false;
         } catch (Exception e) {
-            Log.v(TAG, "isSensorActive try_get_realm_obj " + e.getMessage());
+            Log.v(TAG, "isSensorActive " + e.getMessage());
         }
         return false;
     }
