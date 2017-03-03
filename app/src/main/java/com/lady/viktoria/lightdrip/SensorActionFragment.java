@@ -24,7 +24,9 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     }
 
     private Calendar SensorStart;
-    private int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
+    private int mYear;
+    private int mMonthOfYear;
+    private int mDayOfMonth;
     private SensorRecord sensorRecord;
 
     @Override
@@ -96,8 +98,8 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        mHourOfDay = Integer.parseInt(hourOfDay < 10 ? "0"+hourOfDay : ""+hourOfDay);
-        mMinute = Integer.parseInt(minute < 10 ? "0"+minute : ""+minute);
+        int mHourOfDay = Integer.parseInt(hourOfDay < 10 ? "0" + hourOfDay : "" + hourOfDay);
+        int mMinute = Integer.parseInt(minute < 10 ? "0" + minute : "" + minute);
         SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
         sensorRecord.StartSensor(startTime);

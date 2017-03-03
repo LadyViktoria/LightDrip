@@ -46,19 +46,14 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    private String mDeviceAddress = "00:00:00:00:00:00";
-    private String mDeviceName;
-    private BGMeterGattService mBGMeterGattService;
     private TextView mConnectionState ,mDatabaseSize, bgmac, mDataField;
     private boolean mConnected = false;
     private Realm mRealm;
-    private RealmService mRealmService;
     private RealmChangeListener realmListener;
-    private FloatingActionButton fab, fab1, fab2, fab3, fab4;
+    private FloatingActionButton fab;
     private LinearLayout fabLabel1, fabLabel2, fabLabel3, fabLabel4;
     private View fabBGLayout;
     private boolean isFABOpen = false;
-    private Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     private Context context;
     private GlucoseRecord glucoserecord;
     private SensorRecord sensorRecord;
@@ -81,14 +76,14 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
 
-        mRealmService = new RealmService(getcontext());
-        mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
+        RealmService mRealmService = new RealmService(getcontext());
+        Intent mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
         if (!isMyServiceRunning(mRealmService.getClass())) {
             startService(mServiceRealmIntent);
         }
 
-        mBGMeterGattService = new BGMeterGattService(getcontext());
-        mServiceBGMeterGattIntent = new Intent(getcontext(),BGMeterGattService.class);
+        BGMeterGattService mBGMeterGattService = new BGMeterGattService(getcontext());
+        Intent mServiceBGMeterGattIntent = new Intent(getcontext(), BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
         }
@@ -107,13 +102,13 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLabel4.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
-        fab1 = (FloatingActionButton) findViewById(R.id.fab1);
+        FloatingActionButton fab1 = (FloatingActionButton) findViewById(R.id.fab1);
         fab1.setOnClickListener(this);
-        fab2= (FloatingActionButton) findViewById(R.id.fab2);
+        FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
         fab2.setOnClickListener(this);
-        fab3= (FloatingActionButton) findViewById(R.id.fab3);
+        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab3);
         fab3.setOnClickListener(this);
-        fab4= (FloatingActionButton) findViewById(R.id.fab4);
+        FloatingActionButton fab4 = (FloatingActionButton) findViewById(R.id.fab4);
         fab4.setOnClickListener(this);
         fabBGLayout=findViewById(R.id.fabBGLayout);
         fabBGLayout.setOnClickListener(this);
@@ -301,8 +296,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     private void getBTDevice() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mDeviceName = preferences.getString("BT_Name", "NULL");
-        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        String mDeviceName = preferences.getString("BT_Name", "NULL");
+        String mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
     }
 

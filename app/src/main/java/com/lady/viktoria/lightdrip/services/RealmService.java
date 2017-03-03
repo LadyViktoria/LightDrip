@@ -22,13 +22,6 @@ public class RealmService extends RealmBaseService {
 
     private Realm mRealm;
 
-    public RealmService(Context applicationContext) {
-        super();
-    }
-
-    public RealmService() {
-
-    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -52,7 +45,6 @@ public class RealmService extends RealmBaseService {
 
     private Timer timer;
     private TimerTask timerTask;
-    long oldTime=0;
     public void startTimer() {
         //set a new Timer
         timer = new Timer();

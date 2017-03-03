@@ -120,7 +120,7 @@ public class SensorRecord extends RealmBase {
                         return false;
                     }
                 })
-                .registerTypeAdapter(Class.forName("com.lady.viktoria.lightdrip.RealmModels.SensorData"), new SensorDataSerializer())
+                .registerTypeAdapter(SensorData.class, new SensorDataSerializer())
                 .create();
     }
 }

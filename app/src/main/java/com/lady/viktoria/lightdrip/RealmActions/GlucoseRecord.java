@@ -30,12 +30,9 @@ public class GlucoseRecord extends RealmBase {
     private static final double AGE_ADJUSTMENT_TIME = 86400000 * 1.9;
     private static final double AGE_ADJUSTMENT_FACTOR = .45;
     private double time_since_sensor_started;
-    private double raw_data;
     private double filtered_data;
-    private double age_adjusted_raw_value;
     private boolean calibration_flag;
     private double calculated_value;
-    private double calculated_value_slope;
     private double a;
     private double b;
     private double c;
@@ -53,7 +50,6 @@ public class GlucoseRecord extends RealmBase {
     private SensorRecord sensorRecord;
     private Realm mRealm;
     private Gson gson;
-    private String json;
     Context context;
 
     public GlucoseRecord() {
@@ -93,7 +89,7 @@ public class GlucoseRecord extends RealmBase {
         //glucoseRecord.perform_calculations();
 
         serializeToJson();
-        json = gson.toJson(mRealm.copyFromRealm(mRealm
+        String json = gson.toJson(mRealm.copyFromRealm(mRealm
                 .where(GlucoseData.class)
                 .findAllSorted("id", Sort.DESCENDING)
                 .where()
@@ -109,8 +105,9 @@ public class GlucoseRecord extends RealmBase {
         long lastID = results.last().getid();
         GlucoseData mGlucoseData = mRealm.where(GlucoseData.class).equalTo("id", lastID).findFirst();
         double TimeSinceSensorStarted = mGlucoseData.getTimeSinceSensorStarted();
-        raw_data = mGlucoseData.getRawData();
+        double raw_data = mGlucoseData.getRawData();
         double adjust_for = AGE_ADJUSTMENT_TIME - TimeSinceSensorStarted;
+        double age_adjusted_raw_value;
         if (adjust_for > 0) {
             age_adjusted_raw_value = ((AGE_ADJUSTMENT_FACTOR * (adjust_for / AGE_ADJUSTMENT_TIME)) * raw_data) + raw_data;
             Log.i(TAG, "calculateAgeAdjustedRawValue: RAW VALUE ADJUSTMENT FROM:" + raw_data + " TO: " + age_adjusted_raw_value);
@@ -191,6 +188,7 @@ public class GlucoseRecord extends RealmBase {
 
         //assert last_2.get(0) == this : "Invariant condition not fulfilled: calculating slope and current reading wasn't saved before";
 
+        double calculated_value_slope;
         if (lastGlucose != 0 && currentGlucose != 0) {
             calculated_value_slope = calculateSlope(currentGlucose, lastGlucose);
             //save();
