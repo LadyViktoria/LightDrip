@@ -52,6 +52,9 @@ public class GlucoseRecord extends RealmBase {
     public String noise;
     public long timestamp;
 
+    static GlucoseRecord glucoseRecord = new GlucoseRecord();
+    static SensorRecord sensorRecord = new SensorRecord();
+
 
     Realm mRealm;
     Context context;
@@ -69,8 +72,6 @@ public class GlucoseRecord extends RealmBase {
     }
 
     public static GlucoseRecord create(double raw_data, double filtered_data, Long timestamp) {
-        GlucoseRecord glucoseRecord = new GlucoseRecord();
-        SensorRecord sensorRecord = new SensorRecord();
         if (!sensorRecord.isSensorActive()) {
             Log.i("BG GSON: ", glucoseRecord.toS());
             return glucoseRecord;

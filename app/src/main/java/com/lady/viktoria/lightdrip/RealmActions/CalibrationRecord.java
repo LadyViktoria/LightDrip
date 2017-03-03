@@ -42,6 +42,13 @@ public class CalibrationRecord extends RealmBase {
     public static final double MMOLL_TO_MGDL = 18.0182;
     public static final double MGDL_TO_MMOLL = 1 / MMOLL_TO_MGDL;
 
+    SensorRecord sensorRecord = new SensorRecord();
+    CalibrationRecord higherCalibration = new CalibrationRecord();
+    CalibrationRecord lowerCalibration = new CalibrationRecord();
+    GlucoseRecord glucoseRecord = new GlucoseRecord();
+    CalibrationRecord calibrationRecord = new CalibrationRecord();
+
+
     Realm mRealm;
     Context context;
     private Gson gson;
@@ -57,10 +64,7 @@ public class CalibrationRecord extends RealmBase {
     }
 
     public void initialCalibration(double bg1, double bg2) {
-        SensorRecord sensorRecord = new SensorRecord();
         long currentsensor_id = sensorRecord.currentSensorID();
-        CalibrationRecord higherCalibration = new CalibrationRecord();
-        CalibrationRecord lowerCalibration = new CalibrationRecord();
         double bgReading1 = 0, bgReading2 = 0
                 , ageAdjustedRawData1 = 0 ,ageAdjustedRawData2 = 0
                 ,timestamp1 = 0, timestamp2 = 0;
@@ -185,11 +189,8 @@ public class CalibrationRecord extends RealmBase {
     }
 
     public void singleCalibration(double bg) {
-        SensorRecord sensorRecord = new SensorRecord();
         boolean currentsensor = sensorRecord.isSensorActive();
         long currentsensor_id = sensorRecord.currentSensorID();
-        GlucoseRecord glucoseRecord = new GlucoseRecord();
-        CalibrationRecord calibrationRecord = new CalibrationRecord();
         if (currentsensor && glucoseRecord.lastGluscoseEntry() != null) {
             long newprimekeyLowCal = PrimaryKeyFactory.getInstance().nextKey(CalibrationData.class);
             mRealm.beginTransaction();
