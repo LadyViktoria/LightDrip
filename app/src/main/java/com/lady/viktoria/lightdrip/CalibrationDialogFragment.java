@@ -31,7 +31,6 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     private Realm mRealm;
     private GlucoseRecord glucoserecord;
     private CalibrationRecord calibration;
-
     public CalibrationDialogFragment() {}
 
     @Override

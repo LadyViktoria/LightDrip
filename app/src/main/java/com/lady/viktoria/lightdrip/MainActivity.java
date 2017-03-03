@@ -55,7 +55,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private FloatingActionButton fab, fab1, fab2, fab3;
     private LinearLayout fabLabel1, fabLabel2, fabLabel3;
     private View fabBGLayout;
-    boolean isFABOpen = false;
+    private boolean isFABOpen = false;
     private Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     private Context context;
     private BroadcastReceiver mBeaconMessageReceiver = null;
