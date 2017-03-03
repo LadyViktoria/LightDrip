@@ -59,6 +59,9 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
 
+    GlucoseRecord glucoserecord = new GlucoseRecord();
+    SensorRecord sensorRecord = new SensorRecord();
+
     public Context getcontext() {
         return context;
     }
@@ -116,8 +119,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 @Override
                 public void onChange(Object element) {
                     getDatabaseSize();
-                    GlucoseRecord glucoserecord = new GlucoseRecord();
-                    SensorRecord sensorRecord = new SensorRecord();
                     CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
                     TransmitterData transmitterData = mRealm.where(TransmitterData.class)
                             .findAllSorted("id", Sort.DESCENDING)
@@ -148,8 +149,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
-                SensorRecord sensorRecord = new SensorRecord();
-                GlucoseRecord glucoserecord = new GlucoseRecord();
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
                     startSensorSnackbar("Please start Sensor first!");
