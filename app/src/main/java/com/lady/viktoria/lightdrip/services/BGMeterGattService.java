@@ -1,5 +1,6 @@
 package com.lady.viktoria.lightdrip.services;
 
+import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -16,8 +17,12 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 
+import com.lady.viktoria.lightdrip.CalibrationDialogFragment;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 
@@ -48,6 +53,7 @@ public class BGMeterGattService extends RealmBaseService {
     private static final int STATE_CONNECTED = 2;
     String BTDeviceAddress = "00:00:00:00:00:00";
     Realm mRealm;
+    Context mContext;
 
 
     public final static String ACTION_GATT_CONNECTED =
@@ -368,6 +374,7 @@ public class BGMeterGattService extends RealmBaseService {
 
         if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
+            sendBeaconBroadcast();
             writeTxIdPacket(TransmitterID);
             return false;
         } else if (packet[0] >= 21 && packet[1] == 0) {
@@ -416,5 +423,10 @@ public class BGMeterGattService extends RealmBaseService {
             Log.v(TAG, "Write Acknowledge Packet failed!");
             return false;
         }
+    }
+
+    private void sendBeaconBroadcast() {
+        Intent it = new Intent("BEACON_SNACKBAR");
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(it);
     }
 }

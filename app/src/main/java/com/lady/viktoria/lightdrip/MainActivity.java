@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -58,6 +59,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     boolean isFABOpen = false;
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
+    private BroadcastReceiver mBeaconMessageReceiver = null;
+
 
     GlucoseRecord glucoserecord;
     SensorRecord sensorRecord;
@@ -136,6 +139,14 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         } catch (Exception e) {
             Log.v(TAG, "onCreate " + e.getMessage());
         }
+
+        mBeaconMessageReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                beaconSnackbar();
+            }
+        };
     }
 
     public void onClick(View view) {
@@ -224,6 +235,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBeaconMessageReceiver, new IntentFilter("BEACON_SNACKBAR"));
         getBTDevice();
     }
 
@@ -342,6 +354,19 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
                 ft3.replace(R.id.fragment, new SensorActionFragment());
                 ft3.commit();
+            }
+        });
+        snackBar.show();
+    }
+
+    private void beaconSnackbar() {
+        final Snackbar snackBar = Snackbar.make(fabBGLayout
+                , "We have got a Beacon Package please check Transmitter ID"
+                , Snackbar.LENGTH_INDEFINITE);
+        snackBar.setAction("Dismiss", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackBar.dismiss();
             }
         });
         snackBar.show();
