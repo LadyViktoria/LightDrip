@@ -24,7 +24,7 @@ public class TransmitterRecord extends RealmBase {
     private int transmitter_battery_level;
     private int bridge_battery_level;
     private Realm mRealm;
-    private Context context;
+    Context context;
 
     private TransmitterRecord() {
         Realm.init(context);

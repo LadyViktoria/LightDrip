@@ -52,9 +52,9 @@ public class GlucoseRecord extends RealmBase {
     private long timestamp;
     private SensorRecord sensorRecord;
     private Realm mRealm;
-    private Context context;
     private Gson gson;
     private String json;
+    Context context;
 
     public GlucoseRecord() {
         Realm.init(context);
