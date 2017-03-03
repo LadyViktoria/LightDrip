@@ -30,6 +30,9 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     Boolean doubleCalFlag = false;
     Realm mRealm;
 
+    GlucoseRecord glucoserecord = new GlucoseRecord();
+    CalibrationRecord calibration = new CalibrationRecord();
+
     public CalibrationDialogFragment() {}
 
     @Override
@@ -49,7 +52,6 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
         Realm.init(getActivity());
         mRealm = getInstance(getRealmConfig());
 
-        GlucoseRecord glucoserecord = new GlucoseRecord();
         CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
         if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
             sButton.setChecked(true);
@@ -63,7 +65,6 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
 
             @Override
             public void onClick(View view) {
-                CalibrationRecord calibration = new CalibrationRecord();
                 if (doubleCalFlag) {
                     try {
                         double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
