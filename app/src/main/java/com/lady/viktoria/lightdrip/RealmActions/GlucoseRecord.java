@@ -16,7 +16,6 @@ import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
 
 import java.util.Date;
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -52,8 +51,7 @@ public class GlucoseRecord extends RealmBase {
     public String noise;
     public long timestamp;
 
-    GlucoseRecord glucoseRecord = new GlucoseRecord();
-    SensorRecord sensorRecord = new SensorRecord();
+    private SensorRecord sensorRecord;
 
 
     Realm mRealm;
@@ -64,6 +62,8 @@ public class GlucoseRecord extends RealmBase {
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        sensorRecord = new SensorRecord();
+
         try {
             PrimaryKeyFactory.getInstance().initialize(mRealm);
         } catch (Exception e) {
@@ -71,10 +71,10 @@ public class GlucoseRecord extends RealmBase {
         }
     }
 
-    public GlucoseRecord create(double raw_data, double filtered_data, Long timestamp) {
+    public void create(double raw_data, double filtered_data, Long timestamp) {
         if (!sensorRecord.isSensorActive()) {
-            Log.i("BG GSON: ", glucoseRecord.toS());
-            return glucoseRecord;
+            Log.i("BG GSON: ", toS());
+            return;
         }
 
             Log.d(TAG, "create: No calibration yet");
@@ -110,7 +110,7 @@ public class GlucoseRecord extends RealmBase {
         Log.v(TAG, "glucoseRecord json: "  + json);
 
 
-        return glucoseRecord;
+        return;
     }
 
     public void calculateAgeAdjustedRawValue() {

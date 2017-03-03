@@ -24,7 +24,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
     Calendar SensorStart;
     int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
-    SensorRecord sensorRecord = new SensorRecord();
+    SensorRecord sensorRecord;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -32,6 +32,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
         View view = inflater.inflate(R.layout.fragment_sensoraction, container, false);
         SensorStart = Calendar.getInstance();
+        sensorRecord = new SensorRecord();
         SensorDialog();
         return view;
     }

@@ -30,14 +30,16 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     Boolean doubleCalFlag = false;
     Realm mRealm;
 
-    GlucoseRecord glucoserecord = new GlucoseRecord();
-    CalibrationRecord calibration = new CalibrationRecord();
+    GlucoseRecord glucoserecord;
+    CalibrationRecord calibration;
 
     public CalibrationDialogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        glucoserecord = new GlucoseRecord();
+        calibration = new CalibrationRecord();
     }
 
     @Override

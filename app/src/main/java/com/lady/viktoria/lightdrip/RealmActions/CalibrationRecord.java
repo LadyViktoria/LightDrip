@@ -42,11 +42,11 @@ public class CalibrationRecord extends RealmBase {
     public static final double MMOLL_TO_MGDL = 18.0182;
     public static final double MGDL_TO_MMOLL = 1 / MMOLL_TO_MGDL;
 
-    SensorRecord sensorRecord = new SensorRecord();
-    CalibrationRecord higherCalibration = new CalibrationRecord();
-    CalibrationRecord lowerCalibration = new CalibrationRecord();
-    GlucoseRecord glucoseRecord = new GlucoseRecord();
-    CalibrationRecord calibrationRecord = new CalibrationRecord();
+    SensorRecord sensorRecord;
+    CalibrationRecord higherCalibration;
+    CalibrationRecord lowerCalibration;
+    GlucoseRecord glucoseRecord;
+    CalibrationRecord calibrationRecord;
 
 
     Realm mRealm;
@@ -56,6 +56,12 @@ public class CalibrationRecord extends RealmBase {
     public CalibrationRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        sensorRecord = new SensorRecord();
+        higherCalibration = new CalibrationRecord();
+        lowerCalibration = new CalibrationRecord();
+        glucoseRecord = new GlucoseRecord();
+        calibrationRecord = new CalibrationRecord();
+
         try {
             PrimaryKeyFactory.getInstance().initialize(mRealm);
         } catch (Exception e) {

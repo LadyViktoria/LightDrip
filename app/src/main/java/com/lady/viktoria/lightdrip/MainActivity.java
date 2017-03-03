@@ -59,8 +59,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     Context context;
 
-    GlucoseRecord glucoserecord = new GlucoseRecord();
-    SensorRecord sensorRecord = new SensorRecord();
+    GlucoseRecord glucoserecord;
+    SensorRecord sensorRecord;
 
     public Context getcontext() {
         return context;
@@ -74,6 +74,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         context = this;
         Realm.init(this);
         mRealm = getInstance(getRealmConfig());
+        glucoserecord = new GlucoseRecord();
+        sensorRecord = new SensorRecord();
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
