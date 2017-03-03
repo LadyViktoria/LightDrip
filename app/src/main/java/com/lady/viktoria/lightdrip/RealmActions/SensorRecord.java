@@ -26,7 +26,7 @@ public class SensorRecord extends RealmBase {
 
     private Realm mRealm;
     private Gson gson;
-    Context context;
+    private Context context;
 
     public SensorRecord() {
         Realm.init(context);

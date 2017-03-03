@@ -52,18 +52,15 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private Realm mRealm;
     private RealmService mRealmService;
     private RealmChangeListener realmListener;
-
-    FloatingActionButton fab, fab1, fab2, fab3;
-    LinearLayout fabLabel1, fabLabel2, fabLabel3;
-    View fabBGLayout;
+    private FloatingActionButton fab, fab1, fab2, fab3;
+    private LinearLayout fabLabel1, fabLabel2, fabLabel3;
+    private View fabBGLayout;
     boolean isFABOpen = false;
-    Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
-    Context context;
+    private Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
+    private Context context;
     private BroadcastReceiver mBeaconMessageReceiver = null;
-
-
-    GlucoseRecord glucoserecord;
-    SensorRecord sensorRecord;
+    private GlucoseRecord glucoserecord;
+    private SensorRecord sensorRecord;
 
     public Context getcontext() {
         return context;

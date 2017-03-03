@@ -24,14 +24,13 @@ import static io.realm.Realm.getInstance;
 public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
 
-    Switch sButton;
-    Button calButton;
-    EditText glucosereading1, glucosereading2;
-    Boolean doubleCalFlag = false;
-    Realm mRealm;
-
-    GlucoseRecord glucoserecord;
-    CalibrationRecord calibration;
+    private Switch sButton;
+    private Button calButton;
+    private EditText glucosereading1, glucosereading2;
+    private Boolean doubleCalFlag = false;
+    private Realm mRealm;
+    private GlucoseRecord glucoserecord;
+    private CalibrationRecord calibration;
 
     public CalibrationDialogFragment() {}
 

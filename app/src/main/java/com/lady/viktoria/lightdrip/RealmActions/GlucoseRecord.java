@@ -27,37 +27,34 @@ import static io.realm.Realm.getInstance;
 public class GlucoseRecord extends RealmBase {
     private final static String TAG = GlucoseRecord.class.getSimpleName();
 
-    public static final double AGE_ADJUSTMENT_TIME = 86400000 * 1.9;
-    public static final double AGE_ADJUSTMENT_FACTOR = .45;
-    public double time_since_sensor_started;
-    public double raw_data;
-    public double filtered_data;
-    public double age_adjusted_raw_value;
-    public boolean calibration_flag;
-    public double calculated_value;
-    public double calculated_value_slope;
-    public double a;
-    public double b;
-    public double c;
-    public double ra;
-    public double rb;
-    public double rc;
-    public String uuid;
-    public String calibration_uuid;
-    public String sensor_uuid;
-    public boolean synced;
-    public double raw_calculated;
-    public boolean hide_slope;
-    public String noise;
-    public long timestamp;
-
+    private static final double AGE_ADJUSTMENT_TIME = 86400000 * 1.9;
+    private static final double AGE_ADJUSTMENT_FACTOR = .45;
+    private double time_since_sensor_started;
+    private double raw_data;
+    private double filtered_data;
+    private double age_adjusted_raw_value;
+    private boolean calibration_flag;
+    private double calculated_value;
+    private double calculated_value_slope;
+    private double a;
+    private double b;
+    private double c;
+    private double ra;
+    private double rb;
+    private double rc;
+    private String uuid;
+    private String calibration_uuid;
+    private String sensor_uuid;
+    private boolean synced;
+    private double raw_calculated;
+    private boolean hide_slope;
+    private String noise;
+    private long timestamp;
     private SensorRecord sensorRecord;
-
-
-    Realm mRealm;
-    Context context;
+    private Realm mRealm;
+    private Context context;
     private Gson gson;
-    String json;
+    private String json;
 
     public GlucoseRecord() {
         Realm.init(context);

@@ -20,7 +20,7 @@ import static io.realm.Realm.getInstance;
 public class RealmService extends RealmBaseService {
     private final static String TAG = RealmService.class.getSimpleName();
 
-    Realm mRealm;
+    private Realm mRealm;
 
     public RealmService(Context applicationContext) {
         super();

@@ -26,27 +26,24 @@ import static io.realm.Realm.getInstance;
 public class CalibrationRecord extends RealmBase {
     private final static String TAG = CalibrationRecord.class.getSimpleName();
 
-    public static final double LOW_SLOPE_1 = 0.95;
-    public static final double LOW_SLOPE_2 = 0.85;
-    public static final double HIGH_SLOPE_1 = 1.3;
-    public static final double HIGH_SLOPE_2 = 1.4;
-    public static final double DEFAULT_LOW_SLOPE_LOW = 1.08;
-    public static final double DEFAULT_LOW_SLOPE_HIGH = 1.15;
-    public static final int DEFAULT_SLOPE = 1;
-    public static final double DEFAULT_HIGH_SLOPE_HIGH = 1.3;
-    public static final double DEFAUL_HIGH_SLOPE_LOW = 1.2;
-    public static final double MMOLL_TO_MGDL = 18.0182;
-    public static final double MGDL_TO_MMOLL = 1 / MMOLL_TO_MGDL;
-
-    SensorRecord sensorRecord;
-    CalibrationRecord higherCalibration;
-    CalibrationRecord lowerCalibration;
-    GlucoseRecord glucoseRecord;
-    CalibrationRecord calibrationRecord;
-
-
-    Realm mRealm;
-    Context context;
+    private static final double LOW_SLOPE_1 = 0.95;
+    private static final double LOW_SLOPE_2 = 0.85;
+    private static final double HIGH_SLOPE_1 = 1.3;
+    private static final double HIGH_SLOPE_2 = 1.4;
+    private static final double DEFAULT_LOW_SLOPE_LOW = 1.08;
+    private static final double DEFAULT_LOW_SLOPE_HIGH = 1.15;
+    private static final int DEFAULT_SLOPE = 1;
+    private static final double DEFAULT_HIGH_SLOPE_HIGH = 1.3;
+    private static final double DEFAUL_HIGH_SLOPE_LOW = 1.2;
+    private static final double MMOLL_TO_MGDL = 18.0182;
+    private static final double MGDL_TO_MMOLL = 1 / MMOLL_TO_MGDL;
+    private SensorRecord sensorRecord;
+    private CalibrationRecord higherCalibration;
+    private CalibrationRecord lowerCalibration;
+    private GlucoseRecord glucoseRecord;
+    private CalibrationRecord calibrationRecord;
+    private Realm mRealm;
+    private Context context;
     private Gson gson;
 
     public CalibrationRecord() {

@@ -22,9 +22,9 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     public SensorActionFragment() {
     }
 
-    Calendar SensorStart;
-    int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
-    SensorRecord sensorRecord;
+    private Calendar SensorStart;
+    private int mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute;
+    private SensorRecord sensorRecord;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
