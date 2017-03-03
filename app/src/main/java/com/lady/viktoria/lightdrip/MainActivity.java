@@ -6,19 +6,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,8 +28,13 @@ import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
 
+import net.grandcentrix.tray.AppPreferences;
+import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
+import net.grandcentrix.tray.core.TrayItem;
+
 import io.fabric.sdk.android.Fabric;
 import java.io.File;
+import java.util.Collection;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
@@ -44,7 +44,7 @@ import io.realm.Sort;
 import static io.realm.Realm.getInstance;
 
 public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        OnTrayPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -76,8 +76,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         mRealm = getInstance(getRealmConfig());
         glucoserecord = new GlucoseRecord();
         sensorRecord = new SensorRecord();
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
+
 
         RealmService mRealmService = new RealmService(getcontext());
         Intent mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
@@ -91,17 +91,17 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             startService(mServiceBGMeterGattIntent);
         }
 
-        bgmac = (TextView)findViewById(R.id.bgmac);
+        bgmac = (TextView) findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.bgreading);
         mDatabaseSize = (TextView) findViewById(R.id.databasesize);
-        fabLabel1= (LinearLayout) findViewById(R.id.fabLabel1);
+        fabLabel1 = (LinearLayout) findViewById(R.id.fabLabel1);
         fabLabel1.setOnClickListener(this);
-        fabLabel2= (LinearLayout) findViewById(R.id.fabLabel2);
+        fabLabel2 = (LinearLayout) findViewById(R.id.fabLabel2);
         fabLabel2.setOnClickListener(this);
-        fabLabel3= (LinearLayout) findViewById(R.id.fabLabel3);
+        fabLabel3 = (LinearLayout) findViewById(R.id.fabLabel3);
         fabLabel3.setOnClickListener(this);
-        fabLabel4= (LinearLayout) findViewById(R.id.fabLabel4);
+        fabLabel4 = (LinearLayout) findViewById(R.id.fabLabel4);
         fabLabel4.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
@@ -113,10 +113,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fab3.setOnClickListener(this);
         FloatingActionButton fab4 = (FloatingActionButton) findViewById(R.id.fab4);
         fab4.setOnClickListener(this);
-        fabBGLayout=findViewById(R.id.fabBGLayout);
+        fabBGLayout = findViewById(R.id.fabBGLayout);
         fabBGLayout.setOnClickListener(this);
         getBTDevice();
         getDatabaseSize();
+
         try {
             realmListener = new RealmChangeListener() {
 
@@ -128,15 +129,52 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                             .findAllSorted("id", Sort.DESCENDING)
                             .where()
                             .findFirst();
-                    if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
+                    if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
                         calibrationSnackbar();
-                    } else if(calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()){
+                    } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
                         startSensorSnackbar("Received Transmitter Data please Start Sensor");
                     }
-                }};
+                }
+            };
             mRealm.addChangeListener(realmListener);
         } catch (Exception e) {
             Log.v(TAG, "onCreate " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onTrayPreferenceChanged(Collection<TrayItem> items) {
+        getBTDevice();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBeaconMessageReceiver, new IntentFilter("BEACON_SNACKBAR"));
+        getBTDevice();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRealm.removeChangeListener(realmListener);
+        mRealm.close();
+        Realm.compactRealm(getRealmConfig());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isFABOpen){
+            closeFABMenu();
+        }else{
+            super.onBackPressed();
         }
     }
 
@@ -214,42 +252,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-       getBTDevice();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBeaconMessageReceiver, new IntentFilter("BEACON_SNACKBAR"));
-        getBTDevice();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mRealm.removeChangeListener(realmListener);
-        mRealm.close();
-        Realm.compactRealm(getRealmConfig());
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(isFABOpen){
-            closeFABMenu();
-        }else{
-            super.onBackPressed();
-        }
-    }
-
     private void showFABMenu(){
         isFABOpen=true;
         fabLabel1.setVisibility(View.VISIBLE);
@@ -298,10 +300,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     }
 
     private void getBTDevice() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String mDeviceName = preferences.getString("BT_Name", "NULL");
-        String mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        final AppPreferences appPreferences = new AppPreferences(this);
+        final String mDeviceName = appPreferences.getString("BT_Name", "NULL");
+        final String mDeviceAddress = appPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
+        fabBGLayout.invalidate();
     }
 
     private void updateConnectionState(final int resourceId) {

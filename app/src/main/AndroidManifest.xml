@@ -12,7 +12,8 @@
         <service
             android:name="com.lady.viktoria.lightdrip.services.RealmService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:process=":Services" />
         <receiver
             android:name="com.lady.viktoria.lightdrip.receiver.RealmServiceRestarter"
             android:enabled="true"
@@ -35,7 +36,8 @@
         <service
             android:name="com.lady.viktoria.lightdrip.services.BGMeterGattService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:process=":Services" />
         <receiver
             android:name="com.lady.viktoria.lightdrip.receiver.BGMeterGattServiceRestarter"
             android:enabled="true"

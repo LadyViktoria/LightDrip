@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip.services;
 
-import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,19 +11,16 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 
-import com.lady.viktoria.lightdrip.CalibrationDialogFragment;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
+
+import net.grandcentrix.tray.AppPreferences;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -51,7 +47,6 @@ public class BGMeterGattService extends RealmBaseService {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-    private String BTDeviceAddress = "00:00:00:00:00:00";
     private Realm mRealm;
     private Context mContext;
 
@@ -361,11 +356,10 @@ public class BGMeterGattService extends RealmBaseService {
     public boolean CheckTransmitterID(byte[] packet, int len) {
         int DexSrc;
         int TransmitterID;
-        String TxId;
         ByteBuffer tmpBuffer;
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        TxId = preferences.getString("transmitter_id", "00000");
+        final AppPreferences appPreferences = new AppPreferences(this);
+        final String TxId = appPreferences.getString("Transmitter_Id", "00000");
         TransmitterID = convertSrc(TxId);
 
         tmpBuffer = ByteBuffer.allocate(len);
@@ -390,8 +384,8 @@ public class BGMeterGattService extends RealmBaseService {
     }
 
     private String getBTDeviceMAC() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        BTDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        final AppPreferences appPreferences = new AppPreferences(this);
+        final String BTDeviceAddress = appPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         return BTDeviceAddress;
     }
 

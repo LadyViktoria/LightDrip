@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 
+import net.grandcentrix.tray.AppPreferences;
+
 public class PreferncesActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final static String TAG = PreferncesActivity.class.getSimpleName();
@@ -27,16 +29,13 @@ public class PreferncesActivity extends PreferenceActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
+        final AppPreferences appPreferences = new AppPreferences(this);
         if (key.equals("bt_device")) {
             ListPreference listPref = (ListPreference) getPreference("bt_device");
             String BTDevice = (String) listPref.getEntry();
             String BTDeviceArray[] = BTDevice.split("\\r?\\n");
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("BT_Name", BTDeviceArray[0]);
-            editor.putString("BT_MAC_Address", BTDeviceArray[1]);
-            editor.apply();
+            appPreferences.put("BT_Name", BTDeviceArray[0]);
+            appPreferences.put("BT_MAC_Address", BTDeviceArray[1]);
             stopService(new Intent(this, BGMeterGattService.class));
         }
         if (key.equals("transmitter_id")) {
@@ -50,10 +49,7 @@ public class PreferncesActivity extends PreferenceActivity
             }
             String txid = sharedPreferences.getString("transmitter_id", "00000");
             Log.v(TAG, txid);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("Transmitter_Id", txid);
-            editor.apply();
+            appPreferences.put("Transmitter_Id", txid);
             stopService(new Intent(this, BGMeterGattService.class));
         }
     }
