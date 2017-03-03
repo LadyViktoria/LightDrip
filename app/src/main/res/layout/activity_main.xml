@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_opacity_black_24px"
+            app:srcCompat="@drawable/ic_drop"
             app:fabSize="mini"/>
     </LinearLayout>
 
