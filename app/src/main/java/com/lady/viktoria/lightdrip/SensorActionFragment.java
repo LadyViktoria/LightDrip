@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,10 +53,16 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
                             now.get(Calendar.MONTH),
                             now.get(Calendar.DAY_OF_MONTH)
                     );
+                    dpd.setThemeDark(true);
                     dpd.show(getFragmentManager(), "Datepickerdialog");
                     dialog.dismiss();
                 } else {
-                    Snackbar.make(getView(), "Please stop current Sensor first!", Snackbar.LENGTH_LONG).show();
+                    final Snackbar snackBar = Snackbar.make(getView()
+                            , "Please stop current Sensor first!"
+                            , Snackbar.LENGTH_LONG);
+                    View snackBarView = snackBar.getView();
+                    snackBarView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorBackground));
+                    snackBar.show();
                 }
                 dialog.dismiss();
             }
@@ -83,6 +90,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
                 now.get(Calendar.MINUTE),
                 true
         );
+        tpd.setThemeDark(true);
         tpd.show(getFragmentManager(), "Timepickerdialog");
     }
 

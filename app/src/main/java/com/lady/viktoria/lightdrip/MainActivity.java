@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -70,6 +72,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate(savedInstanceState);
         context = this;
         Realm.init(this);
@@ -164,7 +167,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                     startSensorSnackbar("Please start Sensor first!");
                 } else if (glucoserecord.countRecordsByLastSensorID() < 2) {
                     closeFABMenu();
-                    Snackbar.make(view, "Please wait until we got 2 Sensor Readings!", Snackbar.LENGTH_LONG).show();
+                    sensorReadingsSnackbar();
                 } else {
                     closeFABMenu();
                     FragmentManager fm = getFragmentManager();
@@ -337,6 +340,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 dialogFragment.show(fm, "Calibration Dialog Fragment");
             }
         });
+        View snackBarView = snackBar.getView();
+        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
         snackBar.show();
     }
 
@@ -353,6 +358,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 ft3.commit();
             }
         });
+        View snackBarView = snackBar.getView();
+        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
         snackBar.show();
     }
 
@@ -361,11 +368,23 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 , "We have got a Beacon Package please check Transmitter ID"
                 , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Dismiss", new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 snackBar.dismiss();
             }
         });
+        View snackBarView = snackBar.getView();
+        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        snackBar.show();
+    }
+
+    private void sensorReadingsSnackbar() {
+        final Snackbar snackBar = Snackbar.make(fabBGLayout
+                , "Please wait until we got 2 Sensor Readings!"
+                , Snackbar.LENGTH_LONG);
+        View snackBarView = snackBar.getView();
+        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
         snackBar.show();
     }
 
