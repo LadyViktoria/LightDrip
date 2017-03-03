@@ -53,5 +53,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.lady.viktoria.lightdrip.MainActivity" />
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="4ee637e9d32a37083732de46f9287d593e25fc63" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

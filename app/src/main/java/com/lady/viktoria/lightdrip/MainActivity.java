@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
 import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
@@ -32,6 +33,7 @@ import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.RealmService;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.File;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
@@ -68,6 +70,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         context = this;
         Realm.init(this);
         mRealm = getInstance(getRealmConfig());

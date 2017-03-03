@@ -1,4 +1,14 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 apply plugin: 'realm-android'
 
 android {
@@ -23,6 +33,7 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
@@ -35,4 +46,7 @@ dependencies {
     compile 'io.realm:android-adapters:1.4.0'
     compile 'com.wdullaer:materialdatetimepicker:3.1.2'
     compile 'com.android.support:support-v4:25.2.0'
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
+        transitive = true;
+    }
 }
