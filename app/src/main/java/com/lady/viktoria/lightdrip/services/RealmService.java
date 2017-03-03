@@ -22,6 +22,13 @@ public class RealmService extends RealmBaseService {
 
     private Realm mRealm;
 
+    public RealmService(Context applicationContext) {
+        super();
+    }
+
+    public RealmService() {
+
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
