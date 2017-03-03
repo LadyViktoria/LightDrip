@@ -7,20 +7,6 @@
     android:fitsSystemWindows="true"
     tools:context="com.lady.viktoria.lightdrip.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
     <include layout="@layout/content_main" />
 
     <View
@@ -51,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_storage_white_24px"
+            app:srcCompat="@drawable/ic_storage_black_24px"
             app:fabSize="mini"/>
     </LinearLayout>
 
@@ -77,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_opacity_white_24px"
+            app:srcCompat="@drawable/ic_opacity_black_24px"
             app:fabSize="mini"/>
     </LinearLayout>
 
@@ -103,8 +89,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            app:srcCompat="@drawable/ic_priority_high_white_24px"
+            app:srcCompat="@drawable/ic_priority_high_black_24px"
             app:fabSize="mini"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fabLabel4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/standard_12"
+        android:clipToPadding="false"
+        android:layout_marginRight="@dimen/standard_23"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="@dimen/standard_23"
+        android:layout_gravity="bottom|end"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prefernces"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            app:srcCompat="@drawable/ic_settings_black_24px"
+            app:fabSize="mini" />
     </LinearLayout>
 
     <LinearLayout
@@ -123,7 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:gravity="center_vertical"
-            app:srcCompat="@drawable/ic_apps_white_24px"
+            app:srcCompat="@drawable/ic_apps_black_24px"
             app:fabSize="normal"/>
     </LinearLayout>
 

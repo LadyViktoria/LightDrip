@@ -54,8 +54,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private Realm mRealm;
     private RealmService mRealmService;
     private RealmChangeListener realmListener;
-    private FloatingActionButton fab, fab1, fab2, fab3;
-    private LinearLayout fabLabel1, fabLabel2, fabLabel3;
+    private FloatingActionButton fab, fab1, fab2, fab3, fab4;
+    private LinearLayout fabLabel1, fabLabel2, fabLabel3, fabLabel4;
     private View fabBGLayout;
     private boolean isFABOpen = false;
     private Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
@@ -81,8 +81,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         sensorRecord = new SensorRecord();
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         mRealmService = new RealmService(getcontext());
         mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
@@ -106,6 +104,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLabel2.setOnClickListener(this);
         fabLabel3= (LinearLayout) findViewById(R.id.fabLabel3);
         fabLabel3.setOnClickListener(this);
+        fabLabel4= (LinearLayout) findViewById(R.id.fabLabel4);
+        fabLabel4.setOnClickListener(this);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(this);
         fab1 = (FloatingActionButton) findViewById(R.id.fab1);
@@ -114,6 +114,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fab2.setOnClickListener(this);
         fab3= (FloatingActionButton) findViewById(R.id.fab3);
         fab3.setOnClickListener(this);
+        fab4= (FloatingActionButton) findViewById(R.id.fab4);
+        fab4.setOnClickListener(this);
         fabBGLayout=findViewById(R.id.fabBGLayout);
         fabBGLayout.setOnClickListener(this);
         getBTDevice();
@@ -183,6 +185,11 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 ft3.replace(R.id.fragment, new SensorActionFragment());
                 ft3.commit();
                 break;
+            case R.id.fab4:
+            case R.id.fabLabel4:
+                closeFABMenu();
+                startActivity(new Intent(this, PreferncesActivity.class));
+                break;
             case R.id.fabBGLayout:
                 closeFABMenu();
                 break;
@@ -214,22 +221,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             }
         }
     };
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_preferences) {
-            startActivity(new Intent(this, PreferncesActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void onResume() {
@@ -288,12 +279,14 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLabel1.setVisibility(View.VISIBLE);
         fabLabel2.setVisibility(View.VISIBLE);
         fabLabel3.setVisibility(View.VISIBLE);
+        fabLabel4.setVisibility(View.VISIBLE);
         fabBGLayout.setVisibility(View.VISIBLE);
 
         fab.animate().rotationBy(180);
         fabLabel1.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
         fabLabel2.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
         fabLabel3.animate().translationY(-getResources().getDimension(R.dimen.standard_145));
+        fabLabel4.animate().translationY(-getResources().getDimension(R.dimen.standard_190));
     }
 
     private void closeFABMenu(){
@@ -301,11 +294,13 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabBGLayout.setVisibility(View.GONE);
         fab.animate().rotationBy(-180);
         fabLabel1.animate().translationY(0);
-        fabLabel2.animate().translationY(0);
-        fabLabel3.animate().translationY(0);
         fabLabel1.setVisibility(View.GONE);
+        fabLabel2.animate().translationY(0);
         fabLabel2.setVisibility(View.GONE);
+        fabLabel3.animate().translationY(0);
         fabLabel3.setVisibility(View.GONE);
+        fabLabel4.animate().translationY(0);
+        fabLabel4.setVisibility(View.GONE);
     }
 
     @Override
