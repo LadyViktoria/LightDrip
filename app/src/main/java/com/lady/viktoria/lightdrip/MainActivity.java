@@ -60,7 +60,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private boolean isFABOpen = false;
     private Intent mServiceRealmIntent, mServiceBGMeterGattIntent;
     private Context context;
-    private BroadcastReceiver mBeaconMessageReceiver = null;
     private GlucoseRecord glucoserecord;
     private SensorRecord sensorRecord;
 
@@ -141,15 +140,34 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         } catch (Exception e) {
             Log.v(TAG, "onCreate " + e.getMessage());
         }
-
-        mBeaconMessageReceiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                beaconSnackbar();
-            }
-        };
     }
+
+    private final BroadcastReceiver mBeaconMessageReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            beaconSnackbar();
+        }
+    };
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
+            }
+        }
+    };
 
     public void onClick(View view) {
         switch (view.getId()) {
@@ -203,25 +221,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
        getBTDevice();
     }
 
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
-            }
-        }
-    };
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -244,34 +243,13 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Realm.compactRealm(getRealmConfig());
     }
 
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
-        return intentFilter;
-    }
-
-    private void updateConnectionState(final int resourceId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mConnectionState.setText(resourceId);
-            }
-        });
-    }
-
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
+    @Override
+    public void onBackPressed() {
+        if(isFABOpen){
+            closeFABMenu();
+        }else{
+            super.onBackPressed();
         }
-    }
-
-    private void getBTDevice() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mDeviceName = preferences.getString("BT_Name", "NULL");
-        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
-        bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
     }
 
     private void showFABMenu(){
@@ -303,13 +281,12 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         fabLabel4.setVisibility(View.GONE);
     }
 
-    @Override
-    public void onBackPressed() {
-        if(isFABOpen){
-            closeFABMenu();
-        }else{
-            super.onBackPressed();
-        }
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -320,6 +297,28 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             }
         }
         return false;
+    }
+
+    private void getBTDevice() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mDeviceName = preferences.getString("BT_Name", "NULL");
+        mDeviceAddress = preferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
+    }
+
+    private void updateConnectionState(final int resourceId) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mConnectionState.setText(resourceId);
+            }
+        });
+    }
+
+    private void displayData(String data) {
+        if (data != null) {
+            mDataField.setText(data);
+        }
     }
 
     private void calibrationSnackbar() {
