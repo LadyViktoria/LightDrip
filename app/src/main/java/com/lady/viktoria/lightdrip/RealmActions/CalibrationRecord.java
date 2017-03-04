@@ -8,7 +8,6 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
@@ -21,9 +20,10 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
-public class CalibrationRecord extends RealmBase {
+public class CalibrationRecord {
     private final static String TAG = CalibrationRecord.class.getSimpleName();
 
     private static final double LOW_SLOPE_1 = 0.95;
@@ -43,9 +43,7 @@ public class CalibrationRecord extends RealmBase {
 
     public CalibrationRecord() {
         Realm.init(context);
-        mRealm = getInstance(getRealmConfig());
-        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
-        catch (Exception ignored) {}
+        mRealm = getDefaultInstance();
     }
 
     public void initialCalibration(double bg1, double bg2) {

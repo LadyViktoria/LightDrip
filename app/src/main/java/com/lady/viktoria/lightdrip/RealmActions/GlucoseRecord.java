@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmSerialize.GlucoseDataSerializer;
@@ -22,9 +21,10 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
-public class GlucoseRecord extends RealmBase {
+public class GlucoseRecord {
     private final static String TAG = GlucoseRecord.class.getSimpleName();
 
     private static final double AGE_ADJUSTMENT_TIME = 86400000 * 1.9;
@@ -53,9 +53,7 @@ public class GlucoseRecord extends RealmBase {
 
     public GlucoseRecord() {
         Realm.init(context);
-        mRealm = getInstance(getRealmConfig());
-        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
-        catch (Exception ignored) {}
+        mRealm = getDefaultInstance();
     }
 
     public void create(double raw_data, double filtered_data, Long timestamp) {

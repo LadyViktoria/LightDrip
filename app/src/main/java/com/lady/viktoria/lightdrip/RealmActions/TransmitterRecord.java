@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -13,9 +12,10 @@ import java.nio.ByteOrder;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
-public class TransmitterRecord extends RealmBase {
+public class TransmitterRecord {
     private final static String TAG = TransmitterRecord.class.getSimpleName();
 
     private long timestamp;
@@ -28,9 +28,7 @@ public class TransmitterRecord extends RealmBase {
 
     private TransmitterRecord() {
         Realm.init(context);
-        mRealm = getInstance(getRealmConfig());
-        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
-        catch (Exception ignored) {}
+        mRealm = getDefaultInstance();
     }
 
     public static synchronized TransmitterRecord create(byte[] buffer, int len, Long timestamp) {

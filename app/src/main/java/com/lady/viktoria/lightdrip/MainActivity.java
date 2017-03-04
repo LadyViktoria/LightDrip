@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.View;
@@ -24,9 +25,7 @@ import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseActivity;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
-import com.lady.viktoria.lightdrip.services.RealmService;
 
 import net.grandcentrix.tray.AppPreferences;
 import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
@@ -41,9 +40,10 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.Sort;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
-public class MainActivity extends RealmBaseActivity implements View.OnClickListener,
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         OnTrayPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
@@ -69,20 +69,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         Fabric.with(this, new Crashlytics());
         context = this;
         Realm.init(this);
-        mRealm = getInstance(getRealmConfig());
+        mRealm = getDefaultInstance();
         setContentView(R.layout.activity_main);
-
-        RealmService mRealmService = new RealmService(getApplicationContext());
-        Intent mServiceRealmIntent = new Intent(getApplicationContext(), RealmService.class);
-        if (!isMyServiceRunning(mRealmService.getClass())) {
-            startService(mServiceRealmIntent);
-        }
-
-        BGMeterGattService mBGMeterGattService = new BGMeterGattService(getApplicationContext());
-        Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
-        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
-            startService(mServiceBGMeterGattIntent);
-        }
 
         bgmac = (TextView) findViewById(R.id.bgmac);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
@@ -161,7 +149,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         super.onDestroy();
         mRealm.removeChangeListener(realmListener);
         mRealm.close();
-        Realm.compactRealm(getRealmConfig());
+        Realm.compactRealm(mRealm.getConfiguration());
     }
 
     @Override
@@ -209,7 +197,7 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
             case R.id.fab1:
             case R.id.fabLabel1:
                 closeFABMenu();
-                RealmBrowser.startRealmModelsActivity(this, getRealmConfig());
+                RealmBrowser.startRealmModelsActivity(this, mRealm.getConfiguration());
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
@@ -340,16 +328,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         } catch (Exception e) {
             Log.v(TAG, "getDatabaseSize " + e.getMessage());
         }
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void calibrationSnackbar() {

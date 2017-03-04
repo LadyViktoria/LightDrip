@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import java.util.Date;
@@ -13,9 +12,10 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
-public class SensorRecord extends RealmBase {
+public class SensorRecord {
     private final static String TAG = SensorRecord.class.getSimpleName();
 
     private Realm mRealm;
@@ -23,9 +23,7 @@ public class SensorRecord extends RealmBase {
 
     public SensorRecord() {
         Realm.init(context);
-        mRealm = getInstance(getRealmConfig());
-        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
-        catch (Exception ignored) {}
+        mRealm = getDefaultInstance();
     }
 
     public void StartSensor(long startTime) {

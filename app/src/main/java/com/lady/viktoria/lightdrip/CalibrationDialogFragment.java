@@ -1,5 +1,6 @@
 package com.lady.viktoria.lightdrip;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,15 +14,15 @@ import android.widget.Switch;
 
 import com.lady.viktoria.lightdrip.RealmActions.CalibrationRecord;
 import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseDialogFragment;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 
 import io.realm.Realm;
 
+import static io.realm.Realm.getDefaultInstance;
 import static io.realm.Realm.getInstance;
 
 
-public class CalibrationDialogFragment extends RealmBaseDialogFragment {
+public class CalibrationDialogFragment extends DialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
 
     private Switch sButton;
@@ -46,7 +47,8 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
         sButton = (Switch) view.findViewById(R.id.switch_doublecalibration);
         calButton = (Button) view.findViewById(R.id.btn_addcalibration);
         Realm.init(getActivity());
-        mRealm = getInstance(getRealmConfig());
+        mRealm = getDefaultInstance();
+
 
         GlucoseRecord glucoserecord = new GlucoseRecord();
         CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();

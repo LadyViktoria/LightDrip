@@ -15,19 +15,20 @@ public class SchedulerJobService extends JobService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        startForeground(R.string.app_name, new Notification());
         return START_STICKY;
     }
 
     @Override
-    public boolean onStartJob(JobParameters jobParameters) {
-        RealmService mRealmService = new RealmService(getApplicationContext());
-        Intent mServiceRealmIntent = new Intent(getApplicationContext(), RealmService.class);
-        if (!isMyServiceRunning(mRealmService.getClass())) {
-            startService(mServiceRealmIntent);
-        }
+    public void onDestroy() {
+        super.onDestroy();
+        Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartSchedulerJobService");
+        sendBroadcast(broadcastIntent);
+    }
 
-        BGMeterGattService mBGMeterGattService = new BGMeterGattService(getApplicationContext());
+    @Override
+    public boolean onStartJob(JobParameters jobParameters) {
+
+        BGMeterGattService mBGMeterGattService = new BGMeterGattService();
         Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);

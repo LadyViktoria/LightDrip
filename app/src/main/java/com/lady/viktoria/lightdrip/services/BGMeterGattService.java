@@ -68,27 +68,18 @@ public class BGMeterGattService extends Service {
     public final static UUID UUID_HM10_SERVICE =
             UUID.fromString(GattAttributes.HM_10_SERVICE);
 
-    public BGMeterGattService(Context applicationContext) {
-        super();
-    }
-
-    public BGMeterGattService() {
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startJobScheduler();
         mTrayPreferences = new AppPreferences(this);
         attemptConnection();
-        startForeground(R.string.app_name, new Notification());
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "Try to restart BGMeterGattService!");
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
         sendBroadcast(broadcastIntent);
         stopJobScheduler();
@@ -295,10 +286,8 @@ public class BGMeterGattService extends Service {
     }
 
     public void attemptConnection() {
-        Log.v(TAG,"attemptConnection");
         mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (mBluetoothManager == null) {
-            Log.v(TAG,"bluetoothManager == null");
             return;
         }
 
