@@ -1,13 +1,11 @@
 package com.lady.viktoria.lightdrip.services;
 
 import android.app.ActivityManager;
-import android.app.Notification;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
-
-import com.lady.viktoria.lightdrip.R;
+import android.util.Log;
 
 public class SchedulerJobService extends JobService {
     private final static String TAG = SchedulerJobService.class.getSimpleName();
@@ -32,9 +30,10 @@ public class SchedulerJobService extends JobService {
         Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
+            Log.v(TAG, "Restart GATT Service");
         }
+        Log.v(TAG, "GATT Service is running");
 
-        jobFinished(jobParameters, true);
         return false;
     }
 

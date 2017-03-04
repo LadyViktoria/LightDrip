@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip.services;
 
-import android.app.Notification;
 import android.app.Service;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -19,10 +18,8 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.lady.viktoria.lightdrip.R;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 
 import net.grandcentrix.tray.AppPreferences;
@@ -62,6 +59,9 @@ public class BGMeterGattService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String BEACON_SNACKBAR =
+            "com.example.bluetooth.le.BEACON_SNACKBAR";
+
 
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
@@ -350,7 +350,8 @@ public class BGMeterGattService extends Service {
 
         if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
-            sendBeaconBroadcast();
+            String intentAction = BEACON_SNACKBAR;
+            broadcastUpdate(intentAction);
             writeTxIdPacket(TransmitterID);
             return false;
         } else if (packet[0] >= 21 && packet[1] == 0) {
@@ -398,10 +399,5 @@ public class BGMeterGattService extends Service {
             Log.v(TAG, "Write Acknowledge Packet failed!");
             return false;
         }
-    }
-
-    private void sendBeaconBroadcast() {
-        Intent it = new Intent("BEACON_SNACKBAR");
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(it);
     }
 }

@@ -1,6 +1,5 @@
 package com.lady.viktoria.lightdrip;
 
-import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
@@ -41,10 +39,9 @@ import io.realm.RealmChangeListener;
 import io.realm.Sort;
 
 import static io.realm.Realm.getDefaultInstance;
-import static io.realm.Realm.getInstance;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        OnTrayPreferenceChangeListener {
+        OnTrayPreferenceChangeListener, RealmChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
@@ -98,43 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getBTDevice();
         getDatabaseSize();
-
-        try {
-            realmListener = new RealmChangeListener() {
-
-                @Override
-                public void onChange(Object element) {
-                    getDatabaseSize();
-                    CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
-                    TransmitterData transmitterData = mRealm.where(TransmitterData.class)
-                            .findAllSorted("id", Sort.DESCENDING)
-                            .where()
-                            .findFirst();
-                    GlucoseRecord glucoserecord = new GlucoseRecord();
-                    SensorRecord sensorRecord = new SensorRecord();
-                    if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
-                        calibrationSnackbar();
-                    } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
-                        startSensorSnackbar("Received Transmitter Data please Start Sensor");
-                    }
-                }
-            };
-            mRealm.addChangeListener(realmListener);
-        } catch (Exception e) {
-            Log.v(TAG, "onCreate " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void onTrayPreferenceChanged(Collection<TrayItem> items) {
-        getBTDevice();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBeaconMessageReceiver, new IntentFilter("BEACON_SNACKBAR"));
         getBTDevice();
     }
 
@@ -161,32 +127,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private final BroadcastReceiver mBeaconMessageReceiver = new BroadcastReceiver() {
+    @Override
+    public void onTrayPreferenceChanged(Collection<TrayItem> items) {
+        getBTDevice();
+    }
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            beaconSnackbar();
+    @Override
+    public void onChange(Object element) {
+        getDatabaseSize();
+        CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+        TransmitterData transmitterData = mRealm.where(TransmitterData.class)
+                .findAllSorted("id", Sort.DESCENDING)
+                .where()
+                .findFirst();
+        GlucoseRecord glucoserecord = new GlucoseRecord();
+        SensorRecord sensorRecord = new SensorRecord();
+        if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
+            calibrationSnackbar();
+        } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
+            startSensorSnackbar("Received Transmitter Data please Start Sensor");
         }
-    };
-
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
-            }
-        }
-    };
+    }
 
     public void onClick(View view) {
         switch (view.getId()) {
@@ -271,8 +232,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BGMeterGattService.BEACON_SNACKBAR);
         return intentFilter;
     }
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
+            } else if (BGMeterGattService.BEACON_SNACKBAR.equals(action)) {
+                beaconSnackbar();
+            }
+        }
+    };
 
     private void getBTDevice() {
         final AppPreferences appPreferences = new AppPreferences(this);
