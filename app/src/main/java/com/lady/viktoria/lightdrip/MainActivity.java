@@ -63,8 +63,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     public Context getcontext() {
         return context;
     }
-    public MainActivity() {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,15 +76,14 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         sensorRecord = new SensorRecord();
         setContentView(R.layout.activity_main);
 
-
-        RealmService mRealmService = new RealmService(getcontext());
-        Intent mServiceRealmIntent = new Intent(getcontext(), RealmService.class);
+        RealmService mRealmService = new RealmService(getApplicationContext());
+        Intent mServiceRealmIntent = new Intent(getApplicationContext(), RealmService.class);
         if (!isMyServiceRunning(mRealmService.getClass())) {
             startService(mServiceRealmIntent);
         }
 
-        BGMeterGattService mBGMeterGattService = new BGMeterGattService(getcontext());
-        Intent mServiceBGMeterGattIntent = new Intent(getcontext(), BGMeterGattService.class);
+        BGMeterGattService mBGMeterGattService = new BGMeterGattService(getApplicationContext());
+        Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
         }
@@ -289,16 +286,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         return intentFilter;
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void getBTDevice() {
         final AppPreferences appPreferences = new AppPreferences(this);
         final String mDeviceName = appPreferences.getString("BT_Name", "NULL");
@@ -320,6 +307,49 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         if (data != null) {
             mDataField.setText(data);
         }
+    }
+
+    private void getDatabaseSize() {
+        try {
+            int itemSizeGlucoseData = mRealm.where(GlucoseData.class).findAll().size();
+            int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
+            int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
+            int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
+            int itemSizeAll = itemSizeGlucoseData + itemSizeCalibrationData
+                    + itemSizeSensorData + itemSizeTransmitterData;
+
+            String FileSize = null;
+            File writableFolder = MainActivity.this.getFilesDir();
+            File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
+            if (realmFile.length() >= 0) {
+                FileSize = realmFile.length() + " bytes";
+            }
+            if (realmFile.length() / 1024 >= 1) {
+                FileSize = realmFile.length() / 1024 + " Kb";
+            }
+            if (realmFile.length() / 1024 / 1024 >= 1) {
+                FileSize = realmFile.length() / 1024 / 1024 + " Mb";
+            }
+            mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
+                    + String.format("\nItems in GlucoseData: %d",itemSizeGlucoseData)
+                    + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
+                    + String.format("\nItems in SensorData: %d",itemSizeSensorData)
+                    + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
+                    + "\nDatabase Size: " + FileSize);
+            mDatabaseSize.invalidate();
+        } catch (Exception e) {
+            Log.v(TAG, "getDatabaseSize " + e.getMessage());
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void calibrationSnackbar() {
@@ -381,38 +411,5 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         View snackBarView = snackBar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
         snackBar.show();
-    }
-
-    private void getDatabaseSize() {
-        try {
-            int itemSizeGlucoseData = mRealm.where(GlucoseData.class).findAll().size();
-            int itemSizeCalibrationData = mRealm.where(CalibrationData.class).findAll().size();
-            int itemSizeSensorData = mRealm.where(SensorData.class).findAll().size();
-            int itemSizeTransmitterData = mRealm.where(TransmitterData.class).findAll().size();
-            int itemSizeAll = itemSizeGlucoseData + itemSizeCalibrationData
-                    + itemSizeSensorData + itemSizeTransmitterData;
-
-            String FileSize = null;
-            File writableFolder = MainActivity.this.getFilesDir();
-            File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
-            if (realmFile.length() >= 0) {
-                FileSize = realmFile.length() + " bytes";
-            }
-            if (realmFile.length() / 1024 >= 1) {
-                FileSize = realmFile.length() / 1024 + " Kb";
-            }
-            if (realmFile.length() / 1024 / 1024 >= 1) {
-                FileSize = realmFile.length() / 1024 / 1024 + " Mb";
-            }
-            mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
-                    + String.format("\nItems in GlucoseData: %d",itemSizeGlucoseData)
-                    + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
-                    + String.format("\nItems in SensorData: %d",itemSizeSensorData)
-                    + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
-                    + "\nDatabase Size: " + FileSize);
-            mDatabaseSize.invalidate();
-        } catch (Exception e) {
-        Log.v(TAG, "getDatabaseSize " + e.getMessage());
-        }
     }
 }

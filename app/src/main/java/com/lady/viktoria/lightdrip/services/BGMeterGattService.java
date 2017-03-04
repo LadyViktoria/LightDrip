@@ -1,5 +1,9 @@
 package com.lady.viktoria.lightdrip.services;
 
+import android.app.Notification;
+import android.app.Service;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -9,6 +13,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -17,25 +22,20 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.R;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
-import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseService;
 
 import net.grandcentrix.tray.AppPreferences;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
-
-import io.realm.Realm;
 
 import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
-import static io.realm.Realm.getInstance;
 
-public class BGMeterGattService extends RealmBaseService {
+public class BGMeterGattService extends Service {
     private final static String TAG = BGMeterGattService.class.getSimpleName();
 
     private BluetoothManager mBluetoothManager;
@@ -47,8 +47,9 @@ public class BGMeterGattService extends RealmBaseService {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
-    private Realm mRealm;
     private Context mContext;
+    private AppPreferences mTrayPreferences;
+
 
 
     public final static String ACTION_GATT_CONNECTED =
@@ -77,10 +78,10 @@ public class BGMeterGattService extends RealmBaseService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Realm.init(this);
-        mRealm = getInstance(getRealmConfig());
-        startTimer();
+        startJobScheduler();
+        mTrayPreferences = new AppPreferences(this);
         attemptConnection();
+        startForeground(R.string.app_name, new Notification());
         return START_STICKY;
     }
 
@@ -90,31 +91,27 @@ public class BGMeterGattService extends RealmBaseService {
         Log.i(TAG, "Try to restart BGMeterGattService!");
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
         sendBroadcast(broadcastIntent);
-        stoptimertask();
-        mRealm.close();
+        stopJobScheduler();
     }
 
-    private Timer timer;
-    private TimerTask timerTask;
-    public void startTimer() {
-        timer = new Timer();
-        initializeTimerTask();
-        timer.schedule(timerTask, 1000, 1000); //
+    public void startJobScheduler() {
+        final long REFRESH_INTERVAL  = 15 * 60 * 1000;
+        ComponentName serviceComponent = new ComponentName(this, SchedulerJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
+        builder.setPeriodic(REFRESH_INTERVAL);
+        //builder.setPersisted(true);
+        JobScheduler jobScheduler = (JobScheduler)this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int result = jobScheduler.schedule(builder.build());
+        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
     }
 
-    public void initializeTimerTask() {
-        timerTask = new TimerTask() {
-            public void run() {
-            }
-        };
+    public void stopJobScheduler() {
+        JobScheduler jobScheduler = (JobScheduler)this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(0);
     }
 
-    public void stoptimertask() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-    }
 
     @Nullable
     @Override
@@ -302,13 +299,11 @@ public class BGMeterGattService extends RealmBaseService {
         mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (mBluetoothManager == null) {
             Log.v(TAG,"bluetoothManager == null");
-            startTimer();
             return;
         }
 
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         if (mBluetoothAdapter == null) {
-            startTimer();
             return;
         }
 
@@ -335,7 +330,6 @@ public class BGMeterGattService extends RealmBaseService {
             Log.i(TAG, "attemptConnection: Looks like we are already connected, going to read!");
             return;
         }
-        startTimer();
     }
 
     private String getStateStr(int mConnectionState) {
@@ -357,9 +351,8 @@ public class BGMeterGattService extends RealmBaseService {
         int DexSrc;
         int TransmitterID;
         ByteBuffer tmpBuffer;
-
-        final AppPreferences appPreferences = new AppPreferences(this);
-        final String TxId = appPreferences.getString("Transmitter_Id", "00000");
+        final String TxId = mTrayPreferences.getString("Transmitter_Id", "00000");
+        Log.v(TAG, TxId);
         TransmitterID = convertSrc(TxId);
 
         tmpBuffer = ByteBuffer.allocate(len);
@@ -384,8 +377,7 @@ public class BGMeterGattService extends RealmBaseService {
     }
 
     private String getBTDeviceMAC() {
-        final AppPreferences appPreferences = new AppPreferences(this);
-        final String BTDeviceAddress = appPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
+        final String BTDeviceAddress = mTrayPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         return BTDeviceAddress;
     }
 

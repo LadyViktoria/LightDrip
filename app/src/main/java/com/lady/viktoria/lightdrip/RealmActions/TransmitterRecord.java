@@ -46,7 +46,7 @@ public class TransmitterRecord extends RealmBase {
         mTransmitterRecord.bridge_battery_level = txData.get(11) & 0xff;
         //Stop allowing duplicate data, its bad!
         if (mTransmitterRecord.lastData("raw_data") == mTransmitterRecord
-                .raw_data && Math.abs(mTransmitterRecord.lastData("timestamp") - timestamp) < (120000)) {
+                .raw_data && Math.abs(mTransmitterRecord.lastData("timestamp") - timestamp) < (12000)) {
             return null;
         }
         mTransmitterRecord.writeTransmitterDataToRealm();
@@ -69,8 +69,8 @@ public class TransmitterRecord extends RealmBase {
     }
 
     private void writeTransmitterDataToRealm() {
-        long newprimekey = PrimaryKeyFactory.getInstance().nextKey(TransmitterData.class);
         mRealm.beginTransaction();
+        long newprimekey = PrimaryKeyFactory.getInstance().nextKey(TransmitterData.class);
         TransmitterData mTransmitterData = mRealm.createObject(TransmitterData.class, newprimekey);
         mTransmitterData.settimestamp(timestamp);
         mTransmitterData.setraw_data(raw_data);

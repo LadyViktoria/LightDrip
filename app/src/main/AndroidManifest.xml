@@ -1,19 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.lady.viktoria.lightdrip">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" tools:node="remove" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <service
             android:name="com.lady.viktoria.lightdrip.services.RealmService"
             android:enabled="true"
             android:exported="true"
-            android:process=":Services" />
+            android:process=":services">
+        <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.lady.viktoria.lightdrip.services.BGMeterGattService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":services">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.lady.viktoria.lightdrip.services.SchedulerJobService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":services"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver
             android:name="com.lady.viktoria.lightdrip.receiver.RealmServiceRestarter"
             android:enabled="true"
@@ -23,21 +50,7 @@
                 <action android:name="com.lady.viktoria.lightdrip.services.RestartRealmService"/>
             </intent-filter>
         </receiver>
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <service
-            android:name="com.lady.viktoria.lightdrip.services.BGMeterGattService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":Services" />
         <receiver
             android:name="com.lady.viktoria.lightdrip.receiver.BGMeterGattServiceRestarter"
             android:enabled="true"
@@ -47,6 +60,35 @@
                 <action android:name="com.lady.viktoria.lightdrip.services.RestartBGMeterGattService"/>
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name="com.lady.viktoria.lightdrip.receiver.BroadcastReceiverOnBootComplete"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+    <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".PreferncesActivity"
             android:label="@string/action_preferences"
@@ -55,9 +97,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.lady.viktoria.lightdrip.MainActivity" />
         </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="4ee637e9d32a37083732de46f9287d593e25fc63" />
+
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
