@@ -57,8 +57,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
     private View fabBGLayout;
     private boolean isFABOpen = false;
     private Context context;
-    private GlucoseRecord glucoserecord;
-    private SensorRecord sensorRecord;
 
     public Context getcontext() {
         return context;
@@ -72,8 +70,6 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
         context = this;
         Realm.init(this);
         mRealm = getInstance(getRealmConfig());
-        glucoserecord = new GlucoseRecord();
-        sensorRecord = new SensorRecord();
         setContentView(R.layout.activity_main);
 
         RealmService mRealmService = new RealmService(getApplicationContext());
@@ -126,6 +122,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                             .findAllSorted("id", Sort.DESCENDING)
                             .where()
                             .findFirst();
+                    GlucoseRecord glucoserecord = new GlucoseRecord();
+                    SensorRecord sensorRecord = new SensorRecord();
                     if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
                         calibrationSnackbar();
                     } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
@@ -215,6 +213,8 @@ public class MainActivity extends RealmBaseActivity implements View.OnClickListe
                 break;
             case R.id.fab2:
             case R.id.fabLabel2:
+                GlucoseRecord glucoserecord = new GlucoseRecord();
+                SensorRecord sensorRecord = new SensorRecord();
                 if (!sensorRecord.isSensorActive()) {
                     closeFABMenu();
                     startSensorSnackbar("Please start Sensor first!");

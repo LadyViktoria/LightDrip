@@ -27,7 +27,6 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     private int mYear;
     private int mMonthOfYear;
     private int mDayOfMonth;
-    private SensorRecord sensorRecord;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,7 +34,6 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
 
         View view = inflater.inflate(R.layout.fragment_sensoraction, container, false);
         SensorStart = Calendar.getInstance();
-        sensorRecord = new SensorRecord();
         SensorDialog();
         return view;
     }
@@ -47,6 +45,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         builder.setPositiveButton("Start Sensor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                SensorRecord sensorRecord = new SensorRecord();
                 if (!sensorRecord.isSensorActive()) {
                     Calendar now = Calendar.getInstance();
                     DatePickerDialog dpd = DatePickerDialog.newInstance(
@@ -71,8 +70,10 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         });
 
         builder.setNegativeButton("Stop sensor", new DialogInterface.OnClickListener() {
+
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                SensorRecord sensorRecord = new SensorRecord();
                 sensorRecord.StopSensor();
                 dialog.dismiss();
             }
@@ -102,6 +103,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         int mMinute = Integer.parseInt(minute < 10 ? "0" + minute : "" + minute);
         SensorStart.set(mYear, mMonthOfYear, mDayOfMonth, mHourOfDay, mMinute, 0);
         long startTime = SensorStart.getTime().getTime();
+        SensorRecord sensorRecord = new SensorRecord();
         sensorRecord.StartSensor(startTime);
     }
 }

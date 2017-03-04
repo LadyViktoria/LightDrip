@@ -47,7 +47,6 @@ public class GlucoseRecord extends RealmBase {
     private boolean hide_slope;
     private String noise;
     private long timestamp;
-    private SensorRecord sensorRecord;
     private Realm mRealm;
     private Gson gson;
     Context context;
@@ -55,10 +54,10 @@ public class GlucoseRecord extends RealmBase {
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
-        sensorRecord = new SensorRecord();
     }
 
     public void create(double raw_data, double filtered_data, Long timestamp) {
+        SensorRecord sensorRecord = new SensorRecord();
         if (!sensorRecord.isSensorActive()) {
             Log.i("BG GSON: ", toS());
             return;

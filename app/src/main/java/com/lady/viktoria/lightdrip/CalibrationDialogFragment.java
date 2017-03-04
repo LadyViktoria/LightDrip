@@ -29,15 +29,11 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
     private EditText glucosereading1, glucosereading2;
     private Boolean doubleCalFlag = false;
     private Realm mRealm;
-    private GlucoseRecord glucoserecord;
-    private CalibrationRecord calibration;
     public CalibrationDialogFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        glucoserecord = new GlucoseRecord();
-        calibration = new CalibrationRecord();
     }
 
     @Override
@@ -52,6 +48,7 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
         Realm.init(getActivity());
         mRealm = getInstance(getRealmConfig());
 
+        GlucoseRecord glucoserecord = new GlucoseRecord();
         CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
         if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
             sButton.setChecked(true);
@@ -69,6 +66,7 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
                     try {
                         double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
                         double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
+                        CalibrationRecord calibration = new CalibrationRecord();
                         calibration.initialCalibration(bg1, bg2);
                     } catch (Exception e) {
                         Log.v(TAG, "setOnClickListener " + e.getMessage());
@@ -78,6 +76,7 @@ public class CalibrationDialogFragment extends RealmBaseDialogFragment {
                 } else {
                     try {
                         double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                        CalibrationRecord calibration = new CalibrationRecord();
                         calibration.singleCalibration(bg1);
                     } catch (Exception e) {
                         Log.v(TAG, "setOnClickListener " + e.getMessage());

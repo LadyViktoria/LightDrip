@@ -3,19 +3,13 @@ package com.lady.viktoria.lightdrip.RealmActions;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBase;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
-import com.lady.viktoria.lightdrip.RealmSerialize.SensorDataSerializer;
 import java.util.Date;
 
 import io.realm.Realm;
-import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.Sort;
 
@@ -25,7 +19,6 @@ public class SensorRecord extends RealmBase {
     private final static String TAG = SensorRecord.class.getSimpleName();
 
     private Realm mRealm;
-    private Gson gson;
     Context context;
 
     public SensorRecord() {
@@ -77,11 +70,6 @@ public class SensorRecord extends RealmBase {
                 RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
                 long lastID = results.last().getid();
                 long mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst().getid();
-                //get realm object
-                Log.v(TAG, "currentSensor realm object" + String.valueOf(mSensorData));
-                // transform into json
-                //String Json = gson.toJson(mRealm.copyFromRealm(mSensorData));
-                //Log.v(TAG, "currentSensor json: "  + Json);
                 return mSensorData;
             } catch (Exception e) {
                 Log.v(TAG, "currentSensor " + e.getMessage());
@@ -105,22 +93,5 @@ public class SensorRecord extends RealmBase {
             Log.v(TAG, "isSensorActive " + e.getMessage());
         }
         return false;
-    }
-
-    private void serializeToJson() throws ClassNotFoundException {
-        gson = new GsonBuilder()
-                .setExclusionStrategies(new ExclusionStrategy() {
-                    @Override
-                    public boolean shouldSkipField(FieldAttributes f) {
-                        return f.getDeclaringClass().equals(RealmObject.class);
-                    }
-
-                    @Override
-                    public boolean shouldSkipClass(Class<?> clazz) {
-                        return false;
-                    }
-                })
-                .registerTypeAdapter(SensorData.class, new SensorDataSerializer())
-                .create();
     }
 }
