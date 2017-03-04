@@ -44,12 +44,8 @@ public class CalibrationRecord extends RealmBase {
     public CalibrationRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
-        try {
-            Log.v(TAG, "Start PrimaryKeyFactory ");
-            PrimaryKeyFactory.getInstance().initialize(mRealm);
-        } catch (Exception e) {
-            Log.v(TAG, "initializePrimaryKeyFactory " + e.getMessage());
-        }
+        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
+        catch (Exception ignored) {}
     }
 
     public void initialCalibration(double bg1, double bg2) {

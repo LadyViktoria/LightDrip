@@ -24,6 +24,8 @@ public class SensorRecord extends RealmBase {
     public SensorRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
+        catch (Exception ignored) {}
     }
 
     public void StartSensor(long startTime) {

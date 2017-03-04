@@ -54,6 +54,8 @@ public class GlucoseRecord extends RealmBase {
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
+        catch (Exception ignored) {}
     }
 
     public void create(double raw_data, double filtered_data, Long timestamp) {

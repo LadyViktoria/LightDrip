@@ -29,6 +29,8 @@ public class TransmitterRecord extends RealmBase {
     private TransmitterRecord() {
         Realm.init(context);
         mRealm = getInstance(getRealmConfig());
+        try {PrimaryKeyFactory.getInstance().initialize(mRealm);}
+        catch (Exception ignored) {}
     }
 
     public static synchronized TransmitterRecord create(byte[] buffer, int len, Long timestamp) {
