@@ -9,6 +9,7 @@ import android.util.Log;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
 import com.lady.viktoria.lightdrip.services.BGMeterGattService;
+import com.lady.viktoria.lightdrip.services.CgmBleService;
 import com.lady.viktoria.lightdrip.services.SchedulerJobService;
 
 import io.realm.Realm;
@@ -27,12 +28,22 @@ public class MainApplication extends RealmBaseApplication {
         mRealm = getInstance(getRealmConfig());
         initializePrimaryKeyFactory();
 
+        /*
         BGMeterGattService mBGMeterGattService = new BGMeterGattService();
         Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
         if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
             startService(mServiceBGMeterGattIntent);
             Log.v(TAG, "Restart BGMeterGattService");
         }
+        */
+
+        CgmBleService mCgmBleService = new CgmBleService();
+        Intent mServiceCgmBleIntent = new Intent(getApplicationContext(), CgmBleService.class);
+        if (!isMyServiceRunning(mCgmBleService.getClass())) {
+            startService(mServiceCgmBleIntent);
+            Log.v(TAG, "Restart BGMeterGattService");
+        }
+
 
         SchedulerJobService mJobService = new SchedulerJobService();
         Intent mServiceSchedulerJobIntent = new Intent(getApplicationContext(), SchedulerJobService.class);

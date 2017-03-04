@@ -36,7 +36,7 @@ public class PreferncesActivity extends PreferenceActivity
             String BTDeviceArray[] = BTDevice.split("\\r?\\n");
             appPreferences.put("BT_Name", BTDeviceArray[0]);
             appPreferences.put("BT_MAC_Address", BTDeviceArray[1]);
-            stopService(new Intent(this, BGMeterGattService.class));
+            //stopService(new Intent(this, BGMeterGattService.class));
         }
         if (key.equals("transmitter_id")) {
             int txidlength = sharedPreferences.getString("transmitter_id","00000").length();
@@ -50,7 +50,7 @@ public class PreferncesActivity extends PreferenceActivity
             String txid = sharedPreferences.getString("transmitter_id", "00000");
             Log.v(TAG, txid);
             appPreferences.put("Transmitter_Id", txid);
-            stopService(new Intent(this, BGMeterGattService.class));
+            //stopService(new Intent(this, BGMeterGattService.class));
         }
     }
 
