@@ -138,10 +138,9 @@ public class BGMeterGattService extends Service {
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
                 BluetoothGattService service = gatt.getService(UUID.fromString(GattAttributes.HM_10_SERVICE));
                 if (service != null) {
-                    Log.d(TAG,"Found glucose service");
                     BluetoothGattCharacteristic glucoseCharactersitic = service.getCharacteristic(UUID.fromString(GattAttributes.HM_RX_TX));
                     setCharacteristicNotification(glucoseCharactersitic, true);
-                }
+                } else {Log.d(TAG,"glucose service not found");}
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -341,7 +340,6 @@ public class BGMeterGattService extends Service {
         int TransmitterID;
         ByteBuffer tmpBuffer;
         final String TxId = mTrayPreferences.getString("Transmitter_Id", "00000");
-        Log.v(TAG, TxId);
         TransmitterID = convertSrc(TxId);
 
         tmpBuffer = ByteBuffer.allocate(len);
