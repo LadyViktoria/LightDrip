@@ -1,10 +1,12 @@
 package com.lady.viktoria.lightdrip;
 
+import android.app.ActivityManager;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,7 +33,9 @@ import net.grandcentrix.tray.core.TrayItem;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
+import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.fab4) FloatingActionButton fab4;
     @BindView(R.id.fabBGLayout) View fabBGLayout;
     @BindView(R.id.fragment) View parentLayout;
+    @BindColor(R.color.colorBackground) int colorBackground;
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -318,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             dialogFragment.show(fm, "Calibration Dialog Fragment");
         });
         View snackBarView = snackBar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        snackBarView.setBackgroundColor(colorBackground);
         snackBar.show();
     }
 
@@ -333,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             ft3.commit();
         });
         View snackBarView = snackBar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        snackBarView.setBackgroundColor(colorBackground);
         snackBar.show();
     }
 
@@ -343,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                 , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Dismiss", v -> snackBar.dismiss());
         View snackBarView = snackBar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        snackBarView.setBackgroundColor(colorBackground);
         snackBar.show();
     }
 
@@ -352,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                 , "Please wait until we got 2 Sensor Readings!"
                 , Snackbar.LENGTH_LONG);
         View snackBarView = snackBar.getView();
-        snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
+        snackBarView.setBackgroundColor(colorBackground);
         snackBar.show();
     }
 }
