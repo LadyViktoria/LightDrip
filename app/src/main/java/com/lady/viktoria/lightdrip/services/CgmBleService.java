@@ -1,6 +1,10 @@
 package com.lady.viktoria.lightdrip.services;
 
 import android.app.Service;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -39,6 +43,8 @@ public class CgmBleService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        startJobScheduler();
 
         // get mac address from selected wixelbridge
         mTrayPreferences = new AppPreferences(this);
@@ -206,11 +212,30 @@ public class CgmBleService extends Service {
         Log.v(TAG, "Notifications has been set up");
     }
 
+    public void startJobScheduler() {
+        final long REFRESH_INTERVAL = 15 * 60 * 1000;
+        ComponentName serviceComponent = new ComponentName(this, SchedulerJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
+        builder.setPeriodic(REFRESH_INTERVAL);
+        //builder.setPersisted(true);
+        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int result = jobScheduler.schedule(builder.build());
+        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
+    }
+
+    public void stopJobScheduler() {
+        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(0);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartCgmBleService");
         sendBroadcast(broadcastIntent);
+        stopJobScheduler();
     }
 
     @Nullable
