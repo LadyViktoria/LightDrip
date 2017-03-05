@@ -59,7 +59,7 @@ public class CgmBleService extends Service {
                 .establishConnection(true)
                 .takeUntil(disconnectTriggerSubject)
                 //.compose(bindUntilEvent(PAUSE)
-                .doOnUnsubscribe(this::clearSubscription)
+                //.doOnUnsubscribe(this::clearSubscription)
                 .compose(new ConnectionSharingAdapter());
     }
 
@@ -134,11 +134,13 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        connect();
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
         //noinspection ConstantConditions
         Log.v(TAG, "Hey, connection has been established!");
+        writeNotificationCharacteristic();
     }
 
     private void onReadFailure(Throwable throwable) {
