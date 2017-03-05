@@ -26,13 +26,13 @@ public class SchedulerJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
 
-        BGMeterGattService mBGMeterGattService = new BGMeterGattService();
-        Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
-        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
-            startService(mServiceBGMeterGattIntent);
-            Log.v(TAG, "Restart GATT Service");
+        CgmBleService mCgmBleService = new CgmBleService();
+        Intent mServiceCgmBleIntent = new Intent(getApplicationContext(), CgmBleService.class);
+        if (!isMyServiceRunning(mCgmBleService.getClass())) {
+            startService(mServiceCgmBleIntent);
+            Log.v(TAG, "Restart CgmBle Service");
         }
-        Log.v(TAG, "GATT Service is running");
+        Log.v(TAG, "CgmBle Service is running");
 
         return false;
     }

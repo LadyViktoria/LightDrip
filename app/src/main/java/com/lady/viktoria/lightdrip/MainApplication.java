@@ -26,20 +26,11 @@ public class MainApplication extends RealmBaseApplication {
         mRealm = getInstance(getRealmConfig());
         initializePrimaryKeyFactory();
 
-        /*
-        BGMeterGattService mBGMeterGattService = new BGMeterGattService();
-        Intent mServiceBGMeterGattIntent = new Intent(getApplicationContext(), BGMeterGattService.class);
-        if (!isMyServiceRunning(mBGMeterGattService.getClass())) {
-            startService(mServiceBGMeterGattIntent);
-            Log.v(TAG, "Restart BGMeterGattService");
-        }
-        */
-
         CgmBleService mCgmBleService = new CgmBleService();
         Intent mServiceCgmBleIntent = new Intent(getApplicationContext(), CgmBleService.class);
         if (!isMyServiceRunning(mCgmBleService.getClass())) {
             startService(mServiceCgmBleIntent);
-            Log.v(TAG, "Restart BGMeterGattService");
+            Log.v(TAG, "Restart CgmBleService");
         }
 
 

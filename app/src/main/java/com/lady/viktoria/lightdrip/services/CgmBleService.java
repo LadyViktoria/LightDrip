@@ -33,6 +33,18 @@ import static com.lady.viktoria.lightdrip.utils.convertSrc;
 public class CgmBleService extends Service {
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
+    public final static String ACTION_GATT_CONNECTED =
+            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+    public final static String ACTION_GATT_DISCONNECTED =
+            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED =
+            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_DATA_AVAILABLE =
+            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
+    public final static String EXTRA_DATA =
+            "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String BEACON_SNACKBAR =
+            "com.example.bluetooth.le.BEACON_SNACKBAR";
     private final static String TAG = CgmBleService.class.getSimpleName();
     private RxBleClient rxBleClient;
     private RxBleDevice bleDevice;
@@ -132,8 +144,7 @@ public class CgmBleService extends Service {
 
         if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
-            //String intentAction = BEACON_SNACKBAR;
-            //broadcastUpdate(intentAction);
+            broadcastUpdate(BEACON_SNACKBAR);
             writeTxIdPacket(TransmitterID);
             return false;
         } else if (packet[0] >= 21 && packet[1] == 0) {
@@ -148,6 +159,11 @@ public class CgmBleService extends Service {
             }
         }
         return false;
+    }
+
+    private void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
+        sendBroadcast(intent);
     }
 
     private void writeTxIdPacket(int TransmitterID) {
@@ -171,6 +187,7 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        broadcastUpdate(ACTION_GATT_DISCONNECTED);
         connect();
     }
 
@@ -200,6 +217,7 @@ public class CgmBleService extends Service {
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();
         }
+        broadcastUpdate(ACTION_GATT_CONNECTED);
     }
 
     private void onNotificationSetupFailure(Throwable throwable) {
