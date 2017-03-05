@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
+import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 
@@ -15,14 +16,13 @@ import io.realm.Sort;
 
 import static io.realm.Realm.getDefaultInstance;
 
-public class SensorRecord {
+public class SensorRecord extends RealmBaseApplication{
     private final static String TAG = SensorRecord.class.getSimpleName();
 
     private Realm mRealm;
-    private Context context;
 
     public SensorRecord() {
-        Realm.init(context);
+        Realm.init(this);
         mRealm = getDefaultInstance();
     }
 
