@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
 
     private boolean isFABOpen = false;
     private Realm mRealm;
+    RealmChangeListener realmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         getDatabaseSize();
 
         try {
-            RealmChangeListener realmListener = element -> {
+            realmListener = element -> {
                 getDatabaseSize();
                 CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
                 TransmitterData transmitterData = mRealm.where(TransmitterData.class)
@@ -93,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                     startSensorSnackbar("Received Transmitter Data please Start Sensor");
                 }
             };
-            mRealm.addChangeListener(realmListener);
         } catch (Exception e) {
             Log.v(TAG, "onCreate " + e.getMessage());
         }
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //mRealm.removeChangeListener(realmListener);
+        mRealm.removeChangeListener(realmListener);
         mRealm.close();
         Realm.compactRealm(mRealm.getConfiguration());
     }
