@@ -64,7 +64,7 @@ public class SensorRecord {
         }
     }
 
-    long currentSensorID() {
+   public long currentSensorID() {
         if (isSensorActive()) {
             try {
                 RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();

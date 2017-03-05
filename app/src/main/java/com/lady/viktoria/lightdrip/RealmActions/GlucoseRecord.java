@@ -111,7 +111,7 @@ public class GlucoseRecord {
         Log.v(TAG, "glucoseRecord json: " + json);
     }
 
-    private void calculateAgeAdjustedRawValue() {
+    public void calculateAgeAdjustedRawValue() {
         RealmResults<GlucoseData> results = mRealm.where(GlucoseData.class).findAll();
         long lastID = results.last().getid();
         GlucoseData mGlucoseData = mRealm.where(GlucoseData.class).equalTo("id", lastID).findFirst();
