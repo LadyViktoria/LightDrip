@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.lady.viktoria.lightdrip.services.BGMeterGattService;
+import com.lady.viktoria.lightdrip.services.CgmBleService;
 import com.lady.viktoria.lightdrip.services.SchedulerJobService;
 
 public class BroadcastReceiverOnBootComplete extends BroadcastReceiver {
@@ -13,7 +13,7 @@ public class BroadcastReceiverOnBootComplete extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
-            Intent mServiceBGMeterGattIntent = new Intent(context, BGMeterGattService.class);
+            Intent mServiceBGMeterGattIntent = new Intent(context, CgmBleService.class);
             context.startService(mServiceBGMeterGattIntent);
             Intent mServicSchedulerJobIntent = new Intent(context, SchedulerJobService.class);
             context.startService(mServicSchedulerJobIntent);

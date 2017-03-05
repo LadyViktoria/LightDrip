@@ -23,7 +23,7 @@ import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
-import com.lady.viktoria.lightdrip.services.BGMeterGattService;
+import com.lady.viktoria.lightdrip.services.CgmBleService;
 
 import net.grandcentrix.tray.AppPreferences;
 import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
@@ -56,17 +56,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
+            if (CgmBleService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 updateConnectionState(R.string.connected);
                 invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (CgmBleService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 updateConnectionState(R.string.disconnected);
                 invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
-            } else if (BGMeterGattService.BEACON_SNACKBAR.equals(action)) {
+            } else if (CgmBleService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(CgmBleService.EXTRA_DATA));
+            } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
                 beaconSnackbar();
             }
         }
@@ -76,10 +76,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(BGMeterGattService.BEACON_SNACKBAR);
+        intentFilter.addAction(CgmBleService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(CgmBleService.BEACON_SNACKBAR);
         return intentFilter;
     }
 
