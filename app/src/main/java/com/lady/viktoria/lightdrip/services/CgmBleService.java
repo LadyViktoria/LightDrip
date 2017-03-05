@@ -31,21 +31,16 @@ import rx.subjects.PublishSubject;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
 
 public class CgmBleService extends Service {
+    private final static String TAG = CgmBleService.class.getSimpleName();
+
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
-    public final static String ACTION_GATT_CONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
-    public final static String BEACON_SNACKBAR =
-            "com.example.bluetooth.le.BEACON_SNACKBAR";
-    private final static String TAG = CgmBleService.class.getSimpleName();
+    public final static String ACTION_BLE_CONNECTED = "ACTION_BLE_CONNECTED";
+    public final static String ACTION_BLE_DISCONNECTED = "ACTION_BLE_DISCONNECTED";
+    public final static String ACTION_BLE_DATA_AVAILABLE = "ACTION_BLE_DATA_AVAILABLE";
+    public final static String EXTRA_BLE_DATA = "EXTRA_BLE_DATA";
+    public final static String BEACON_SNACKBAR = "BEACON_SNACKBAR";
+
     private RxBleClient rxBleClient;
     private RxBleDevice bleDevice;
     private AppPreferences mTrayPreferences;
@@ -85,8 +80,10 @@ public class CgmBleService extends Service {
     public void connect() {
         if (isConnected()) {
             //triggerDisconnect();
+            broadcastUpdate(ACTION_BLE_CONNECTED);
         } else {
             connectionObservable.subscribe(this::onConnectionReceived, this::onConnectionFailure);
+            broadcastUpdate(ACTION_BLE_DISCONNECTED);
         }
     }
 
@@ -187,7 +184,6 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
-        broadcastUpdate(ACTION_GATT_DISCONNECTED);
         connect();
     }
 
@@ -212,12 +208,13 @@ public class CgmBleService extends Service {
         //Log.v(TAG, "Change: "  + utils.bytesToHex(bytes));
         long timestamp = new Date().getTime();
         int packatlength = bytes[0];
-        if (packatlength >= 2 && CheckTransmitterID(bytes, bytes.length)) {
-            TransmitterRecord.create(bytes, bytes.length, timestamp);
+        if (packatlength >= 2) {
+            if (CheckTransmitterID(bytes, bytes.length)) {
+                TransmitterRecord.create(bytes, bytes.length, timestamp);
+            }
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();
         }
-        broadcastUpdate(ACTION_GATT_CONNECTED);
     }
 
     private void onNotificationSetupFailure(Throwable throwable) {

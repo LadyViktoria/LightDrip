@@ -230,14 +230,14 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (CgmBleService.ACTION_GATT_CONNECTED.equals(action)) {
+            if (CgmBleService.ACTION_BLE_CONNECTED.equals(action)) {
                 updateConnectionState(R.string.connected);
                 invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (CgmBleService.ACTION_BLE_DISCONNECTED.equals(action)) {
                 updateConnectionState(R.string.disconnected);
                 invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(CgmBleService.EXTRA_DATA));
+            } else if (CgmBleService.ACTION_BLE_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(CgmBleService.EXTRA_BLE_DATA));
             } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
                 beaconSnackbar();
             }
@@ -246,9 +246,10 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CgmBleService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(CgmBleService.ACTION_BLE_CONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_BLE_DISCONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_BLE_DATA_AVAILABLE);
+        intentFilter.addAction(CgmBleService.EXTRA_BLE_DATA);
         intentFilter.addAction(CgmBleService.BEACON_SNACKBAR);
         return intentFilter;
     }
