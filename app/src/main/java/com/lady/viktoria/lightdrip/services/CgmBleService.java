@@ -15,11 +15,15 @@ import com.polidea.rxandroidble.utils.ConnectionSharingAdapter;
 
 import net.grandcentrix.tray.AppPreferences;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
+
+import static com.lady.viktoria.lightdrip.utils.convertSrc;
 
 public class CgmBleService extends Service {
     private final static String TAG = CgmBleService.class.getSimpleName();
@@ -32,8 +36,6 @@ public class CgmBleService extends Service {
 
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
-    public final static UUID UUID_HM10_SERVICE =
-            UUID.fromString(GattAttributes.HM_10_SERVICE);
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -71,25 +73,12 @@ public class CgmBleService extends Service {
         }
     }
 
-    public void readCharacteristick() {
-        if (isConnected()) {
-            connectionObservable
-                    .flatMap(rxBleConnection -> rxBleConnection.readCharacteristic(UUID_BG_MEASUREMENT))
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> {
-                        //readOutputView.setText(new String(bytes));
-                        //readHexOutputView.setText(utils.bytesToHex(bytes));
-                        //writeInput.setText(utils.bytesToHex(bytes));
-                    }, this::onReadFailure);
-        }
-    }
-
-    public void writeCharacteristic() {
+    public void writeCharacteristic(final ByteBuffer byteBuffer) {
+        byte[] bytearray = byteBuffer.array();
         if (isConnected()) {
             connectionObservable
                     .flatMap(rxBleConnection -> rxBleConnection
-                            .writeCharacteristic(UUID_BG_MEASUREMENT,
-                                    getInputBytes(String.valueOf(UUID_BG_MEASUREMENT))))
+                            .writeCharacteristic(UUID_BG_MEASUREMENT, bytearray))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(bytes -> {
                         onWriteSuccess();
@@ -127,8 +116,51 @@ public class CgmBleService extends Service {
        // notifyButton.setEnabled(isConnected());
     }
 
-    private byte[] getInputBytes(String uuid) {
-        return utils.hexToBytes(uuid);
+    public boolean CheckTransmitterID(byte[] packet, int len) {
+        int DexSrc;
+        int TransmitterID;
+        ByteBuffer tmpBuffer;
+        final String TxId = mTrayPreferences.getString("Transmitter_Id", "00000");
+        TransmitterID = convertSrc(TxId);
+
+        tmpBuffer = ByteBuffer.allocate(len);
+        tmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        tmpBuffer.put(packet, 0, len);
+
+        if (packet[0] == 7) {
+            Log.i(TAG, "Received Beacon packet.");
+            //String intentAction = BEACON_SNACKBAR;
+            //broadcastUpdate(intentAction);
+            writeTxIdPacket(TransmitterID);
+            return false;
+        } else if (packet[0] >= 21 && packet[1] == 0) {
+            Log.i(TAG, "Received Data packet");
+            DexSrc = tmpBuffer.getInt(12);
+            TransmitterID = convertSrc(TxId);
+            if (Integer.compare(DexSrc, TransmitterID) != 0) {
+                writeTxIdPacket(TransmitterID);
+                return false;
+            } else {return true;}
+        }
+        return false;
+    }
+
+    private void writeTxIdPacket(int TransmitterID) {
+        Log.v(TAG, "try to set transmitter ID");
+        ByteBuffer txidMessage = ByteBuffer.allocate(6);
+        txidMessage.order(ByteOrder.LITTLE_ENDIAN);
+        txidMessage.put(0, (byte) 0x06);
+        txidMessage.put(1, (byte) 0x01);
+        txidMessage.putInt(2, TransmitterID);
+        writeCharacteristic(txidMessage);
+    }
+
+    private void writeAcknowledgePacket() {
+        Log.d(TAG, "Sending Acknowledge Packet, to put wixel to sleep");
+        ByteBuffer ackMessage = ByteBuffer.allocate(2);
+        ackMessage.put(0, (byte) 0x02);
+        ackMessage.put(1, (byte) 0xF0);
+        writeCharacteristic(ackMessage);
     }
 
     private void onConnectionFailure(Throwable throwable) {
@@ -141,11 +173,6 @@ public class CgmBleService extends Service {
         //noinspection ConstantConditions
         Log.v(TAG, "Hey, connection has been established!");
         writeNotificationCharacteristic();
-    }
-
-    private void onReadFailure(Throwable throwable) {
-        //noinspection ConstantConditions
-        Log.v(TAG, "Read error: " + throwable);
     }
 
     private void onWriteSuccess() {
