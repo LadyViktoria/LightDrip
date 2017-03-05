@@ -33,8 +33,7 @@ import static com.lady.viktoria.lightdrip.utils.convertSrc;
 public class CgmBleService extends Service {
     private final static String TAG = CgmBleService.class.getSimpleName();
 
-    public final static UUID UUID_BG_MEASUREMENT =
-            UUID.fromString(GattAttributes.HM_RX_TX);
+    public final static UUID UUID_BG_MEASUREMENT = UUID.fromString(GattAttributes.HM_RX_TX);
     public final static String ACTION_BLE_CONNECTED = "ACTION_BLE_CONNECTED";
     public final static String ACTION_BLE_DISCONNECTED = "ACTION_BLE_DISCONNECTED";
     public final static String ACTION_BLE_DATA_AVAILABLE = "ACTION_BLE_DATA_AVAILABLE";
@@ -211,6 +210,8 @@ public class CgmBleService extends Service {
         if (packatlength >= 2) {
             if (CheckTransmitterID(bytes, bytes.length)) {
                 TransmitterRecord.create(bytes, bytes.length, timestamp);
+            } else {
+                broadcastUpdate(BEACON_SNACKBAR);
             }
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();

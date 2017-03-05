@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.fab3) FloatingActionButton fab3;
     @BindView(R.id.fab4) FloatingActionButton fab4;
     @BindView(R.id.fabBGLayout) View fabBGLayout;
+    @BindView(R.id.fragment) View parentLayout;
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -140,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         }
     }
 
-    @OnClick({R.id.fab, R.id.fab1, R.id.fabLabel1,
+    @OnClick({R.id.fab, R.id.fabBGLayout,
+            R.id.fab1, R.id.fabLabel1,
             R.id.fab2, R.id.fabLabel2,
             R.id.fab3, R.id.fabLabel3,
             R.id.fab4, R.id.fabLabel4 })
@@ -239,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             } else if (CgmBleService.ACTION_BLE_DATA_AVAILABLE.equals(action)) {
                 displayData(intent.getStringExtra(CgmBleService.EXTRA_BLE_DATA));
             } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
+                Log.i(TAG, "Received Beacon packet.");
                 beaconSnackbar();
             }
         }
@@ -259,7 +262,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         final String mDeviceName = appPreferences.getString("BT_Name", "NULL");
         final String mDeviceAddress = appPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
-        fabBGLayout.invalidate();
     }
 
     private void updateConnectionState(final int resourceId) {
@@ -306,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void calibrationSnackbar() {
-        final Snackbar snackBar = Snackbar.make(fabBGLayout
+        final Snackbar snackBar = Snackbar.make(parentLayout
                 , "We have got 2 Readings please Add double Calibration"
                 , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Add Calibration", v -> {
@@ -321,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void startSensorSnackbar(String msg) {
-        final Snackbar snackBar = Snackbar.make(fabBGLayout
+        final Snackbar snackBar = Snackbar.make(parentLayout
                 , msg
                 , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Start Sensor", v -> {
@@ -336,8 +338,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void beaconSnackbar() {
-        final Snackbar snackBar = Snackbar.make(fabBGLayout
-                , "We have got a Beacon Package please check Transmitter ID"
+        final Snackbar snackBar = Snackbar.make(parentLayout
+                , "Transmitter isn't correct please check Transmitter ID"
                 , Snackbar.LENGTH_INDEFINITE);
         snackBar.setAction("Dismiss", v -> snackBar.dismiss());
         View snackBarView = snackBar.getView();
@@ -346,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void sensorReadingsSnackbar() {
-        final Snackbar snackBar = Snackbar.make(fabBGLayout
+        final Snackbar snackBar = Snackbar.make(parentLayout
                 , "Please wait until we got 2 Sensor Readings!"
                 , Snackbar.LENGTH_LONG);
         View snackBarView = snackBar.getView();
