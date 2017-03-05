@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mRealm.removeChangeListener(realmListener);
+        //mRealm.removeChangeListener(realmListener);
         mRealm.close();
         Realm.compactRealm(mRealm.getConfiguration());
     }

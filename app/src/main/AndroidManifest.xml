@@ -17,34 +17,25 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".services.CgmBleService"
-            android:enabled="true"
-            android:exported="true">
+            android:name=".services.CgmBleService">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </service>
 
         <service android:name=".services.SchedulerJobService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":services"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
-            android:name=".receiver.BGMeterGattServiceRestarter"
-            android:enabled="true"
-            android:exported="true"
+            android:name=".receiver.CgmBleServiceRestarter"
             android:label="RestartServiceWhenStopped">
             <intent-filter>
-                <action android:name="com.lady.viktoria.lightdrip.services.RestartBGMeterGattService"/>
+                <action android:name="com.lady.viktoria.lightdrip.services.RestartCgmBleService"/>
             </intent-filter>
         </receiver>
 
         <receiver
             android:name=".receiver.SchedulerJobServiceRestarter"
-            android:enabled="true"
-            android:exported="true"
             android:label="RestartServiceWhenStopped">
             <intent-filter>
                 <action android:name="com.lady.viktoria.lightdrip.services.RestartSchedulerJobService"/>
@@ -52,9 +43,7 @@
         </receiver>
 
         <receiver
-            android:name=".receiver.BroadcastReceiverOnBootComplete"
-            android:enabled="true"
-            android:exported="false">
+            android:name=".receiver.BroadcastReceiverOnBootComplete">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
