@@ -41,14 +41,13 @@ import io.realm.Sort;
 import static io.realm.Realm.getDefaultInstance;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        OnTrayPreferenceChangeListener, RealmChangeListener {
+        OnTrayPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
     private TextView mConnectionState ,mDatabaseSize, bgmac, mDataField;
     private boolean mConnected = false;
     private Realm mRealm;
-    private RealmChangeListener realmListener;
     private FloatingActionButton fab;
     private LinearLayout fabLabel1, fabLabel2, fabLabel3, fabLabel4;
     private View fabBGLayout;
@@ -95,6 +94,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabBGLayout.setOnClickListener(this);
         getBTDevice();
         getDatabaseSize();
+
+        try {
+            RealmChangeListener realmListener = element -> {
+                getDatabaseSize();
+                CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+                TransmitterData transmitterData = mRealm.where(TransmitterData.class)
+                        .findAllSorted("id", Sort.DESCENDING)
+                        .where()
+                        .findFirst();
+                GlucoseRecord glucoserecord = new GlucoseRecord();
+                SensorRecord sensorRecord = new SensorRecord();
+                if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
+                    calibrationSnackbar();
+                } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
+                    startSensorSnackbar("Received Transmitter Data please Start Sensor");
+                }
+            };
+            mRealm.addChangeListener(realmListener);
+        } catch (Exception e) {
+            Log.v(TAG, "onCreate " + e.getMessage());
+        }
     }
 
     @Override
@@ -130,23 +150,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onTrayPreferenceChanged(Collection<TrayItem> items) {
         getBTDevice();
-    }
-
-    @Override
-    public void onChange(Object element) {
-        getDatabaseSize();
-        CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
-        TransmitterData transmitterData = mRealm.where(TransmitterData.class)
-                .findAllSorted("id", Sort.DESCENDING)
-                .where()
-                .findFirst();
-        GlucoseRecord glucoserecord = new GlucoseRecord();
-        SensorRecord sensorRecord = new SensorRecord();
-        if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
-            calibrationSnackbar();
-        } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
-            startSensorSnackbar("Received Transmitter Data please Start Sensor");
-        }
     }
 
     public void onClick(View view) {
@@ -266,12 +269,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateConnectionState(final int resourceId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mConnectionState.setText(resourceId);
-            }
-        });
+        runOnUiThread(() -> mConnectionState.setText(resourceId));
     }
 
     private void displayData(String data) {
@@ -308,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
                     + "\nDatabase Size: " + FileSize);
             mDatabaseSize.invalidate();
+            fabBGLayout.invalidate();
         } catch (Exception e) {
             Log.v(TAG, "getDatabaseSize " + e.getMessage());
         }
@@ -317,14 +316,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Snackbar snackBar = Snackbar.make(fabBGLayout
                 , "We have got 2 Readings please Add double Calibration"
                 , Snackbar.LENGTH_INDEFINITE);
-        snackBar.setAction("Add Calibration", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackBar.dismiss();
-                FragmentManager fm = getFragmentManager();
-                CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
-                dialogFragment.show(fm, "Calibration Dialog Fragment");
-            }
+        snackBar.setAction("Add Calibration", v -> {
+            snackBar.dismiss();
+            FragmentManager fm = getFragmentManager();
+            CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+            dialogFragment.show(fm, "Calibration Dialog Fragment");
         });
         View snackBarView = snackBar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
@@ -335,14 +331,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Snackbar snackBar = Snackbar.make(fabBGLayout
                 , msg
                 , Snackbar.LENGTH_INDEFINITE);
-        snackBar.setAction("Start Sensor", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                snackBar.dismiss();
-                android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
-                ft3.replace(R.id.fragment, new SensorActionFragment());
-                ft3.commit();
-            }
+        snackBar.setAction("Start Sensor", v -> {
+            snackBar.dismiss();
+            android.app.FragmentTransaction ft3 = getFragmentManager().beginTransaction();
+            ft3.replace(R.id.fragment, new SensorActionFragment());
+            ft3.commit();
         });
         View snackBarView = snackBar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
@@ -353,13 +346,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Snackbar snackBar = Snackbar.make(fabBGLayout
                 , "We have got a Beacon Package please check Transmitter ID"
                 , Snackbar.LENGTH_INDEFINITE);
-        snackBar.setAction("Dismiss", new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                snackBar.dismiss();
-            }
-        });
+        snackBar.setAction("Dismiss", v -> snackBar.dismiss());
         View snackBarView = snackBar.getView();
         snackBarView.setBackgroundColor(ContextCompat.getColor(this, R.color.colorBackground));
         snackBar.show();

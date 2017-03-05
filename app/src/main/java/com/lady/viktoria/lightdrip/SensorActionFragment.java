@@ -42,41 +42,34 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Please choose if you want to stop current Sensor or start a new Sensor");
         builder.setTitle("Sensor Actions");
-        builder.setPositiveButton("Start Sensor", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                SensorRecord sensorRecord = new SensorRecord();
-                if (!sensorRecord.isSensorActive()) {
-                    Calendar now = Calendar.getInstance();
-                    DatePickerDialog dpd = DatePickerDialog.newInstance(
-                            SensorActionFragment.this,
-                            now.get(Calendar.YEAR),
-                            now.get(Calendar.MONTH),
-                            now.get(Calendar.DAY_OF_MONTH)
-                    );
-                    dpd.setThemeDark(true);
-                    dpd.show(getFragmentManager(), "Datepickerdialog");
-                    dialog.dismiss();
-                } else {
-                    final Snackbar snackBar = Snackbar.make(getView()
-                            , "Please stop current Sensor first!"
-                            , Snackbar.LENGTH_LONG);
-                    View snackBarView = snackBar.getView();
-                    snackBarView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorBackground));
-                    snackBar.show();
-                }
+        builder.setPositiveButton("Start Sensor", (dialog, which) -> {
+            SensorRecord sensorRecord = new SensorRecord();
+            if (!sensorRecord.isSensorActive()) {
+                Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                        SensorActionFragment.this,
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
+                );
+                dpd.setThemeDark(true);
+                dpd.show(getFragmentManager(), "Datepickerdialog");
                 dialog.dismiss();
+            } else {
+                final Snackbar snackBar = Snackbar.make(getView()
+                        , "Please stop current Sensor first!"
+                        , Snackbar.LENGTH_LONG);
+                View snackBarView = snackBar.getView();
+                snackBarView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorBackground));
+                snackBar.show();
             }
+            dialog.dismiss();
         });
 
-        builder.setNegativeButton("Stop sensor", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                SensorRecord sensorRecord = new SensorRecord();
-                sensorRecord.StopSensor();
-                dialog.dismiss();
-            }
+        builder.setNegativeButton("Stop sensor", (dialog, which) -> {
+            SensorRecord sensorRecord = new SensorRecord();
+            sensorRecord.StopSensor();
+            dialog.dismiss();
         });
         builder.create().show();
     }

@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.utils;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.RxBleConnection;
@@ -17,6 +18,7 @@ import net.grandcentrix.tray.AppPreferences;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Date;
 import java.util.UUID;
 
 import rx.Observable;
@@ -80,9 +82,7 @@ public class CgmBleService extends Service {
                     .flatMap(rxBleConnection -> rxBleConnection
                             .writeCharacteristic(UUID_BG_MEASUREMENT, bytearray))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(bytes -> {
-                        onWriteSuccess();
-                    }, this::onWriteFailure);
+                    .subscribe(bytes -> onWriteSuccess(), this::onWriteFailure);
         }
     }
 
@@ -187,7 +187,14 @@ public class CgmBleService extends Service {
 
     private void onNotificationReceived(byte[] bytes) {
         //noinspection ConstantConditions
-        Log.v(TAG, "Change: "  + utils.bytesToHex(bytes));
+        //Log.v(TAG, "Change: "  + utils.bytesToHex(bytes));
+        long timestamp = new Date().getTime();
+        int packatlength = bytes[0];
+        if (packatlength >= 2 && CheckTransmitterID(bytes, bytes.length)) {
+            TransmitterRecord.create(bytes, bytes.length, timestamp);
+        } else if (packatlength <= 1) {
+            writeAcknowledgePacket();
+        }
     }
 
     private void onNotificationSetupFailure(Throwable throwable) {

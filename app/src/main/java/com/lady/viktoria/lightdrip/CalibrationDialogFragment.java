@@ -60,48 +60,40 @@ public class CalibrationDialogFragment extends DialogFragment {
             doubleCalFlag = true;
         }
 
-        calButton.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                if (doubleCalFlag) {
-                    try {
-                        double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
-                        double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
-                        CalibrationRecord calibration = new CalibrationRecord();
-                        calibration.initialCalibration(bg1, bg2);
-                    } catch (Exception e) {
-                        Log.v(TAG, "setOnClickListener " + e.getMessage());
-                    } finally {
-                        dismiss();
-                    }
-                } else {
-                    try {
-                        double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
-                        CalibrationRecord calibration = new CalibrationRecord();
-                        calibration.singleCalibration(bg1);
-                    } catch (Exception e) {
-                        Log.v(TAG, "setOnClickListener " + e.getMessage());
-                    } finally {
-                        dismiss();
-                    }
+        calButton.setOnClickListener(view1 -> {
+            if (doubleCalFlag) {
+                try {
+                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                    double bg2 = Double.parseDouble(String.valueOf(glucosereading2.getText()));
+                    CalibrationRecord calibration = new CalibrationRecord();
+                    calibration.initialCalibration(bg1, bg2);
+                } catch (Exception e) {
+                    Log.v(TAG, "setOnClickListener " + e.getMessage());
+                } finally {
+                    dismiss();
+                }
+            } else {
+                try {
+                    double bg1 = Double.parseDouble(String.valueOf(glucosereading1.getText()));
+                    CalibrationRecord calibration = new CalibrationRecord();
+                    calibration.singleCalibration(bg1);
+                } catch (Exception e) {
+                    Log.v(TAG, "setOnClickListener " + e.getMessage());
+                } finally {
+                    dismiss();
                 }
             }
         });
 
-        sButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton cb, boolean on) {
-                if (on) {
-                    sButton.setText("Double Calibration");
-                    glucosereading2.setVisibility(View.VISIBLE);
-                    doubleCalFlag = true;
-                } else {
-                    sButton.setText("Single Calibration");
-                    glucosereading2.setVisibility(View.GONE);
-                    doubleCalFlag = false;
-                }
+        sButton.setOnCheckedChangeListener((cb, on) -> {
+            if (on) {
+                sButton.setText("Double Calibration");
+                glucosereading2.setVisibility(View.VISIBLE);
+                doubleCalFlag = true;
+            } else {
+                sButton.setText("Single Calibration");
+                glucosereading2.setVisibility(View.GONE);
+                doubleCalFlag = false;
             }
         });
 

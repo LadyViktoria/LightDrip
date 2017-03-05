@@ -19,7 +19,7 @@ public class SensorRecord {
     private final static String TAG = SensorRecord.class.getSimpleName();
 
     private Realm mRealm;
-    Context context;
+    private Context context;
 
     public SensorRecord() {
         Realm.init(context);
@@ -64,13 +64,12 @@ public class SensorRecord {
         }
     }
 
-    public long currentSensorID() {
+    long currentSensorID() {
         if (isSensorActive()) {
             try {
                 RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
                 long lastID = results.last().getid();
-                long mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst().getid();
-                return mSensorData;
+                return mRealm.where(SensorData.class).equalTo("id", lastID).findFirst().getid();
             } catch (Exception e) {
                 Log.v(TAG, "currentSensor " + e.getMessage());
             }
@@ -85,10 +84,7 @@ public class SensorRecord {
             RealmResults<SensorData> results = mRealm.where(SensorData.class).findAll();
             long lastID = results.last().getid();
             SensorData mSensorData = mRealm.where(SensorData.class).equalTo("id", lastID).findFirst();
-            if (mSensorData.getstopped_at() == 0L) {
-                return true;
-            }
-            return false;
+            return mSensorData.getstopped_at() == 0L;
         } catch (Exception e) {
             Log.v(TAG, "isSensorActive " + e.getMessage());
         }

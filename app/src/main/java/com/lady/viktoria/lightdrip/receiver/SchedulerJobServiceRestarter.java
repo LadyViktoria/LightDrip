@@ -11,6 +11,6 @@ public class SchedulerJobServiceRestarter extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        context.startService(new Intent(context, SchedulerJobService.class));;
+        context.startService(new Intent(context, SchedulerJobService.class));
     }
 }

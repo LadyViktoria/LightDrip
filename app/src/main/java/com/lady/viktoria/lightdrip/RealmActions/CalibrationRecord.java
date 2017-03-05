@@ -127,7 +127,7 @@ public class CalibrationRecord {
         mCalibrationDataHighCal.setdistance_from_estimate(0);
         mCalibrationDataHighCal.setcheck_in(false);
         mCalibrationDataHighCal.setsensor_confidence(((-0.0018 * higher_bg * higher_bg) + (0.6657 * higher_bg) + 36.7505) / 100);
-        mCalibrationDataHighCal.setsensor_age_at_time_of_estimation(Double.valueOf(mCalibrationDataHighCal.gettimestamp() - started_at));
+        mCalibrationDataHighCal.setsensor_age_at_time_of_estimation((double) (mCalibrationDataHighCal.gettimestamp() - started_at));
         //calculate_w_l_s();
         mRealm.commitTransaction();
         mRealm.close();
@@ -201,11 +201,10 @@ public class CalibrationRecord {
 
 
     public CalibrationData lastCalibration() {
-        CalibrationData calibrationData = mRealm.where(CalibrationData.class)
+        return mRealm.where(CalibrationData.class)
                 .findAllSorted("id", Sort.DESCENDING)
                 .where()
                 .findFirst();
-        return calibrationData;
     }
 
     private void serializeToJson() {

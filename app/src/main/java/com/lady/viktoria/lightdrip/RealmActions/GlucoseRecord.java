@@ -94,12 +94,9 @@ public class GlucoseRecord {
                 .where()
                 .findFirst()));
         Log.v(TAG, "glucoseRecord json: "  + json);
-
-
-        return;
     }
 
-    public void calculateAgeAdjustedRawValue() {
+    private void calculateAgeAdjustedRawValue() {
         RealmResults<GlucoseData> results = mRealm.where(GlucoseData.class).findAll();
         long lastID = results.last().getid();
         GlucoseData mGlucoseData = mRealm.where(GlucoseData.class).equalTo("id", lastID).findFirst();
@@ -140,7 +137,7 @@ public class GlucoseRecord {
                 .create();
     }
 
-    public String toS() {
+    private String toS() {
         gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeAdapter(Date.class, new DateTypeAdapter())
@@ -156,20 +153,18 @@ public class GlucoseRecord {
             RealmResults<GlucoseData> glucoseRecord = mRealm.where(GlucoseData.class)
                     .equalTo("sensor_id", lastID)
                     .findAll();
-            int size = glucoseRecord.size();
-            return size;
+            return glucoseRecord.size();
         } catch (Exception e) {
             Log.v(TAG, "countRecordsByLastSensorID " + e.getMessage());
         }
         return 0;
     }
 
-    public GlucoseData lastGluscoseEntry() {
-        GlucoseData glucoseRecord = mRealm.where(GlucoseData.class)
+    GlucoseData lastGluscoseEntry() {
+        return mRealm.where(GlucoseData.class)
                 .findAllSorted("id", Sort.DESCENDING)
                 .where()
                 .findFirst();
-        return glucoseRecord;
     }
 
     //*******INSTANCE METHODS***********//
@@ -179,7 +174,7 @@ public class GlucoseRecord {
         find_slope();
     }
 
-    public void find_slope() {
+    private void find_slope() {
         RealmResults<GlucoseData> results = mRealm.where(GlucoseData.class).findAll().sort("id", Sort.DESCENDING);
         int resultsize = results.size();
         double lastGlucose = results.get(resultsize - 2).getRawData();
@@ -199,7 +194,7 @@ public class GlucoseRecord {
         }
     }
 
-    public static double calculateSlope(double current, double last) {
+    private static double calculateSlope(double current, double last) {
         /*
         if (current.timestamp == last.timestamp || current.calculated_value == last.calculated_value) {
             return 0;
