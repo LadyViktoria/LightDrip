@@ -293,7 +293,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                     + String.format("\nItems in TransmitterData: %d", itemSizeTransmitterData)
                     + "\nDatabase Size: " + FileSize);
             mDatabaseSize.invalidate();
-            fabBGLayout.invalidate();
         } catch (Exception e) {
             Log.v(TAG, "getDatabaseSize " + e.getMessage());
         }
