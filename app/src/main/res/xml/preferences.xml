@@ -6,21 +6,21 @@
     <PreferenceCategory android:title="General Setup">
 
         <EditTextPreference
-        android:title="Transmitter ID"
-        android:key="transmitter_id"
-        android:inputType="textCapCharacters|textNoSuggestions"
-        android:defaultValue="00000"
-        android:text="00000"/>
+            android:defaultValue="00000"
+            android:inputType="textCapCharacters|textNoSuggestions"
+            android:key="transmitter_id"
+            android:text="00000"
+            android:title="Transmitter ID" />
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Bluetooth Setup">
 
         <com.lady.viktoria.lightdrip.BluetoothDevicePreference
-        android:dialogTitle="Select BT device"
-        android:key="bt_device"
-        android:title="BT Device"
-        android:defaultValue="false" />
+            android:defaultValue="false"
+            android:dialogTitle="Select BT device"
+            android:key="bt_device"
+            android:title="BT Device" />
 
     </PreferenceCategory>
 

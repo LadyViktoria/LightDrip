@@ -2,6 +2,8 @@ package com.lady.viktoria.lightdrip;
 
 public class utils {
 
+    private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
     public static Integer convertSrc(final String Src) {
         Integer res = 0;
         String tmpSrc = Src.toUpperCase();
@@ -23,8 +25,6 @@ public class utils {
         }
         return i;
     }
-
-    private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];

@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
-import com.lady.viktoria.lightdrip.utils;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.RxBleConnection;
 import com.polidea.rxandroidble.RxBleDevice;
@@ -28,16 +27,14 @@ import rx.subjects.PublishSubject;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
 
 public class CgmBleService extends Service {
+    public final static UUID UUID_BG_MEASUREMENT =
+            UUID.fromString(GattAttributes.HM_RX_TX);
     private final static String TAG = CgmBleService.class.getSimpleName();
-
     private RxBleClient rxBleClient;
     private RxBleDevice bleDevice;
     private AppPreferences mTrayPreferences;
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
-
-    public final static UUID UUID_BG_MEASUREMENT =
-            UUID.fromString(GattAttributes.HM_RX_TX);
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -110,10 +107,10 @@ public class CgmBleService extends Service {
     }
 
     private void updateUI() {
-     //   connectButton.setText(isConnected() ? getString(R.string.disconnect) : getString(R.string.connect));
-      //  readButton.setEnabled(isConnected());
-      //  writeButton.setEnabled(isConnected());
-       // notifyButton.setEnabled(isConnected());
+        //   connectButton.setText(isConnected() ? getString(R.string.disconnect) : getString(R.string.connect));
+        //  readButton.setEnabled(isConnected());
+        //  writeButton.setEnabled(isConnected());
+        // notifyButton.setEnabled(isConnected());
     }
 
     public boolean CheckTransmitterID(byte[] packet, int len) {
@@ -140,7 +137,9 @@ public class CgmBleService extends Service {
             if (Integer.compare(DexSrc, TransmitterID) != 0) {
                 writeTxIdPacket(TransmitterID);
                 return false;
-            } else {return true;}
+            } else {
+                return true;
+            }
         }
         return false;
     }

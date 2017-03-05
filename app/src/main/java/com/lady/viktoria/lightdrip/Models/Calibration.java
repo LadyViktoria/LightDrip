@@ -3,7 +3,6 @@ package com.lady.viktoria.lightdrip.Models;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -101,8 +100,8 @@ public class Calibration {
         highBgReading.calculated_value = higher_bg;
         highBgReading.calibration_flag = true;
         highBgReading.calibration = higherCalibration;
-    //    highBgReading.save();
-  //      higherCalibration.save();
+        //    highBgReading.save();
+        //      higherCalibration.save();
 
         lowerCalibration.bg = lower_bg;
         lowerCalibration.slope = 1;
@@ -112,7 +111,7 @@ public class Calibration {
         lowerCalibration.adjusted_raw_value = lowBgReading.age_adjusted_raw_value;
         lowerCalibration.raw_value = lowBgReading.raw_data;
         lowerCalibration.raw_timestamp = lowBgReading.timestamp;
-      //  lowerCalibration.save();
+        //  lowerCalibration.save();
 
         lowBgReading.calculated_value = lower_bg;
         lowBgReading.calibration_flag = true;
@@ -139,7 +138,7 @@ public class Calibration {
 
             calibration.sensor_age_at_time_of_estimation = calibration.timestamp - sensor.started_at;
             calibration.uuid = UUID.randomUUID().toString();
-          //  calibration.save();
+            //  calibration.save();
 
             calculate_w_l_s();
             //CalibrationSendQueue.addToQueue(calibration, context);
@@ -183,11 +182,11 @@ public class Calibration {
                 calibration.sensor_confidence = Math.max(((-0.0018 * bg * bg) + (0.6657 * bg) + 36.7505) / 100, 0);
                 calibration.sensor_age_at_time_of_estimation = calibration.timestamp - sensor.started_at;
                 calibration.uuid = UUID.randomUUID().toString();
-               // calibration.save();
+                // calibration.save();
 
                 bgReading.calibration = calibration;
                 bgReading.calibration_flag = true;
-               // bgReading.save();
+                // bgReading.save();
                 // BgSendQueue.handleNewBgReading(bgReading, "update", context);
 
                 calculate_w_l_s();
@@ -246,7 +245,7 @@ public class Calibration {
                         calibration.possible_bad = true;
                     }
                     calibration.intercept = calibration.bg - (calibration.estimate_raw_at_time_of_calibration * calibration.slope);
-                  //  CalibrationRequest.createOffset(calibration.bg, 25);
+                    //  CalibrationRequest.createOffset(calibration.bg, 25);
                 }
                 if ((calibrations.size() == 2 && calibration.slope > HIGH_SLOPE_1) || (calibration.slope > HIGH_SLOPE_2)) {
                     calibration.slope = calibration.slopeOOBHandler(1);
@@ -264,7 +263,6 @@ public class Calibration {
             Log.d(TAG, "NO Current active sensor found!!");
         }
     }
-
 
 
     public static void adjustRecentBgReadings() {// This just adjust the last 30 bg readings transition from one calibration point to the next
@@ -316,12 +314,11 @@ public class Calibration {
             for (Calibration calibration : pastCalibrations) {
                 calibration.slope_confidence = 0;
                 calibration.sensor_confidence = 0;
-               // calibration.save();
+                // calibration.save();
             }
         }
 
     }
-
 
 
     //COMMON SCOPES!
@@ -412,7 +409,6 @@ public class Calibration {
     }
 
 
-
     public static List<Calibration> allForSensor() {
         Sensor sensor = Sensor.currentSensor();
         if (sensor == null) {
@@ -447,7 +443,6 @@ public class Calibration {
                 */
         return null;
     }
-
 
 
     private double slopeOOBHandler(int status) {

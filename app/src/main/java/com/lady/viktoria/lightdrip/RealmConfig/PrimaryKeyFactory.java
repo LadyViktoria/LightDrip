@@ -1,9 +1,11 @@
 package com.lady.viktoria.lightdrip.RealmConfig;
 
 import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
@@ -19,7 +21,9 @@ import static java.lang.String.format;
  */
 public class PrimaryKeyFactory {
 
-    /** primary key field name */
+    /**
+     * primary key field name
+     */
     private static final String PRIMARY_KEY_FIELD = "id";
 
     /**
@@ -34,6 +38,7 @@ public class PrimaryKeyFactory {
 
     /**
      * get the singleton instance
+     *
      * @return singleton instance
      */
     public static PrimaryKeyFactory getInstance() {
@@ -64,11 +69,11 @@ public class PrimaryKeyFactory {
                     keyValue = realm.where(c).max(PRIMARY_KEY_FIELD);
                 } catch (ArrayIndexOutOfBoundsException ex) {
                     Log.d(getClass().getSimpleName(), format("error while getting number primary key %s " +
-                            " for %s",PRIMARY_KEY_FIELD, c.getName()), ex);
+                            " for %s", PRIMARY_KEY_FIELD, c.getName()), ex);
                 }
                 if (keyValue == null) {
                     Log.w(getClass().getSimpleName(), format("can't find number primary key %s " +
-                            " for %s.",PRIMARY_KEY_FIELD, c.getName()));
+                            " for %s.", PRIMARY_KEY_FIELD, c.getName()));
                 } else {
                     keys.put((Class<? extends RealmObject>) c, new AtomicLong(keyValue.longValue()));
                 }
@@ -77,7 +82,7 @@ public class PrimaryKeyFactory {
     }
 
     /**
-     *  Automatically create next key for a given class.
+     * Automatically create next key for a given class.
      */
     public synchronized long nextKey(final Class<? extends RealmObject> clazz) {
         if (keys == null) {

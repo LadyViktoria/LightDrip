@@ -21,7 +21,6 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static io.realm.Realm.getDefaultInstance;
-import static io.realm.Realm.getInstance;
 
 public class CalibrationRecord {
     private final static String TAG = CalibrationRecord.class.getSimpleName();
@@ -37,9 +36,9 @@ public class CalibrationRecord {
     private static final double DEFAUL_HIGH_SLOPE_LOW = 1.2;
     private static final double MMOLL_TO_MGDL = 18.0182;
     private static final double MGDL_TO_MMOLL = 1 / MMOLL_TO_MGDL;
+    Context context;
     private Realm mRealm;
     private Gson gson;
-    Context context;
 
     public CalibrationRecord() {
         Realm.init(context);
@@ -49,9 +48,7 @@ public class CalibrationRecord {
     public void initialCalibration(double bg1, double bg2) {
         SensorRecord sensorRecord = new SensorRecord();
         long currentsensor_id = sensorRecord.currentSensorID();
-        double bgReading1 = 0, bgReading2 = 0
-                , ageAdjustedRawData1 = 0 ,ageAdjustedRawData2 = 0
-                ,timestamp1 = 0, timestamp2 = 0;
+        double bgReading1 = 0, bgReading2 = 0, ageAdjustedRawData1 = 0, ageAdjustedRawData2 = 0, timestamp1 = 0, timestamp2 = 0;
         GlucoseData obj1 = null, obj2 = null;
         long started_at = 0;
         try {
@@ -166,8 +163,8 @@ public class CalibrationRecord {
         String json1 = gson.toJson(mRealm.copyFromRealm(result1));
         String json2 = gson.toJson(mRealm.copyFromRealm(result2));
 
-        Log.v(TAG, "glucoseRecord json1: "  + json1);
-        Log.v(TAG, "glucoseRecord json2: "  + json2);
+        Log.v(TAG, "glucoseRecord json1: " + json1);
+        Log.v(TAG, "glucoseRecord json2: " + json2);
 
     }
 
@@ -194,7 +191,7 @@ public class CalibrationRecord {
             mRealm.close();
 
         } else {
-        Log.d("CALIBRATION", "No sensor, cant save!");
+            Log.d("CALIBRATION", "No sensor, cant save!");
         }
         //return lastCalibration();
     }

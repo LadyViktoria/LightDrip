@@ -33,22 +33,6 @@ import static android.bluetooth.BluetoothAdapter.STATE_DISCONNECTING;
 import static com.lady.viktoria.lightdrip.utils.convertSrc;
 
 public class BGMeterGattService extends Service {
-    private final static String TAG = BGMeterGattService.class.getSimpleName();
-
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-    private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
-    private BluetoothDevice mBluetoothDevice;
-    private int mConnectionState = STATE_DISCONNECTED;
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
-    private Context mContext;
-    private AppPreferences mTrayPreferences;
-
-
-
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
@@ -61,55 +45,23 @@ public class BGMeterGattService extends Service {
             "com.example.bluetooth.le.EXTRA_DATA";
     public final static String BEACON_SNACKBAR =
             "com.example.bluetooth.le.BEACON_SNACKBAR";
-
-
     public final static UUID UUID_BG_MEASUREMENT =
             UUID.fromString(GattAttributes.HM_RX_TX);
     public final static UUID UUID_HM10_SERVICE =
             UUID.fromString(GattAttributes.HM_10_SERVICE);
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-        startJobScheduler();
-        mTrayPreferences = new AppPreferences(this);
-        attemptConnection();
-        return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
-        sendBroadcast(broadcastIntent);
-        stopJobScheduler();
-    }
-
-    public void startJobScheduler() {
-        final long REFRESH_INTERVAL  = 15 * 60 * 1000;
-        ComponentName serviceComponent = new ComponentName(this, SchedulerJobService.class);
-        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setRequiresDeviceIdle(false);
-        builder.setRequiresCharging(false);
-        builder.setPeriodic(REFRESH_INTERVAL);
-        //builder.setPersisted(true);
-        JobScheduler jobScheduler = (JobScheduler)this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        int result = jobScheduler.schedule(builder.build());
-        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
-    }
-
-    public void stopJobScheduler() {
-        JobScheduler jobScheduler = (JobScheduler)this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.cancel(0);
-    }
-
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
+    private final static String TAG = BGMeterGattService.class.getSimpleName();
+    private static final int STATE_DISCONNECTED = 0;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
+    private final IBinder mBinder = new LocalBinder();
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private String mBluetoothDeviceAddress;
+    private BluetoothGatt mBluetoothGatt;
+    private BluetoothDevice mBluetoothDevice;
+    private int mConnectionState = STATE_DISCONNECTED;
+    private Context mContext;
+    private AppPreferences mTrayPreferences;
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -134,13 +86,15 @@ public class BGMeterGattService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG,"Services discovered");
+                Log.d(TAG, "Services discovered");
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
                 BluetoothGattService service = gatt.getService(UUID.fromString(GattAttributes.HM_10_SERVICE));
                 if (service != null) {
                     BluetoothGattCharacteristic glucoseCharactersitic = service.getCharacteristic(UUID.fromString(GattAttributes.HM_RX_TX));
                     setCharacteristicNotification(glucoseCharactersitic, true);
-                } else {Log.d(TAG,"glucose service not found");}
+                } else {
+                    Log.d(TAG, "glucose service not found");
+                }
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -161,6 +115,47 @@ public class BGMeterGattService extends Service {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        startJobScheduler();
+        mTrayPreferences = new AppPreferences(this);
+        attemptConnection();
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartBGMeterGattService");
+        sendBroadcast(broadcastIntent);
+        stopJobScheduler();
+    }
+
+    public void startJobScheduler() {
+        final long REFRESH_INTERVAL = 15 * 60 * 1000;
+        ComponentName serviceComponent = new ComponentName(this, SchedulerJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
+        builder.setRequiresDeviceIdle(false);
+        builder.setRequiresCharging(false);
+        builder.setPeriodic(REFRESH_INTERVAL);
+        //builder.setPersisted(true);
+        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int result = jobScheduler.schedule(builder.build());
+        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
+    }
+
+    public void stopJobScheduler() {
+        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(0);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
 
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
@@ -183,17 +178,10 @@ public class BGMeterGattService extends Service {
                 writeAcknowledgePacket();
                 return;
             }
-        }
-        else {
+        } else {
             return;
         }
         sendBroadcast(intent);
-    }
-
-    public class LocalBinder extends Binder {
-        public BGMeterGattService getService() {
-            return BGMeterGattService.this;
-        }
     }
 
     @Override
@@ -201,8 +189,6 @@ public class BGMeterGattService extends Service {
         close();
         return super.onUnbind(intent);
     }
-
-    private final IBinder mBinder = new LocalBinder();
 
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
@@ -268,7 +254,7 @@ public class BGMeterGattService extends Service {
             return false;
         }
         BluetoothGattService mCustomService = mBluetoothGatt.getService(UUID_HM10_SERVICE);
-        if(mCustomService == null){
+        if (mCustomService == null) {
             Log.w(TAG, "HM10 Service not found");
             return false;
         }
@@ -276,10 +262,9 @@ public class BGMeterGattService extends Service {
         byte[] bytevalue = value.array();
         mWriteCharacteristic.setValue(bytevalue);
         boolean status = mBluetoothGatt.writeCharacteristic(mWriteCharacteristic);
-        if(!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)){
+        if (!mBluetoothGatt.writeCharacteristic(mWriteCharacteristic)) {
             return status;
-        }
-        else {
+        } else {
             return status;
         }
     }
@@ -359,7 +344,9 @@ public class BGMeterGattService extends Service {
             if (Integer.compare(DexSrc, TransmitterID) != 0) {
                 writeTxIdPacket(TransmitterID);
                 return false;
-            } else {return true;}
+            } else {
+                return true;
+            }
         }
         return false;
     }
@@ -396,6 +383,12 @@ public class BGMeterGattService extends Service {
         } else {
             Log.v(TAG, "Write Acknowledge Packet failed!");
             return false;
+        }
+    }
+
+    public class LocalBinder extends Binder {
+        public BGMeterGattService getService() {
+            return BGMeterGattService.this;
         }
     }
 }

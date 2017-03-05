@@ -4,47 +4,47 @@
     android:id="@+id/content_calibrationdialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.lady.viktoria.lightdrip.CalibrationDialogFragment"
-    android:orientation="vertical"
-    android:layout_gravity="center_vertical|center_horizontal">
+    tools:context="com.lady.viktoria.lightdrip.CalibrationDialogFragment">
 
     <Switch
-        android:text="Single Calibration"
+        android:id="@+id/switch_doublecalibration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/switch_doublecalibration"
+        android:layout_gravity="center_vertical|center_horizontal"
         android:switchPadding="20dp"
-        android:layout_gravity="center_vertical|center_horizontal"/>
+        android:text="Single Calibration" />
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
         android:id="@+id/glucosereading1"
-        android:hint="Glucose Reading 1"
-        android:layout_gravity="center_vertical|center_horizontal"/>
-
-    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
+        android:layout_gravity="center_vertical|center_horizontal"
         android:ems="10"
+        android:hint="Glucose Reading 1"
+        android:inputType="number" />
+
+    <EditText
         android:id="@+id/glucosereading2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:ems="10"
         android:hint="Glucose Reading 2"
-        android:visibility="gone"
-        android:layout_gravity="center_vertical|center_horizontal"/>
+        android:inputType="number"
+        android:visibility="gone" />
 
     <Button
-        android:text="Add Calibration"
+        android:id="@+id/btn_addcalibration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btn_addcalibration"
+        android:layout_gravity="center_vertical|center_horizontal"
         android:layout_weight="1"
-        android:layout_gravity="center_vertical|center_horizontal" />
+        android:text="Add Calibration" />
 
 </LinearLayout>

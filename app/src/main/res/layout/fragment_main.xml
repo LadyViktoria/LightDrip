@@ -12,37 +12,37 @@
     tools:showIn="@layout/activity_main">
 
     <TextView
-        android:text="@string/label_device_address"
+        android:id="@+id/bgmac"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:id="@+id/bgmac" />
+        android:text="@string/label_device_address" />
 
     <TextView
-        android:text="@string/disconnected"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
         android:id="@+id/connection_state"
-        android:layout_below="@+id/connectionstatus_label"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:text="@string/label_state"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:id="@+id/connectionstatus_label"
-        android:labelFor="@+id/connection_state"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/connection_state" />
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/connectionstatus_label"
+        android:text="@string/disconnected" />
 
     <TextView
-        android:text="BG Reading"
-        android:textSize="16pt"
+        android:id="@+id/connectionstatus_label"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/connection_state"
+        android:labelFor="@+id/connection_state"
+        android:text="@string/label_state" />
+
+    <TextView
+        android:id="@+id/bgreading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bgreading"
-        android:layout_below="@+id/connection_state"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_below="@+id/connection_state"
+        android:text="BG Reading"
+        android:textSize="16pt" />
 
     <TextView
         android:id="@+id/bluetoothstate"
@@ -50,13 +50,13 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:text="DatabaseSize"
-        android:textSize="6pt"
+        android:id="@+id/databasesize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/databasesize"
-        android:layout_below="@+id/bgreading"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="300dp" />
+        android:layout_below="@+id/bgreading"
+        android:layout_marginTop="300dp"
+        android:text="DatabaseSize"
+        android:textSize="6pt" />
 
 </RelativeLayout>

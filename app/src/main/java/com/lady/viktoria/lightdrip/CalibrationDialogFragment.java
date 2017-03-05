@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
@@ -19,7 +18,6 @@ import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
-import static io.realm.Realm.getInstance;
 
 
 public class CalibrationDialogFragment extends DialogFragment {
@@ -30,7 +28,9 @@ public class CalibrationDialogFragment extends DialogFragment {
     private EditText glucosereading1, glucosereading2;
     private Boolean doubleCalFlag = false;
     private Realm mRealm;
-    public CalibrationDialogFragment() {}
+
+    public CalibrationDialogFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class CalibrationDialogFragment extends DialogFragment {
 
         GlucoseRecord glucoserecord = new GlucoseRecord();
         CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
-        if(calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2){
+        if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
             sButton.setChecked(true);
             glucosereading2.setVisibility(View.VISIBLE);
             sButton.setEnabled(false);

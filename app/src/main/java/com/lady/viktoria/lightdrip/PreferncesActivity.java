@@ -11,7 +11,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
 
 import net.grandcentrix.tray.AppPreferences;
@@ -40,7 +39,7 @@ public class PreferncesActivity extends PreferenceActivity
             stopService(new Intent(this, CgmBleService.class));
         }
         if (key.equals("transmitter_id")) {
-            int txidlength = sharedPreferences.getString("transmitter_id","00000").length();
+            int txidlength = sharedPreferences.getString("transmitter_id", "00000").length();
             if (txidlength != 5) {
                 this.mEditTextPreference = ((EditTextPreference) getPreferenceScreen()
                         .findPreference("transmitter_id"));
@@ -55,7 +54,7 @@ public class PreferncesActivity extends PreferenceActivity
         }
     }
 
-    public Preference getPreference (String key) {
+    public Preference getPreference(String key) {
         return findPreference(key);
     }
 }

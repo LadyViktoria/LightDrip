@@ -13,7 +13,6 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 import static io.realm.Realm.getDefaultInstance;
-import static io.realm.Realm.getInstance;
 
 public class TransmitterRecord {
     private final static String TAG = TransmitterRecord.class.getSimpleName();
@@ -79,6 +78,6 @@ public class TransmitterRecord {
         mTransmitterData.setbridge_battery_level(bridge_battery_level);
         mRealm.commitTransaction();
         GlucoseRecord gluciserecord = new GlucoseRecord();
-        gluciserecord.create(raw_data,filtered_data,timestamp);
+        gluciserecord.create(raw_data, filtered_data, timestamp);
     }
 }

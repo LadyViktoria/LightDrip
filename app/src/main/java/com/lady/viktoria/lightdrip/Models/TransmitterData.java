@@ -1,12 +1,9 @@
 package com.lady.viktoria.lightdrip.Models;
 
-import android.provider.BaseColumns;
 import android.util.Log;
-
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -70,9 +67,9 @@ public class TransmitterData {
 
     public static TransmitterData last() {
         //return new Select()
-          //      .from(TransmitterData.class)
-            //    .orderBy("_ID desc")
-              //  .executeSingle();
+        //      .from(TransmitterData.class)
+        //    .orderBy("_ID desc")
+        //  .executeSingle();
         return null;
     }
 

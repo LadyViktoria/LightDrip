@@ -1,14 +1,12 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.ActivityManager;
-import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
-import com.lady.viktoria.lightdrip.services.BGMeterGattService;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
 import com.lady.viktoria.lightdrip.services.SchedulerJobService;
 

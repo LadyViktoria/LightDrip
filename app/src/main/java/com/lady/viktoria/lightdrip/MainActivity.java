@@ -29,11 +29,11 @@ import net.grandcentrix.tray.AppPreferences;
 import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
 import net.grandcentrix.tray.core.TrayItem;
 
-import io.fabric.sdk.android.Fabric;
 import java.io.File;
 import java.util.Collection;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
+import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.Sort;
@@ -45,14 +45,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    private TextView mConnectionState ,mDatabaseSize, bgmac, mDataField;
+    private TextView mConnectionState, mDatabaseSize, bgmac, mDataField;
     private boolean mConnected = false;
     private Realm mRealm;
     private FloatingActionButton fab;
     private LinearLayout fabLabel1, fabLabel2, fabLabel3, fabLabel4;
     private View fabBGLayout;
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
+            } else if (BGMeterGattService.BEACON_SNACKBAR.equals(action)) {
+                beaconSnackbar();
+            }
+        }
+    };
     private boolean isFABOpen = false;
     private Context context;
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BGMeterGattService.BEACON_SNACKBAR);
+        return intentFilter;
+    }
 
     public Context getcontext() {
         return context;
@@ -140,9 +169,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if(isFABOpen){
+        if (isFABOpen) {
             closeFABMenu();
-        }else{
+        } else {
             super.onBackPressed();
         }
     }
@@ -155,8 +184,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
-                if(!isFABOpen) {showFABMenu();}
-                else {closeFABMenu();}
+                if (!isFABOpen) {
+                    showFABMenu();
+                } else {
+                    closeFABMenu();
+                }
                 break;
             case R.id.fab1:
             case R.id.fabLabel1:
@@ -176,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     closeFABMenu();
                     FragmentManager fm = getFragmentManager();
-                    CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+                    CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment();
                     dialogFragment.show(fm, "Calibration Dialog Fragment");
                 }
                 break;
@@ -201,8 +233,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void showFABMenu(){
-        isFABOpen=true;
+    private void showFABMenu() {
+        isFABOpen = true;
         fabLabel1.setVisibility(View.VISIBLE);
         fabLabel2.setVisibility(View.VISIBLE);
         fabLabel3.setVisibility(View.VISIBLE);
@@ -216,8 +248,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabLabel4.animate().translationY(-getResources().getDimension(R.dimen.standard_190));
     }
 
-    private void closeFABMenu(){
-        isFABOpen=false;
+    private void closeFABMenu() {
+        isFABOpen = false;
         fabBGLayout.setVisibility(View.GONE);
         fab.animate().rotationBy(-180);
         fabLabel1.animate().translationY(0);
@@ -229,36 +261,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabLabel4.animate().translationY(0);
         fabLabel4.setVisibility(View.GONE);
     }
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BGMeterGattService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(BGMeterGattService.BEACON_SNACKBAR);
-        return intentFilter;
-    }
-
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BGMeterGattService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (BGMeterGattService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BGMeterGattService.EXTRA_DATA));
-            } else if (BGMeterGattService.BEACON_SNACKBAR.equals(action)) {
-                beaconSnackbar();
-            }
-        }
-    };
 
     private void getBTDevice() {
         final AppPreferences appPreferences = new AppPreferences(this);
@@ -300,10 +302,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 FileSize = realmFile.length() / 1024 / 1024 + " Mb";
             }
             mDatabaseSize.setText(String.format("Items in Database: %d", itemSizeAll)
-                    + String.format("\nItems in GlucoseData: %d",itemSizeGlucoseData)
-                    + String.format("\nItems in CalibrationData: %d",itemSizeCalibrationData)
-                    + String.format("\nItems in SensorData: %d",itemSizeSensorData)
-                    + String.format("\nItems in TransmitterData: %d",itemSizeTransmitterData)
+                    + String.format("\nItems in GlucoseData: %d", itemSizeGlucoseData)
+                    + String.format("\nItems in CalibrationData: %d", itemSizeCalibrationData)
+                    + String.format("\nItems in SensorData: %d", itemSizeSensorData)
+                    + String.format("\nItems in TransmitterData: %d", itemSizeTransmitterData)
                     + "\nDatabase Size: " + FileSize);
             mDatabaseSize.invalidate();
             fabBGLayout.invalidate();
@@ -319,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         snackBar.setAction("Add Calibration", v -> {
             snackBar.dismiss();
             FragmentManager fm = getFragmentManager();
-            CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment ();
+            CalibrationDialogFragment dialogFragment = new CalibrationDialogFragment();
             dialogFragment.show(fm, "Calibration Dialog Fragment");
         });
         View snackBarView = snackBar.getView();

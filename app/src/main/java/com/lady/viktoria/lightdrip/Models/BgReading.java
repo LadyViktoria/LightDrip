@@ -48,9 +48,6 @@ public class BgReading {
     public String noise;
 
 
-
-
-
     public static double calculateSlope(BgReading current, BgReading last) {
         if (current.timestamp == last.timestamp || current.calculated_value == last.calculated_value) {
             return 0;
@@ -129,8 +126,8 @@ public class BgReading {
 
             //bgReading.save();
             bgReading.perform_calculations();
-           // context.startService(new Intent(context, wearDripWatchFace.class));
-           // BgSendQueue.handleNewBgReading(bgReading, "create", context);
+            // context.startService(new Intent(context, wearDripWatchFace.class));
+            // BgSendQueue.handleNewBgReading(bgReading, "create", context);
         }
 
         Log.i("BG GSON: ", bgReading.toS());
@@ -349,7 +346,7 @@ public class BgReading {
             rc = (y1 * x2 * x3 / ((x1 - x2) * (x1 - x3)) + y2 * x1 * x3 / ((x2 - x1) * (x2 - x3)) + y3 * x1 * x2 / ((x3 - x1) * (x3 - x2)));
 
             Log.i(TAG, "find_new_raw_curve: RAW PARABOLIC RATES: " + ra + "x^2 + " + rb + "x + " + rc);
-          //  save();
+            //  save();
         } else if (last_3.size() == 2) {
             BgReading latest = last_3.get(0);
             BgReading second_latest = last_3.get(1);
@@ -369,7 +366,7 @@ public class BgReading {
             Log.i(TAG, "find_new_raw_curve: Not enough data to calculate parabolic rates - assume Linear data");
 
             Log.i(TAG, "RAW PARABOLIC RATES: " + ra + "x^2 + " + rb + "x + " + rc);
-      //      save();
+            //      save();
         } else {
             Log.i(TAG, "find_new_raw_curve: Not enough data to calculate parabolic rates - assume static data");
             BgReading latest_entry = BgReading.lastNoSenssor();
@@ -381,7 +378,7 @@ public class BgReading {
                 rc = 105;
             }
 
-        //    save();
+            //    save();
         }
     }
 

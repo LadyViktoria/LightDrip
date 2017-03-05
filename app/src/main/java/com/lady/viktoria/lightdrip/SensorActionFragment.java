@@ -1,7 +1,6 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -19,14 +18,12 @@ import java.util.Calendar;
 public class SensorActionFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private final static String TAG = SensorActionFragment.class.getSimpleName();
-
-    public SensorActionFragment() {
-    }
-
     private Calendar SensorStart;
     private int mYear;
     private int mMonthOfYear;
     private int mDayOfMonth;
+    public SensorActionFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

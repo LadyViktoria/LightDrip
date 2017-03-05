@@ -3,7 +3,6 @@ package com.lady.viktoria.lightdrip.RealmActions;
 import android.content.Context;
 import android.util.Log;
 
-
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
@@ -22,13 +21,13 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import static io.realm.Realm.getDefaultInstance;
-import static io.realm.Realm.getInstance;
 
 public class GlucoseRecord {
     private final static String TAG = GlucoseRecord.class.getSimpleName();
 
     private static final double AGE_ADJUSTMENT_TIME = 86400000 * 1.9;
     private static final double AGE_ADJUSTMENT_FACTOR = .45;
+    Context context;
     private double time_since_sensor_started;
     private double filtered_data;
     private boolean calibration_flag;
@@ -49,11 +48,27 @@ public class GlucoseRecord {
     private long timestamp;
     private Realm mRealm;
     private Gson gson;
-    Context context;
 
     public GlucoseRecord() {
         Realm.init(context);
         mRealm = getDefaultInstance();
+    }
+
+    private static double calculateSlope(double current, double last) {
+        /*
+        if (current.timestamp == last.timestamp || current.calculated_value == last.calculated_value) {
+            return 0;
+        } else {
+            return (last.calculated_value - current.calculated_value) / (last.timestamp - current.timestamp);
+        }
+        */
+        return current;
+    }
+
+    public static double weightedAverageRaw(double timeA, double timeB, double calibrationTime, double rawA, double rawB) {
+        double relativeSlope = (rawB - rawA) / (timeB - timeA);
+        double relativeIntercept = rawA - (relativeSlope * timeA);
+        return ((relativeSlope * calibrationTime) + relativeIntercept);
     }
 
     public void create(double raw_data, double filtered_data, Long timestamp) {
@@ -63,7 +78,7 @@ public class GlucoseRecord {
             return;
         }
 
-            Log.d(TAG, "create: No calibration yet");
+        Log.d(TAG, "create: No calibration yet");
         long newprimekey = PrimaryKeyFactory.getInstance().nextKey(GlucoseData.class);
 
         mRealm.beginTransaction();
@@ -93,7 +108,7 @@ public class GlucoseRecord {
                 .findAllSorted("id", Sort.DESCENDING)
                 .where()
                 .findFirst()));
-        Log.v(TAG, "glucoseRecord json: "  + json);
+        Log.v(TAG, "glucoseRecord json: " + json);
     }
 
     private void calculateAgeAdjustedRawValue() {
@@ -169,8 +184,8 @@ public class GlucoseRecord {
 
     //*******INSTANCE METHODS***********//
     public void perform_calculations() {
-      //  find_new_curve();
-     //   find_new_raw_curve();
+        //  find_new_curve();
+        //   find_new_raw_curve();
         find_slope();
     }
 
@@ -192,23 +207,6 @@ public class GlucoseRecord {
         } else {
             Log.w(TAG, "NO BG? COULDNT FIND SLOPE!");
         }
-    }
-
-    private static double calculateSlope(double current, double last) {
-        /*
-        if (current.timestamp == last.timestamp || current.calculated_value == last.calculated_value) {
-            return 0;
-        } else {
-            return (last.calculated_value - current.calculated_value) / (last.timestamp - current.timestamp);
-        }
-        */
-        return current;
-    }
-
-    public static double weightedAverageRaw(double timeA, double timeB, double calibrationTime, double rawA, double rawB) {
-        double relativeSlope = (rawB - rawA) / (timeB - timeA);
-        double relativeIntercept = rawA - (relativeSlope * timeA);
-        return ((relativeSlope * calibrationTime) + relativeIntercept);
     }
 
 
