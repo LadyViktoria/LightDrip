@@ -32,6 +32,9 @@ import net.grandcentrix.tray.core.TrayItem;
 import java.io.File;
 import java.util.Collection;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -40,87 +43,37 @@ import io.realm.Sort;
 
 import static io.realm.Realm.getDefaultInstance;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        OnTrayPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity implements OnTrayPreferenceChangeListener {
 
     private final static String TAG = MainActivity.class.getSimpleName();
 
-    private TextView mConnectionState, mDatabaseSize, bgmac, mDataField;
-    private boolean mConnected = false;
-    private Realm mRealm;
-    private FloatingActionButton fab;
-    private LinearLayout fabLabel1, fabLabel2, fabLabel3, fabLabel4;
-    private View fabBGLayout;
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+    @BindView(R.id.bgmac) TextView bgmac;
+    @BindView(R.id.connection_state) TextView mConnectionState;
+    @BindView(R.id.databasesize) TextView mDatabaseSize;
+    @BindView(R.id.bgreading) TextView mDataField;
+    @BindView(R.id.fabLabel1) LinearLayout fabLabel1;
+    @BindView(R.id.fabLabel2) LinearLayout fabLabel2;
+    @BindView(R.id.fabLabel3) LinearLayout fabLabel3;
+    @BindView(R.id.fabLabel4) LinearLayout fabLabel4;
+    @BindView(R.id.fab) FloatingActionButton fab;
+    @BindView(R.id.fab1) FloatingActionButton fab1;
+    @BindView(R.id.fab2) FloatingActionButton fab2;
+    @BindView(R.id.fab3) FloatingActionButton fab3;
+    @BindView(R.id.fab4) FloatingActionButton fab4;
+    @BindView(R.id.fabBGLayout) View fabBGLayout;
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (CgmBleService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(CgmBleService.EXTRA_DATA));
-            } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
-                beaconSnackbar();
-            }
-        }
-    };
     private boolean isFABOpen = false;
-    private Context context;
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CgmBleService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(CgmBleService.BEACON_SNACKBAR);
-        return intentFilter;
-    }
-
-    public Context getcontext() {
-        return context;
-    }
+    private Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        context = this;
         Realm.init(this);
         mRealm = getDefaultInstance();
         setContentView(R.layout.activity_main);
-
-        bgmac = (TextView) findViewById(R.id.bgmac);
-        mConnectionState = (TextView) findViewById(R.id.connection_state);
-        mDataField = (TextView) findViewById(R.id.bgreading);
-        mDatabaseSize = (TextView) findViewById(R.id.databasesize);
-        fabLabel1 = (LinearLayout) findViewById(R.id.fabLabel1);
-        fabLabel1.setOnClickListener(this);
-        fabLabel2 = (LinearLayout) findViewById(R.id.fabLabel2);
-        fabLabel2.setOnClickListener(this);
-        fabLabel3 = (LinearLayout) findViewById(R.id.fabLabel3);
-        fabLabel3.setOnClickListener(this);
-        fabLabel4 = (LinearLayout) findViewById(R.id.fabLabel4);
-        fabLabel4.setOnClickListener(this);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
-        FloatingActionButton fab1 = (FloatingActionButton) findViewById(R.id.fab1);
-        fab1.setOnClickListener(this);
-        FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fab2);
-        fab2.setOnClickListener(this);
-        FloatingActionButton fab3 = (FloatingActionButton) findViewById(R.id.fab3);
-        fab3.setOnClickListener(this);
-        FloatingActionButton fab4 = (FloatingActionButton) findViewById(R.id.fab4);
-        fab4.setOnClickListener(this);
-        fabBGLayout = findViewById(R.id.fabBGLayout);
-        fabBGLayout.setOnClickListener(this);
+        ButterKnife.bind(this);
         getBTDevice();
         getDatabaseSize();
 
@@ -181,6 +134,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getBTDevice();
     }
 
+    @OnClick({R.id.fab, R.id.fab1, R.id.fabLabel1,
+            R.id.fab2, R.id.fabLabel2,
+            R.id.fab3, R.id.fabLabel3,
+            R.id.fab4, R.id.fabLabel4 })
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
@@ -260,6 +217,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fabLabel3.setVisibility(View.GONE);
         fabLabel4.animate().translationY(0);
         fabLabel4.setVisibility(View.GONE);
+    }
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (CgmBleService.ACTION_GATT_CONNECTED.equals(action)) {
+                updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
+            } else if (CgmBleService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu();
+            } else if (CgmBleService.ACTION_DATA_AVAILABLE.equals(action)) {
+                displayData(intent.getStringExtra(CgmBleService.EXTRA_DATA));
+            } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
+                beaconSnackbar();
+            }
+        }
+    };
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CgmBleService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(CgmBleService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(CgmBleService.BEACON_SNACKBAR);
+        return intentFilter;
     }
 
     private void getBTDevice() {
