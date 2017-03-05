@@ -17,6 +17,7 @@ import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
@@ -31,6 +32,7 @@ public class CalibrationDialogFragment extends DialogFragment {
     @BindView(R.id.glucosereading2) EditText glucosereading2;
     @BindView(R.id.btn_addcalibration) Button calButton;
     @BindView(R.id.switch_doublecalibration) Switch sButton;
+    private Unbinder unbinder;
 
 
     public CalibrationDialogFragment() {
@@ -109,5 +111,10 @@ public class CalibrationDialogFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

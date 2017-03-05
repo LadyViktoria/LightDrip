@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.DimenRes;
+import android.support.annotation.Dimension;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -36,6 +38,7 @@ import java.util.Collection;
 import java.util.List;
 
 import butterknife.BindColor;
+import butterknife.BindDimen;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -67,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.fabBGLayout) View fabBGLayout;
     @BindView(R.id.fragment) View parentLayout;
     @BindColor(R.color.colorBackground) int colorBackground;
+    @BindDimen(R.dimen.standard_55) Float standard_55;
+    @BindDimen(R.dimen.standard_100) Float standard_100;
+    @BindDimen(R.dimen.standard_145) Float standard_145;
+    @BindDimen(R.dimen.standard_190) Float standard_190;
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -212,10 +219,10 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         fabBGLayout.setVisibility(View.VISIBLE);
 
         fab.animate().rotationBy(180);
-        fabLabel1.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
-        fabLabel2.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
-        fabLabel3.animate().translationY(-getResources().getDimension(R.dimen.standard_145));
-        fabLabel4.animate().translationY(-getResources().getDimension(R.dimen.standard_190));
+        fabLabel1.animate().translationY(-standard_55);
+        fabLabel2.animate().translationY(-standard_100);
+        fabLabel3.animate().translationY(-standard_145);
+        fabLabel4.animate().translationY(-standard_190);
     }
 
     private void closeFABMenu() {
