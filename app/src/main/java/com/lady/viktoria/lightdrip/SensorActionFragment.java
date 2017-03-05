@@ -15,6 +15,9 @@ import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
+import butterknife.BindColor;
+import butterknife.ButterKnife;
+
 public class SensorActionFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private final static String TAG = SensorActionFragment.class.getSimpleName();
@@ -22,6 +25,8 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     private int mYear;
     private int mMonthOfYear;
     private int mDayOfMonth;
+    @BindColor(R.color.colorBackground) int colorBackground;
+
     public SensorActionFragment() {
     }
 
@@ -30,6 +35,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_sensoraction, container, false);
+        ButterKnife.bind(this, view);
         SensorStart = Calendar.getInstance();
         SensorDialog();
         return view;
@@ -57,7 +63,7 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
                         , "Please stop current Sensor first!"
                         , Snackbar.LENGTH_LONG);
                 View snackBarView = snackBar.getView();
-                snackBarView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorBackground));
+                snackBarView.setBackgroundColor(colorBackground);
                 snackBar.show();
             }
             dialog.dismiss();

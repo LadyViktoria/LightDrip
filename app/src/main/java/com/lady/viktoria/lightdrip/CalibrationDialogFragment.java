@@ -15,6 +15,8 @@ import com.lady.viktoria.lightdrip.RealmActions.CalibrationRecord;
 import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
@@ -23,11 +25,13 @@ import static io.realm.Realm.getDefaultInstance;
 public class CalibrationDialogFragment extends DialogFragment {
     private final static String TAG = CalibrationDialogFragment.class.getSimpleName();
 
-    private Switch sButton;
-    private Button calButton;
-    private EditText glucosereading1, glucosereading2;
     private Boolean doubleCalFlag = false;
     private Realm mRealm;
+    @BindView(R.id.glucosereading1) EditText glucosereading1;
+    @BindView(R.id.glucosereading2) EditText glucosereading2;
+    @BindView(R.id.btn_addcalibration) Button calButton;
+    @BindView(R.id.switch_doublecalibration) Switch sButton;
+
 
     public CalibrationDialogFragment() {
     }
@@ -42,10 +46,7 @@ public class CalibrationDialogFragment extends DialogFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_calibrationdialog, container, false);
-        glucosereading1 = (EditText) view.findViewById(R.id.glucosereading1);
-        glucosereading2 = (EditText) view.findViewById(R.id.glucosereading2);
-        sButton = (Switch) view.findViewById(R.id.switch_doublecalibration);
-        calButton = (Button) view.findViewById(R.id.btn_addcalibration);
+        ButterKnife.bind(this, view);
         Realm.init(getActivity());
         mRealm = getDefaultInstance();
 

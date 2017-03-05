@@ -8,7 +8,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.lady.viktoria.lightdrip.services.CgmBleService;
@@ -18,7 +17,6 @@ import net.grandcentrix.tray.AppPreferences;
 public class PreferncesActivity extends PreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     private final static String TAG = PreferncesActivity.class.getSimpleName();
-    private EditTextPreference mEditTextPreference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,14 +39,13 @@ public class PreferncesActivity extends PreferenceActivity
         if (key.equals("transmitter_id")) {
             int txidlength = sharedPreferences.getString("transmitter_id", "00000").length();
             if (txidlength != 5) {
-                this.mEditTextPreference = ((EditTextPreference) getPreferenceScreen()
+                EditTextPreference mEditTextPreference = ((EditTextPreference) getPreferenceScreen()
                         .findPreference("transmitter_id"));
-                this.mEditTextPreference.setText("00000");
+                mEditTextPreference.setText("00000");
                 Toast.makeText(this, "Should be 5 digits and not " + txidlength, Toast.LENGTH_LONG).show();
                 return;
             }
             String txid = sharedPreferences.getString("transmitter_id", "00000");
-            Log.v(TAG, txid);
             appPreferences.put("Transmitter_Id", txid);
             stopService(new Intent(this, CgmBleService.class));
         }
