@@ -75,33 +75,15 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         mRealm = getDefaultInstance();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        startRealmListener();
         getBTDevice();
         getDatabaseSize();
-
-        try {
-            realmListener = element -> {
-                getDatabaseSize();
-                CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
-                TransmitterData transmitterData = mRealm.where(TransmitterData.class)
-                        .findAllSorted("id", Sort.DESCENDING)
-                        .where()
-                        .findFirst();
-                GlucoseRecord glucoserecord = new GlucoseRecord();
-                SensorRecord sensorRecord = new SensorRecord();
-                if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
-                    calibrationSnackbar();
-                } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
-                    startSensorSnackbar("Received Transmitter Data please Start Sensor");
-                }
-            };
-        } catch (Exception e) {
-            Log.v(TAG, "onCreate " + e.getMessage());
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        startRealmListener();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         getBTDevice();
     }
@@ -110,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     protected void onPause() {
         super.onPause();
         unregisterReceiver(mGattUpdateReceiver);
+        mRealm.removeChangeListener(realmListener);
     }
 
     @Override
@@ -132,6 +115,29 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @Override
     public void onTrayPreferenceChanged(Collection<TrayItem> items) {
         getBTDevice();
+    }
+
+    public void startRealmListener() {
+        try {
+            realmListener = element -> {
+                getDatabaseSize();
+                CalibrationData calibrationRecords = mRealm.where(CalibrationData.class).findFirst();
+                TransmitterData transmitterData = mRealm.where(TransmitterData.class)
+                        .findAllSorted("id", Sort.DESCENDING)
+                        .where()
+                        .findFirst();
+                GlucoseRecord glucoserecord = new GlucoseRecord();
+                SensorRecord sensorRecord = new SensorRecord();
+                if (calibrationRecords == null && glucoserecord.countRecordsByLastSensorID() >= 2) {
+                    calibrationSnackbar();
+                } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
+                    startSensorSnackbar("Received Transmitter Data please Start Sensor");
+                }
+            };
+            mRealm.addChangeListener(realmListener);
+        } catch (Exception e) {
+            Log.v(TAG, "onCreate " + e.getMessage());
+        }
     }
 
     @OnClick({R.id.fab, R.id.fab1, R.id.fabLabel1,
