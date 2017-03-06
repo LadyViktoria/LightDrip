@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
         android:ems="10"
+        android:selectAllOnFocus="true"
         android:hint="Glucose Reading 1"
         android:inputType="number" />
 
@@ -35,6 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
         android:ems="10"
+        android:selectAllOnFocus="true"
         android:hint="Glucose Reading 2"
         android:inputType="number"
         android:visibility="gone" />

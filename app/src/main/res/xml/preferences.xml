@@ -10,6 +10,7 @@
             android:inputType="textCapCharacters|textNoSuggestions"
             android:key="transmitter_id"
             android:text="00000"
+            android:selectAllOnFocus="true"
             android:title="Transmitter ID" />
 
     </PreferenceCategory>

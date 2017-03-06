@@ -27,7 +27,6 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
     private int mMonthOfYear;
     private int mDayOfMonth;
     @BindColor(R.color.colorBackground) int colorBackground;
-    private Unbinder unbinder;
 
     public SensorActionFragment() {
     }
@@ -41,11 +40,6 @@ public class SensorActionFragment extends Fragment implements DatePickerDialog.O
         SensorStart = Calendar.getInstance();
         SensorDialog();
         return view;
-    }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
     }
 
     protected void SensorDialog() {

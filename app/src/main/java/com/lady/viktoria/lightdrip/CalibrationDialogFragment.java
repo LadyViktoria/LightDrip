@@ -3,6 +3,8 @@ package com.lady.viktoria.lightdrip;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +34,6 @@ public class CalibrationDialogFragment extends DialogFragment {
     @BindView(R.id.glucosereading2) EditText glucosereading2;
     @BindView(R.id.btn_addcalibration) Button calButton;
     @BindView(R.id.switch_doublecalibration) Switch sButton;
-    private Unbinder unbinder;
-
 
     public CalibrationDialogFragment() {
     }
@@ -88,6 +88,24 @@ public class CalibrationDialogFragment extends DialogFragment {
             }
         });
 
+        glucosereading1.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                Editable bg1 = glucosereading1.getText();
+                glucosereading2.setText(bg1);
+            }
+        });
+
         sButton.setOnCheckedChangeListener((cb, on) -> {
             if (on) {
                 sButton.setText("Double Calibration");
@@ -113,8 +131,4 @@ public class CalibrationDialogFragment extends DialogFragment {
         super.onDetach();
     }
 
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
 }
