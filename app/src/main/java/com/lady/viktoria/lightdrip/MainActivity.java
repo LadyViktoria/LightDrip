@@ -10,13 +10,18 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.DimenRes;
 import android.support.annotation.Dimension;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.Editable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindDimen(R.dimen.standard_100) float standard_100;
     @BindDimen(R.dimen.standard_145) float standard_145;
     @BindDimen(R.dimen.standard_190) float standard_190;
+   EditText et_snackbar_txid;
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -91,6 +97,13 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         startRealmListener();
         getBTDevice();
         getDatabaseSize();
+
+
+        transmitterIdSnackbar();
+
+
+
+
     }
 
     @Override
@@ -366,5 +379,27 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         View snackBarView = snackBar.getView();
         snackBarView.setBackgroundColor(colorBackground);
         snackBar.show();
+    }
+
+    private void transmitterIdSnackbar() {
+        final Snackbar snackbar = Snackbar.make(parentLayout, "Please enter", Snackbar.LENGTH_INDEFINITE);
+        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
+        LayoutInflater objLayoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View snackView = objLayoutInflater.inflate(R.layout.custom_snac_txid_layout, null);
+        Button customSnackbarButton = (Button) snackView.findViewById(R.id.btn_snackbar_txid);
+        customSnackbarButton.setOnClickListener(v -> {
+            final AppPreferences appPreferences = new AppPreferences(getApplicationContext());
+            final EditText edit =  (EditText) findViewById(R.id.et_snackbar_txid);
+            String txid = edit.getText().toString();
+            if (!txid.equals("")) {
+                appPreferences.put("Transmitter_Id", String.valueOf(txid));
+                stopService(new Intent(getApplicationContext(), CgmBleService.class));
+            }
+
+        });
+        View snackBarView = snackbar.getView();
+        snackBarView.setBackgroundColor(colorBackground);
+        layout.addView(snackView, 0);
+        snackbar.show();
     }
 }
