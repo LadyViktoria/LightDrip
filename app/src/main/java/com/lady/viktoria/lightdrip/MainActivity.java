@@ -70,10 +70,10 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.fabBGLayout) View fabBGLayout;
     @BindView(R.id.fragment) View parentLayout;
     @BindColor(R.color.colorBackground) int colorBackground;
-    @BindDimen(R.dimen.standard_55) Float standard_55;
-    @BindDimen(R.dimen.standard_100) Float standard_100;
-    @BindDimen(R.dimen.standard_145) Float standard_145;
-    @BindDimen(R.dimen.standard_190) Float standard_190;
+    @BindDimen(R.dimen.standard_55) float standard_55;
+    @BindDimen(R.dimen.standard_100) float standard_100;
+    @BindDimen(R.dimen.standard_145) float standard_145;
+    @BindDimen(R.dimen.standard_190) float standard_190;
 
     private boolean isFABOpen = false;
     private Realm mRealm;
