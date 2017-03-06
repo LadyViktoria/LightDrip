@@ -394,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             if (!txid.equals("")) {
                 appPreferences.put("Transmitter_Id", String.valueOf(txid));
                 stopService(new Intent(getApplicationContext(), CgmBleService.class));
+                snackbar.dismiss();
             }
 
         });
