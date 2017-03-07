@@ -28,7 +28,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 
-import static com.lady.viktoria.lightdrip.utils.convertSrc;
+import static com.lady.viktoria.lightdrip.utils.ConvertTxID.convertSrc;
+
 
 public class CgmBleService extends Service {
     private final static String TAG = CgmBleService.class.getSimpleName();
