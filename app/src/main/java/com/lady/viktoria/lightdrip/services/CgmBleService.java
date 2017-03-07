@@ -6,6 +6,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -46,11 +47,13 @@ public class CgmBleService extends Service {
     private AppPreferences mTrayPreferences;
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
+    Handler handler;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
+        handler = new Handler();
         startJobScheduler();
 
         // get mac address from selected wixelbridge
@@ -73,13 +76,13 @@ public class CgmBleService extends Service {
                 .establishConnection(true)
                 .takeUntil(disconnectTriggerSubject)
                 //.compose(bindUntilEvent(PAUSE)
-                //.doOnUnsubscribe(this::clearSubscription)
+                .doOnUnsubscribe(this::clearSubscription)
                 .compose(new ConnectionSharingAdapter());
     }
 
     public void connect() {
         if (isConnected()) {
-            //triggerDisconnect();
+            triggerDisconnect();
             broadcastUpdate(ACTION_BLE_CONNECTED);
         } else {
             connectionObservable.subscribe(this::onConnectionReceived, this::onConnectionFailure);
@@ -102,11 +105,15 @@ public class CgmBleService extends Service {
         if (isConnected()) {
             connectionObservable
                     .flatMap(rxBleConnection -> rxBleConnection.setupNotification(UUID_BG_MEASUREMENT))
-                    //.doOnNext(notificationObservable -> runOnUiThread(this::notificationHasBeenSetUp))
+                    .doOnNext(notificationObservable -> runOnUiThread(this::notificationHasBeenSetUp))
                     .flatMap(notificationObservable -> notificationObservable)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::onNotificationReceived, this::onNotificationSetupFailure);
         }
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        handler.post(runnable);
     }
 
     private boolean isConnected() {
@@ -190,7 +197,9 @@ public class CgmBleService extends Service {
     private void onConnectionReceived(RxBleConnection connection) {
         //noinspection ConstantConditions
         Log.v(TAG, "Hey, connection has been established!");
-        writeNotificationCharacteristic();
+        if (isConnected()) {
+            writeNotificationCharacteristic();
+        }
     }
 
     private void onWriteSuccess() {
