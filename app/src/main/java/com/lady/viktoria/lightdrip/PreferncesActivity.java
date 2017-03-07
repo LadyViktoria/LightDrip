@@ -47,7 +47,6 @@ public class PreferncesActivity extends PreferenceActivity
             }
             String txid = sharedPreferences.getString("transmitter_id", "00000");
             appPreferences.put("Transmitter_Id", txid);
-            stopService(new Intent(this, CgmBleService.class));
         }
     }
 
