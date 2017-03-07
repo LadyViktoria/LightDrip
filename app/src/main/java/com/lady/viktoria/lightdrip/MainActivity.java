@@ -404,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                 final AppPreferences appPreferences = new AppPreferences(getApplicationContext());
                 appPreferences.put("Transmitter_Id", String.valueOf(txid));
                 snackbar.dismiss();
+                closeFABMenu();
             }
         });
         View snackBarView = snackbar.getView();

@@ -1,31 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <EditText
-        android:id="@+id/et_snackbar_txid"
-        android:layout_width="130dp"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="20dp"
-        android:ems="10"
-        android:hint="Transmitter ID"
-        android:inputType="textCapCharacters|textNoSuggestions"
-        android:privateImeOptions="nm"
-        android:selectAllOnFocus="true"
-        android:textAlignment="center" />
+        android:orientation="horizontal">
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-    <Button
-        android:id="@+id/btn_snackbar_txid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/colorTransBg"
-        android:text="Set"
-        android:textColor="@color/colorAccent" />
-</LinearLayout>
+        <EditText
+            android:id="@+id/et_snackbar_txid"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:ems="10"
+            android:hint="Transmitter ID"
+            android:inputType="textCapCharacters|textNoSuggestions"
+            android:privateImeOptions="nm"
+            android:selectAllOnFocus="true"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/btn_snackbar_txid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorTransBg"
+            android:text="Set"
+            android:textColor="@color/colorAccent" />
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
+
