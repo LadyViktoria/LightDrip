@@ -6,8 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.DimenRes;
 import android.support.annotation.Dimension;
 import android.support.design.widget.CoordinatorLayout;
@@ -333,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void calibrationSnackbar() {
+        closeFABMenu();
         final Snackbar snackBar = Snackbar.make(parentLayout
                 , "We have got 2 Readings please Add double Calibration"
                 , Snackbar.LENGTH_INDEFINITE);
@@ -348,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void startSensorSnackbar(String msg) {
+        closeFABMenu();
         final Snackbar snackBar = Snackbar.make(parentLayout
                 , msg
                 , Snackbar.LENGTH_INDEFINITE);
@@ -363,6 +367,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void beaconSnackbar() {
+        closeFABMenu();
         final Snackbar snackBar = Snackbar.make(parentLayout
                 , "Transmitter isn't correct please check Transmitter ID"
                 , Snackbar.LENGTH_INDEFINITE);
@@ -373,6 +378,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void sensorReadingsSnackbar() {
+        closeFABMenu();
         final Snackbar snackBar = Snackbar.make(parentLayout
                 , "Please wait until we got 2 Sensor Readings!"
                 , Snackbar.LENGTH_LONG);
@@ -382,20 +388,23 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     }
 
     private void transmitterIdSnackbar() {
-        final Snackbar snackbar = Snackbar.make(parentLayout, "Please enter", Snackbar.LENGTH_INDEFINITE);
+        closeFABMenu();
+        final Snackbar snackbar = Snackbar.make(parentLayout, "Please enter Tx ID", Snackbar.LENGTH_INDEFINITE);
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout) snackbar.getView();
         LayoutInflater objLayoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View snackView = objLayoutInflater.inflate(R.layout.custom_snac_txid_layout, null);
         Button customSnackbarButton = (Button) snackView.findViewById(R.id.btn_snackbar_txid);
+        final EditText edit =  (EditText) snackView.findViewById(R.id.et_snackbar_txid);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String mapTypeString = preferences.getString("transmitter_id", "00000");
+        edit.setText(mapTypeString);
         customSnackbarButton.setOnClickListener(v -> {
-            final AppPreferences appPreferences = new AppPreferences(getApplicationContext());
-            final EditText edit =  (EditText) findViewById(R.id.et_snackbar_txid);
             String txid = edit.getText().toString();
             if (!txid.equals("")) {
+                final AppPreferences appPreferences = new AppPreferences(getApplicationContext());
                 appPreferences.put("Transmitter_Id", String.valueOf(txid));
                 snackbar.dismiss();
             }
-
         });
         View snackBarView = snackbar.getView();
         snackBarView.setBackgroundColor(colorBackground);
