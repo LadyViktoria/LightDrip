@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
 
@@ -48,6 +49,9 @@ public class CgmBleService extends Service {
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
     Handler handler;
+    Subscription writeNotificationSubscription;
+    Subscription writeCharacteristicSubscription;
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -93,7 +97,7 @@ public class CgmBleService extends Service {
     public void writeCharacteristic(final ByteBuffer byteBuffer) {
         byte[] bytearray = byteBuffer.array();
         if (isConnected()) {
-            connectionObservable
+            writeCharacteristicSubscription = connectionObservable
                     .flatMap(rxBleConnection -> rxBleConnection
                             .writeCharacteristic(UUID_BG_MEASUREMENT, bytearray))
                     .observeOn(AndroidSchedulers.mainThread())
@@ -103,7 +107,7 @@ public class CgmBleService extends Service {
 
     public void writeNotificationCharacteristic() {
         if (isConnected()) {
-            connectionObservable
+            writeNotificationSubscription = connectionObservable
                     .flatMap(rxBleConnection -> rxBleConnection.setupNotification(UUID_BG_MEASUREMENT))
                     .doOnNext(notificationObservable -> runOnUiThread(this::notificationHasBeenSetUp))
                     .flatMap(notificationObservable -> notificationObservable)
@@ -140,6 +144,8 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        writeCharacteristicSubscription.unsubscribe();
+        writeNotificationSubscription.unsubscribe();
         connect();
     }
 
