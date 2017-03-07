@@ -25,6 +25,8 @@ import net.grandcentrix.tray.AppPreferences;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import rx.Observable;
@@ -59,6 +61,7 @@ public class CgmBleService extends Service {
 
         handler = new Handler();
         startJobScheduler();
+        timerTask();
 
         // get mac address from selected wixelbridge
         mTrayPreferences = new AppPreferences(this);
@@ -69,28 +72,23 @@ public class CgmBleService extends Service {
         bleDevice = rxBleClient.getBleDevice(BTDeviceAddress);
         // logging for RxBleClient
         RxBleClient.setLogLevel(RxBleLog.INFO);
-        connectionObservable = prepareConnectionObservable();
-        connect();
-
-        return START_STICKY;
-    }
-
-    private Observable<RxBleConnection> prepareConnectionObservable() {
-        return bleDevice
+        connectionObservable = bleDevice
                 .establishConnection(true)
-                .takeUntil(disconnectTriggerSubject)
-                //.compose(bindUntilEvent(PAUSE)
+                //.takeUntil(disconnectTriggerSubject)
                 .doOnUnsubscribe(this::clearSubscription)
                 .compose(new ConnectionSharingAdapter());
+
+        bleDevice.observeConnectionStateChanges()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::onConnectionStateChange);
+        return START_STICKY;
     }
 
     public void connect() {
         if (isConnected()) {
             triggerDisconnect();
-            broadcastUpdate(ACTION_BLE_CONNECTED);
         } else {
             connectionObservable.subscribe(this::onConnectionReceived, this::onConnectionFailure);
-            broadcastUpdate(ACTION_BLE_DISCONNECTED);
         }
     }
 
@@ -139,14 +137,33 @@ public class CgmBleService extends Service {
         // notifyButton.setEnabled(isConnected());
     }
 
+    private void onConnectionStateChange(RxBleConnection.RxBleConnectionState newState) {
+        if (newState == RxBleConnection.RxBleConnectionState.CONNECTING) {
+            Log.v(TAG, "connectionstat CONNECTING");
+        }
+        if (newState == RxBleConnection.RxBleConnectionState.DISCONNECTING) {
+            Log.v(TAG, "connectionstat DISCONNECTING");
+        }
+        if (newState == RxBleConnection.RxBleConnectionState.CONNECTED) {
+            Log.v(TAG, "connectionstat CONNECTED");
+            broadcastUpdate(ACTION_BLE_CONNECTED);
+        }
+        if (newState == RxBleConnection.RxBleConnectionState.DISCONNECTED) {
+            Log.v(TAG, "connectionstat DISCONNECTED");
+            broadcastUpdate(ACTION_BLE_DISCONNECTED);
+            try {
+                writeCharacteristicSubscription.unsubscribe();
+                writeNotificationSubscription.unsubscribe();
+            } catch (Exception e) {
+                Log.v(TAG, "onConnectionStateChange " + e.getMessage());
+            }
 
+        }
+    }
 
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
-        writeCharacteristicSubscription.unsubscribe();
-        writeNotificationSubscription.unsubscribe();
-        connect();
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
@@ -260,6 +277,24 @@ public class CgmBleService extends Service {
     public void stopJobScheduler() {
         JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.cancel(0);
+    }
+
+    private void timerTask() {
+        Timer timer = new Timer();
+        TimerTask backtask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(() -> {
+                    try {
+                        connect();
+                        Log.d("check","Check Run" );
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                    }
+                });
+            }
+        };
+        timer.schedule(backtask , 0, 4 * 60 * 1000);
     }
 
     @Override
