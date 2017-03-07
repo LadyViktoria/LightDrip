@@ -1,9 +1,12 @@
 package com.lady.viktoria.lightdrip.utils;
 
-public class ConvertHexByte {
+public class ConvertHexString {
+
+    private ConvertHexString() {
+        // Utility class.
+    }
+
     private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-
-
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -18,6 +21,10 @@ public class ConvertHexByte {
     }
 
     public static byte[] hexToBytes(String hexRepresentation) {
+        if (hexRepresentation.length() % 2 == 1) {
+            throw new IllegalArgumentException("hexToBytes requires an even-length String parameter");
+        }
+
         int len = hexRepresentation.length();
         byte[] data = new byte[len / 2];
 

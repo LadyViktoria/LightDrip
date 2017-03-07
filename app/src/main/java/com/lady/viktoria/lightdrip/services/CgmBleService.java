@@ -12,6 +12,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
+import com.lady.viktoria.lightdrip.utils.ConvertHexString;
+import com.lady.viktoria.lightdrip.utils.ConvertTxID;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.RxBleConnection;
 import com.polidea.rxandroidble.RxBleDevice;
@@ -28,8 +30,6 @@ import java.util.UUID;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
-
-import static com.lady.viktoria.lightdrip.utils.ConvertTxID.convertSrc;
 
 
 public class CgmBleService extends Service {
@@ -135,63 +135,11 @@ public class CgmBleService extends Service {
         // notifyButton.setEnabled(isConnected());
     }
 
-    public boolean CheckTransmitterID(byte[] packet, int len) {
-        int DexSrc;
-        int TransmitterID;
-        ByteBuffer tmpBuffer;
-        final String TxId = mTrayPreferences.getString("Transmitter_Id", "00000");
-        TransmitterID = convertSrc(TxId);
 
-        tmpBuffer = ByteBuffer.allocate(len);
-        tmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        tmpBuffer.put(packet, 0, len);
-
-        if (packet[0] == 7) {
-            Log.i(TAG, "Received Beacon packet.");
-            broadcastUpdate(BEACON_SNACKBAR);
-            writeTxIdPacket(TransmitterID);
-            return false;
-        } else if (packet[0] >= 21 && packet[1] == 0) {
-            Log.i(TAG, "Received Data packet");
-            DexSrc = tmpBuffer.getInt(12);
-            TransmitterID = convertSrc(TxId);
-            if (Integer.compare(DexSrc, TransmitterID) != 0) {
-                writeTxIdPacket(TransmitterID);
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        sendBroadcast(intent);
-    }
-
-    private void writeTxIdPacket(int TransmitterID) {
-        Log.v(TAG, "try to set transmitter ID");
-        ByteBuffer txidMessage = ByteBuffer.allocate(6);
-        txidMessage.order(ByteOrder.LITTLE_ENDIAN);
-        txidMessage.put(0, (byte) 0x06);
-        txidMessage.put(1, (byte) 0x01);
-        txidMessage.putInt(2, TransmitterID);
-        writeCharacteristic(txidMessage);
-    }
-
-    private void writeAcknowledgePacket() {
-        Log.d(TAG, "Sending Acknowledge Packet, to put wixel to sleep");
-        ByteBuffer ackMessage = ByteBuffer.allocate(2);
-        ackMessage.put(0, (byte) 0x02);
-        ackMessage.put(1, (byte) 0xF0);
-        writeCharacteristic(ackMessage);
-    }
 
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
-        connect();
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
@@ -214,7 +162,7 @@ public class CgmBleService extends Service {
 
     private void onNotificationReceived(byte[] bytes) {
         //noinspection ConstantConditions
-        //Log.v(TAG, "Change: "  + utils.bytesToHex(bytes));
+        Log.v(TAG, "Change: "  + ConvertHexString.bytesToHex(bytes));
         long timestamp = new Date().getTime();
         int packatlength = bytes[0];
         if (packatlength >= 2) {
@@ -236,6 +184,59 @@ public class CgmBleService extends Service {
     private void notificationHasBeenSetUp() {
         //noinspection ConstantConditions
         Log.v(TAG, "Notifications has been set up");
+    }
+
+    public boolean CheckTransmitterID(byte[] packet, int len) {
+        int DexSrc;
+        int TransmitterID;
+        ByteBuffer tmpBuffer;
+        final String TxId = mTrayPreferences.getString("Transmitter_Id", "00000");
+        TransmitterID = ConvertTxID.convertSrc(TxId);
+
+        tmpBuffer = ByteBuffer.allocate(len);
+        tmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        tmpBuffer.put(packet, 0, len);
+
+        if (packet[0] == 7) {
+            Log.i(TAG, "Received Beacon packet.");
+            broadcastUpdate(BEACON_SNACKBAR);
+            writeTxIdPacket(TransmitterID);
+            return false;
+        } else if (packet[0] >= 21 && packet[1] == 0) {
+            Log.i(TAG, "Received Data packet");
+            DexSrc = tmpBuffer.getInt(12);
+            TransmitterID = ConvertTxID.convertSrc(TxId);
+            if (Integer.compare(DexSrc, TransmitterID) != 0) {
+                writeTxIdPacket(TransmitterID);
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void writeTxIdPacket(int TransmitterID) {
+        Log.v(TAG, "try to set transmitter ID");
+        ByteBuffer txidMessage = ByteBuffer.allocate(6);
+        txidMessage.order(ByteOrder.LITTLE_ENDIAN);
+        txidMessage.put(0, (byte) 0x06);
+        txidMessage.put(1, (byte) 0x01);
+        txidMessage.putInt(2, TransmitterID);
+        writeCharacteristic(txidMessage);
+    }
+
+    private void writeAcknowledgePacket() {
+        Log.d(TAG, "Sending Acknowledge Packet, to put wixel to sleep");
+        ByteBuffer ackMessage = ByteBuffer.allocate(2);
+        ackMessage.put(0, (byte) 0x02);
+        ackMessage.put(1, (byte) 0xF0);
+        writeCharacteristic(ackMessage);
+    }
+
+    private void broadcastUpdate(final String action) {
+        final Intent intent = new Intent(action);
+        sendBroadcast(intent);
     }
 
     public void startJobScheduler() {
