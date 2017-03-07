@@ -145,9 +145,7 @@ public class CgmBleService extends Service {
     private void onConnectionReceived(RxBleConnection connection) {
         //noinspection ConstantConditions
         Log.v(TAG, "Hey, connection has been established!");
-        if (isConnected()) {
             writeNotificationCharacteristic();
-        }
     }
 
     private void onWriteSuccess() {
