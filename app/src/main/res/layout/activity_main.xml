@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -26,7 +27,8 @@
         android:clipToPadding="false"
         android:gravity="center_vertical"
         android:padding="@dimen/standard_12"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,7 +54,8 @@
         android:clipToPadding="false"
         android:gravity="center_vertical"
         android:padding="@dimen/standard_12"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
 
         <TextView
             android:layout_width="wrap_content"
@@ -78,7 +81,8 @@
         android:clipToPadding="false"
         android:gravity="center_vertical"
         android:padding="@dimen/standard_12"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,7 +108,8 @@
         android:clipToPadding="false"
         android:gravity="center_vertical"
         android:padding="@dimen/standard_12"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
 
         <TextView
             android:layout_width="wrap_content"
@@ -128,7 +133,8 @@
         android:layout_marginRight="@dimen/fab_margin"
         android:clipToPadding="false"
         android:gravity="center_vertical"
-        android:padding="@dimen/standard_12">
+        android:padding="@dimen/standard_12"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
