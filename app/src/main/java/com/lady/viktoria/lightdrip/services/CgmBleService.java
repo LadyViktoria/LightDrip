@@ -140,6 +140,7 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        connect();
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
