@@ -173,6 +173,8 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        writeNotificationSubscription.unsubscribe();
+        writeNotificationSubscription.unsubscribe();
         try {
             backtask.cancel();
             timerTask();
@@ -190,7 +192,6 @@ public class CgmBleService extends Service {
     private void onWriteSuccess() {
         //noinspection ConstantConditions
         Log.v(TAG, "Write success");
-        writeNotificationSubscription.unsubscribe();
     }
 
     private void onWriteFailure(Throwable throwable) {
@@ -218,8 +219,6 @@ public class CgmBleService extends Service {
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();
         }
-        writeNotificationSubscription.unsubscribe();
-
     }
 
     private void onNotificationSetupFailure(Throwable throwable) {
