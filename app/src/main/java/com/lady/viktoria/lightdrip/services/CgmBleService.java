@@ -174,7 +174,7 @@ public class CgmBleService extends Service {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
         writeNotificationSubscription.unsubscribe();
-        writeNotificationSubscription.unsubscribe();
+        writeCharacteristicSubscription.unsubscribe();
         try {
             backtask.cancel();
             timerTask();
