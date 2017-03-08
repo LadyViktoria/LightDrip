@@ -61,7 +61,7 @@ public class CgmBleService extends Service {
 
         handler = new Handler();
         startJobScheduler();
-        timerTask();
+        //timerTask();
 
         // get mac address from selected wixelbridge
         mTrayPreferences = new AppPreferences(this);
@@ -81,6 +81,8 @@ public class CgmBleService extends Service {
         bleDevice.observeConnectionStateChanges()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onConnectionStateChange);
+
+        connect();
         return START_STICKY;
     }
 
@@ -164,6 +166,7 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
+        connect();
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
@@ -277,24 +280,6 @@ public class CgmBleService extends Service {
     public void stopJobScheduler() {
         JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.cancel(0);
-    }
-
-    private void timerTask() {
-        Timer timer = new Timer();
-        TimerTask backtask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(() -> {
-                    try {
-                        connect();
-                        Log.d("check","Check Run" );
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                    }
-                });
-            }
-        };
-        timer.schedule(backtask , 0, 4 * 60 * 1000);
     }
 
     @Override
