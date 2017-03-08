@@ -53,6 +53,8 @@ public class CgmBleService extends Service {
     Handler handler;
     Subscription writeNotificationSubscription;
     Subscription writeCharacteristicSubscription;
+    Timer timer;
+    TimerTask backtask;
 
 
     @Override
@@ -149,24 +151,34 @@ public class CgmBleService extends Service {
         if (newState == RxBleConnection.RxBleConnectionState.CONNECTED) {
             Log.v(TAG, "connectionstat CONNECTED");
             broadcastUpdate(ACTION_BLE_CONNECTED);
+            try {
+                backtask.cancel();
+                timerTask();
+            } catch (Exception e) {
+                Log.v(TAG, "connectionstat CONNECTED" + e.getMessage());
+            }
         }
         if (newState == RxBleConnection.RxBleConnectionState.DISCONNECTED) {
             Log.v(TAG, "connectionstat DISCONNECTED");
             broadcastUpdate(ACTION_BLE_DISCONNECTED);
             try {
-                writeCharacteristicSubscription.unsubscribe();
-                writeNotificationSubscription.unsubscribe();
+                backtask.cancel();
+                timerTask();
             } catch (Exception e) {
-                Log.v(TAG, "onConnectionStateChange " + e.getMessage());
+                Log.v(TAG, "connectionstat DISCONNECTED" + e.getMessage());
             }
-
         }
     }
 
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
-        connect();
+        try {
+            backtask.cancel();
+            timerTask();
+        } catch (Exception e) {
+            Log.v(TAG, "onConnectionFailure " + e.getMessage());
+        }
     }
 
     private void onConnectionReceived(RxBleConnection connection) {
@@ -178,11 +190,18 @@ public class CgmBleService extends Service {
     private void onWriteSuccess() {
         //noinspection ConstantConditions
         Log.v(TAG, "Write success");
+        writeNotificationSubscription.unsubscribe();
     }
 
     private void onWriteFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Write error: " + throwable);
+        try {
+            backtask.cancel();
+            timerTask();
+        } catch (Exception e) {
+            Log.v(TAG, "onWriteFailure " + e.getMessage());
+        }
     }
 
     private void onNotificationReceived(byte[] bytes) {
@@ -199,11 +218,19 @@ public class CgmBleService extends Service {
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();
         }
+        writeNotificationSubscription.unsubscribe();
+
     }
 
     private void onNotificationSetupFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Notifications error: " + throwable);
+        try {
+            backtask.cancel();
+            timerTask();
+        } catch (Exception e) {
+            Log.v(TAG, "onNotificationSetupFailure " + e.getMessage());
+        }
     }
 
     private void notificationHasBeenSetUp() {
@@ -280,6 +307,24 @@ public class CgmBleService extends Service {
     public void stopJobScheduler() {
         JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.cancel(0);
+    }
+
+    public void timerTask() {
+        timer = new Timer();
+        backtask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(() -> {
+                    try {
+                        connect();
+                        Log.d("check","Check Run" );
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                    }
+                });
+            }
+        };
+        timer.schedule(backtask , 0, 4 * 60 * 1000);
     }
 
     @Override
