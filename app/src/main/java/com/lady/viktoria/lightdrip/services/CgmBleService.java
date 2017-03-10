@@ -1,8 +1,7 @@
 package com.lady.viktoria.lightdrip.services;
 
 import android.app.Service;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +10,13 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.RetryStrategy;
+import com.firebase.jobdispatcher.Trigger;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.utils.ConvertHexString;
 import com.lady.viktoria.lightdrip.utils.ConvertTxID;
@@ -51,11 +57,13 @@ public class CgmBleService extends Service {
     Handler handler;
     Subscription writeNotificationSubscription;
     Subscription writeCharacteristicSubscription;
+    FirebaseJobDispatcher dispatcher;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         //startForeground(R.string.app_name, new Notification());
+        dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
         handler = new Handler();
         startJobScheduler();
@@ -268,21 +276,32 @@ public class CgmBleService extends Service {
     }
 
     public void startJobScheduler() {
-        final long REFRESH_INTERVAL = 15 * 60 * 1000;
-        ComponentName serviceComponent = new ComponentName(this, SchedulerJobService.class);
-        JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
-        builder.setRequiresDeviceIdle(false);
-        builder.setRequiresCharging(false);
-        builder.setPeriodic(REFRESH_INTERVAL);
-        //builder.setPersisted(true);
-        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        int result = jobScheduler.schedule(builder.build());
-        if (result == JobScheduler.RESULT_SUCCESS) Log.d(TAG, "Job scheduled successfully!");
+        Job myJob = dispatcher.newJobBuilder()
+                // the JobService that will be called
+                .setService(SchedulerJobService.class)
+                // uniquely identifies the job
+                .setTag("discover-sdk-tag")
+                // one-off job
+                .setRecurring(true)
+                // don't persist past a device reboot
+                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                // start between 0 and 90 seconds from now
+                .setTrigger(Trigger.executionWindow(0, 5*60))
+                // don't overwrite an existing job with the same tag
+                .setReplaceCurrent(true)
+                // retry with exponential backoff
+                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
+                // constraints that need to be satisfied for the job to run
+                .setConstraints(
+                        // only run on an unmetered network
+                        Constraint.ON_ANY_NETWORK
+                )
+                .build();
+        dispatcher.mustSchedule(myJob);
     }
 
     public void stopJobScheduler() {
-        JobScheduler jobScheduler = (JobScheduler) this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        jobScheduler.cancel(0);
+        dispatcher.cancel("discover-sdk-tag");
     }
 
     @Override

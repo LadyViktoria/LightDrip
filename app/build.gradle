@@ -61,6 +61,7 @@ dependencies {
     compile 'com.trello:rxlifecycle:1.0'
     compile 'com.trello:rxlifecycle-components:1.0'
     compile 'com.trello:rxlifecycle-android:1.0'
+    compile 'com.firebase:firebase-jobdispatcher:0.5.2'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }
