@@ -2,8 +2,6 @@ package com.lady.viktoria.lightdrip.services;
 
 import android.app.Service;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -30,6 +28,7 @@ import net.grandcentrix.tray.AppPreferences;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,6 +36,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subjects.PublishSubject;
+import xiaofei.library.hermeseventbus.HermesEventBus;
 
 
 public class CgmBleService extends Service {
@@ -46,7 +46,6 @@ public class CgmBleService extends Service {
     public final static String ACTION_BLE_CONNECTED = "ACTION_BLE_CONNECTED";
     public final static String ACTION_BLE_DISCONNECTED = "ACTION_BLE_DISCONNECTED";
     public final static String ACTION_BLE_DATA_AVAILABLE = "ACTION_BLE_DATA_AVAILABLE";
-    public final static String EXTRA_BLE_DATA = "EXTRA_BLE_DATA";
     public final static String BEACON_SNACKBAR = "BEACON_SNACKBAR";
 
     private RxBleClient rxBleClient;
@@ -152,14 +151,12 @@ public class CgmBleService extends Service {
             Log.v(TAG, "connectionstat DISCONNECTING");
         }
         if (newState == RxBleConnection.RxBleConnectionState.CONNECTED) {
-            Log.v(TAG, "connectionstat CONNECTED");
-            broadcastUpdate(ACTION_BLE_CONNECTED);
+            HermesEventBus.getDefault().post(ACTION_BLE_CONNECTED);
             writeNotificationCharacteristic();
-
         }
         if (newState == RxBleConnection.RxBleConnectionState.DISCONNECTED) {
             Log.v(TAG, "connectionstat DISCONNECTED");
-            broadcastUpdate(ACTION_BLE_DISCONNECTED);
+            HermesEventBus.getDefault().post(ACTION_BLE_DISCONNECTED);
             try {
                 writeNotificationSubscription.unsubscribe();
             } catch (Exception e) {
@@ -172,7 +169,6 @@ public class CgmBleService extends Service {
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         Log.v(TAG, "Connection Failure");
-
         connect();
     }
 
@@ -204,8 +200,12 @@ public class CgmBleService extends Service {
         if (packatlength >= 2) {
             if (CheckTransmitterID(bytes, bytes.length)) {
                 TransmitterRecord.create(bytes, bytes.length, timestamp);
+                SimpleDateFormat databaseDateTimeFormate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String currentDateandTime = databaseDateTimeFormate.format(timestamp);
+                mTrayPreferences.put("BLE_LAST_CONNECTED", currentDateandTime);
+                HermesEventBus.getDefault().post(ACTION_BLE_DATA_AVAILABLE);
             } else {
-                broadcastUpdate(BEACON_SNACKBAR);
+                HermesEventBus.getDefault().post(BEACON_SNACKBAR);
             }
         } else if (packatlength <= 1) {
             writeAcknowledgePacket();
@@ -235,7 +235,7 @@ public class CgmBleService extends Service {
 
         if (packet[0] == 7) {
             Log.i(TAG, "Received Beacon packet.");
-            broadcastUpdate(BEACON_SNACKBAR);
+            HermesEventBus.getDefault().post(BEACON_SNACKBAR);
             writeTxIdPacket(TransmitterID);
             return false;
         } else if (packet[0] >= 21 && packet[1] == 0) {
@@ -268,11 +268,6 @@ public class CgmBleService extends Service {
         ackMessage.put(0, (byte) 0x02);
         ackMessage.put(1, (byte) 0xF0);
         writeCharacteristic(ackMessage);
-    }
-
-    private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        sendBroadcast(intent);
     }
 
     public void startJobScheduler() {

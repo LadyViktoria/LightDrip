@@ -1,24 +1,15 @@
 package com.lady.viktoria.lightdrip;
 
-import android.app.ActivityManager;
 import android.app.FragmentManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.DimenRes;
-import android.support.annotation.Dimension;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,9 +31,11 @@ import net.grandcentrix.tray.AppPreferences;
 import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
 import net.grandcentrix.tray.core.TrayItem;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 
 import butterknife.BindColor;
 import butterknife.BindDimen;
@@ -54,6 +47,7 @@ import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.Sort;
+import xiaofei.library.hermeseventbus.HermesEventBus;
 
 import static io.realm.Realm.getDefaultInstance;
 
@@ -81,7 +75,9 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindDimen(R.dimen.standard_100) float standard_100;
     @BindDimen(R.dimen.standard_145) float standard_145;
     @BindDimen(R.dimen.standard_190) float standard_190;
-   EditText et_snackbar_txid;
+    EditText et_snackbar_txid;
+    AppPreferences appPreferences;
+
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -94,32 +90,43 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         Fabric.with(this, new Crashlytics());
         Realm.init(this);
         mRealm = getDefaultInstance();
+        HermesEventBus.getDefault().register(this);
         setContentView(R.layout.activity_main);
+        appPreferences = new AppPreferences(this);
         ButterKnife.bind(this);
         startRealmListener();
         getBTDevice();
         getDatabaseSize();
+    }
 
-
-        transmitterIdSnackbar();
-
-
-
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showText(String text) {
+        //Log.v(TAG, "Activity receives an event: " + text);
+        if (CgmBleService.ACTION_BLE_CONNECTED.equals(text)) {
+            updateConnectionState(R.string.connected);
+            invalidateOptionsMenu();
+        } else if (CgmBleService.ACTION_BLE_DISCONNECTED.equals(text)) {
+            updateConnectionState(R.string.disconnected);
+            invalidateOptionsMenu();
+        } else if (CgmBleService.ACTION_BLE_DATA_AVAILABLE.equals(text)) {
+            String extra = appPreferences.getString("BLE_LAST_CONNECTED", "NULL");
+            displayData(extra);
+        } else if (CgmBleService.BEACON_SNACKBAR.equals(text)) {
+            Log.i(TAG, "Received Beacon packet.");
+            beaconSnackbar();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         startRealmListener();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         getBTDevice();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
         mRealm.removeChangeListener(realmListener);
     }
 
@@ -129,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         mRealm.removeChangeListener(realmListener);
         mRealm.close();
         Realm.compactRealm(mRealm.getConfiguration());
+        HermesEventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -254,38 +262,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         fabLabel4.setVisibility(View.GONE);
     }
 
-    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (CgmBleService.ACTION_BLE_CONNECTED.equals(action)) {
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_BLE_DISCONNECTED.equals(action)) {
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-            } else if (CgmBleService.ACTION_BLE_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(CgmBleService.EXTRA_BLE_DATA));
-            } else if (CgmBleService.BEACON_SNACKBAR.equals(action)) {
-                Log.i(TAG, "Received Beacon packet.");
-                beaconSnackbar();
-            }
-        }
-    };
-
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CgmBleService.ACTION_BLE_CONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_BLE_DISCONNECTED);
-        intentFilter.addAction(CgmBleService.ACTION_BLE_DATA_AVAILABLE);
-        intentFilter.addAction(CgmBleService.EXTRA_BLE_DATA);
-        intentFilter.addAction(CgmBleService.BEACON_SNACKBAR);
-        return intentFilter;
-    }
-
     private void getBTDevice() {
-        final AppPreferences appPreferences = new AppPreferences(this);
         final String mDeviceName = appPreferences.getString("BT_Name", "NULL");
         final String mDeviceAddress = appPreferences.getString("BT_MAC_Address", "00:00:00:00:00:00");
         bgmac.setText("BGMeter MAC: \n" + mDeviceName + "\n" + mDeviceAddress);
