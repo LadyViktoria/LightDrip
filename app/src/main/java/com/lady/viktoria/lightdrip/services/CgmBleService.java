@@ -25,8 +25,6 @@ import net.grandcentrix.tray.AppPreferences;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import rx.Observable;
@@ -57,10 +55,10 @@ public class CgmBleService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        //startForeground(R.string.app_name, new Notification());
 
         handler = new Handler();
         startJobScheduler();
-        //timerTask();
 
         // get mac address from selected wixelbridge
         mTrayPreferences = new AppPreferences(this);
@@ -72,7 +70,7 @@ public class CgmBleService extends Service {
         // logging for RxBleClient
         RxBleClient.setLogLevel(RxBleLog.INFO);
         connectionObservable = bleDevice
-                .establishConnection(true)
+                .establishConnection(this, true)
                 //.takeUntil(disconnectTriggerSubject)
                 .doOnUnsubscribe(this::clearSubscription)
                 .compose(new ConnectionSharingAdapter());
@@ -148,15 +146,16 @@ public class CgmBleService extends Service {
         if (newState == RxBleConnection.RxBleConnectionState.CONNECTED) {
             Log.v(TAG, "connectionstat CONNECTED");
             broadcastUpdate(ACTION_BLE_CONNECTED);
+            writeNotificationCharacteristic();
+
         }
         if (newState == RxBleConnection.RxBleConnectionState.DISCONNECTED) {
             Log.v(TAG, "connectionstat DISCONNECTED");
             broadcastUpdate(ACTION_BLE_DISCONNECTED);
             try {
                 writeNotificationSubscription.unsubscribe();
-                writeCharacteristicSubscription.unsubscribe();
             } catch (Exception e) {
-                Log.v(TAG, "connectionstat DISCONNECTED" + e.getMessage());
+                Log.v(TAG, "connectionstat DISCONNECTED " + e.getMessage());
             }
 
         }
@@ -172,12 +171,16 @@ public class CgmBleService extends Service {
     private void onConnectionReceived(RxBleConnection connection) {
         //noinspection ConstantConditions
         Log.v(TAG, "Hey, connection has been established!");
-            writeNotificationCharacteristic();
     }
 
     private void onWriteSuccess() {
         //noinspection ConstantConditions
         Log.v(TAG, "Write success");
+        try {
+            writeCharacteristicSubscription.unsubscribe();
+        } catch (Exception e) {
+            Log.v(TAG, "onWriteSuccess " + e.getMessage());
+        }
     }
 
     private void onWriteFailure(Throwable throwable) {
