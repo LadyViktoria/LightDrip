@@ -38,11 +38,12 @@
         android:id="@+id/bgreading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/connection_state"
         android:text="BG Reading"
-        android:textSize="16pt" />
+        android:textSize="16pt"
+        android:layout_below="@+id/connection_state"
+        android:layout_marginTop="81dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/bluetoothstate"
@@ -58,5 +59,15 @@
         android:layout_marginTop="300dp"
         android:text="DatabaseSize"
         android:textSize="6pt" />
+
+    <TextView
+        android:id="@+id/batterylevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="battery level"
+        android:layout_below="@+id/connection_state"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="32dp"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

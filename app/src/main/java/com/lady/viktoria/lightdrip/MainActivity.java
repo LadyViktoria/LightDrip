@@ -46,6 +46,7 @@ import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 import io.realm.Sort;
 import xiaofei.library.hermeseventbus.HermesEventBus;
 
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.connection_state) TextView mConnectionState;
     @BindView(R.id.databasesize) TextView mDatabaseSize;
     @BindView(R.id.bgreading) TextView mDataField;
+    @BindView(R.id.batterylevel) TextView mBatteryLevel;
     @BindView(R.id.fabLabel1) LinearLayout fabLabel1;
     @BindView(R.id.fabLabel2) LinearLayout fabLabel2;
     @BindView(R.id.fabLabel3) LinearLayout fabLabel3;
@@ -113,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             displayData(extra);
         } else if (CgmBleService.BEACON_SNACKBAR.equals(text)) {
             Log.i(TAG, "Received Beacon packet.");
-            beaconSnackbar();
+            transmitterIdSnackbar();
         }
     }
 
@@ -169,11 +171,25 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                 } else if (calibrationRecords == null && transmitterData != null && !sensorRecord.isSensorActive()) {
                     startSensorSnackbar("Received Transmitter Data please Start Sensor");
                 }
+                if (transmitterData != null) {
+                    int TransmitterBat = transmitterData.gettransmitter_battery_level();
+                    int BridgeBat = transmitterData.getbridge_battery_level();
+                    updateBatLevel(TransmitterBat, BridgeBat);
+                }
             };
             mRealm.addChangeListener(realmListener);
         } catch (Exception e) {
             Log.v(TAG, "onCreate " + e.getMessage());
         }
+    }
+
+    public void updateBatLevel(int transmitter, int bridge) {
+
+        if (transmitter != 0 && bridge != 0) {
+            //mDataField.setText(data);
+            mBatteryLevel.setText("Battery Level: Transmitter " + transmitter + " Bridge " + bridge );
+        }
+
     }
 
     @OnClick({R.id.fab, R.id.fabBGLayout,
