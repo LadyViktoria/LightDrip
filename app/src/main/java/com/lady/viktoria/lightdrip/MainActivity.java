@@ -46,7 +46,6 @@ import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
 import io.realm.Sort;
 import xiaofei.library.hermeseventbus.HermesEventBus;
 
@@ -79,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindDimen(R.dimen.standard_190) float standard_190;
     EditText et_snackbar_txid;
     AppPreferences appPreferences;
-
 
     private boolean isFABOpen = false;
     private Realm mRealm;
@@ -183,15 +181,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         }
     }
 
-    public void updateBatLevel(int transmitter, int bridge) {
-
-        if (transmitter != 0 && bridge != 0) {
-            //mDataField.setText(data);
-            mBatteryLevel.setText("Battery Level: Transmitter " + transmitter + " Bridge " + bridge );
-        }
-
-    }
-
     @OnClick({R.id.fab, R.id.fabBGLayout,
             R.id.fab1, R.id.fabLabel1,
             R.id.fab2, R.id.fabLabel2,
@@ -292,6 +281,10 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         if (data != null) {
             mDataField.setText(data);
         }
+    }
+
+    public void updateBatLevel(int transmitter, int bridge) {
+        mBatteryLevel.setText("Battery Level: Transmitter " + transmitter + " Bridge " + bridge );
     }
 
     private void getDatabaseSize() {
