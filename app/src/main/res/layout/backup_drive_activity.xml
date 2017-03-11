@@ -39,7 +39,7 @@
                     android:layout_margin="8dp"
                     android:gravity="right"
                     android:paddingRight="16dp"
-                    android:text="Folder not set" />
+                    android:text="Click to set Folder" />
 
                 <Button
                     android:id="@+id/activity_backup_drive_button_manage_drive"

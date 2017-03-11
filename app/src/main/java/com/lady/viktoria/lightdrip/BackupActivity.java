@@ -21,8 +21,7 @@
 package com.lady.viktoria.lightdrip;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -73,7 +72,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
@@ -85,13 +87,17 @@ public class BackupActivity extends AppCompatActivity {
     private final static String TAG = BackupActivity.class.getSimpleName();
     private static final String BACKUP_FOLDER_KEY = "backup_folder";
 
+    @BindView(R.id.activity_backup_drive_button_backup) Button backupButton;
+    @BindView(R.id.activity_backup_drive_button_manage_drive) Button manageButton;
+    @BindView(R.id.activity_backup_drive_textview_folder) TextView folderTextView;
+    @BindView(R.id.activity_backup_drive_button_folder) LinearLayout selectFolderButton;
+    @BindView(R.id.activity_backup_drive_listview_restore) ExpandableHeightListView backupListView;
+
     private Backup backup;
     private GoogleApiClient mGoogleApiClient;
-    private TextView folderTextView;
     private IntentSender intentPicker;
     private Realm realm;
     private String backupFolder;
-    private ExpandableHeightListView backupListView;
 
     private SharedPreferences sharedPref;
 
@@ -100,6 +106,7 @@ public class BackupActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.backup_drive_activity);
+        ButterKnife.bind(this);
 
         MainApplication mainApplication = (MainApplication) getApplicationContext();
         sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -112,29 +119,9 @@ public class BackupActivity extends AppCompatActivity {
         backup.init(this);
         connectClient();
         mGoogleApiClient = backup.getClient();
-
-        Button backupButton = (Button) findViewById(R.id.activity_backup_drive_button_backup);
-        Button manageButton = (Button) findViewById(R.id.activity_backup_drive_button_manage_drive);
-        folderTextView = (TextView) findViewById(R.id.activity_backup_drive_textview_folder);
-        LinearLayout selectFolderButton = (LinearLayout) findViewById(R.id.activity_backup_drive_button_folder);
-        backupListView = (ExpandableHeightListView) findViewById(R.id.activity_backup_drive_listview_restore);
-
         backupListView.setExpanded(true);
-
-        backupButton.setOnClickListener(v -> {
-            // Open Folder picker, then upload the file on Drive
-            openFolderPicker(true);
-        });
-
-        selectFolderButton.setOnClickListener(v -> {
-            // Check first if a folder is already selected
-            if (!"".equals(backupFolder)) {
-                //Start the picker to choose a folder
-                //False because we don't want to upload the backup on drive then
-                openFolderPicker(false);
-            }
-        });
-
+        backupButton.setOnClickListener(v -> {openFolderPicker(true);});
+        selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
 
         // Show backup folder, if exists
@@ -272,16 +259,16 @@ public class BackupActivity extends AppCompatActivity {
                     } finally {
                         safeCloseClosable(input);
                     }
-
-                    Toast.makeText(getApplicationContext(), "restart", Toast.LENGTH_LONG).show();
-
                     // Reboot app
-                    Intent mStartActivity = new Intent(getApplicationContext(), MainActivity.class);
-                    int mPendingIntentId = 123456;
-                    PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
-                    AlarmManager mgr = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                    mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-                    System.exit(0);
+                    ActivityManager actvityManager = (ActivityManager)
+                            getApplicationContext().getSystemService( getApplicationContext().ACTIVITY_SERVICE );
+                    List<ActivityManager.RunningAppProcessInfo> procInfos = actvityManager.getRunningAppProcesses();
+                    for(int pnum = 0; pnum < procInfos.size(); pnum++) {
+                        if((procInfos.get(pnum)).processName.contains("com.lady.viktoria.lightdrip:services")) {
+                            android.os.Process.killProcess((procInfos.get(pnum).pid));
+                        }
+                    }
+                    System.exit(1);
                 });
     }
 
@@ -334,7 +321,6 @@ public class BackupActivity extends AppCompatActivity {
                                     showErrorDialog();
                                     e.printStackTrace();
                                 }
-
 
                                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                                         .setTitle("lightdrip.realm")
@@ -455,5 +441,10 @@ public class BackupActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         finish();
         return true;
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectClient();
     }
 }
