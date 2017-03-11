@@ -85,7 +85,10 @@
 
         <activity
             android:name=".BackupActivity"
-            android:label="title_activity_backup_drive" >
+            android:parentActivityName=".PreferncesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lady.viktoria.lightdrip.PreferncesActivity" />
         </activity>
 
         <meta-data
