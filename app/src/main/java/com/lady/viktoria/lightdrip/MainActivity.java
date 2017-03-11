@@ -64,11 +64,13 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindView(R.id.fabLabel2) LinearLayout fabLabel2;
     @BindView(R.id.fabLabel3) LinearLayout fabLabel3;
     @BindView(R.id.fabLabel4) LinearLayout fabLabel4;
+    @BindView(R.id.fabLabel5) LinearLayout fabLabel5;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.fab1) FloatingActionButton fab1;
     @BindView(R.id.fab2) FloatingActionButton fab2;
     @BindView(R.id.fab3) FloatingActionButton fab3;
     @BindView(R.id.fab4) FloatingActionButton fab4;
+    @BindView(R.id.fab5) FloatingActionButton fab5;
     @BindView(R.id.fabBGLayout) View fabBGLayout;
     @BindView(R.id.fragment) View parentLayout;
     @BindColor(R.color.colorBackground) int colorBackground;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
     @BindDimen(R.dimen.standard_100) float standard_100;
     @BindDimen(R.dimen.standard_145) float standard_145;
     @BindDimen(R.dimen.standard_190) float standard_190;
+    @BindDimen(R.dimen.standard_235) float standard_235;
     EditText et_snackbar_txid;
     AppPreferences appPreferences;
 
@@ -185,7 +188,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             R.id.fab1, R.id.fabLabel1,
             R.id.fab2, R.id.fabLabel2,
             R.id.fab3, R.id.fabLabel3,
-            R.id.fab4, R.id.fabLabel4 })
+            R.id.fab4, R.id.fabLabel4,
+            R.id.fab5, R.id.fabLabel5})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
@@ -230,6 +234,11 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
                 closeFABMenu();
                 startActivity(new Intent(this, PreferncesActivity.class));
                 break;
+            case R.id.fab5:
+            case R.id.fabLabel5:
+                closeFABMenu();
+                startActivity(new Intent(this, BackupActivity.class));
+                break;
             case R.id.fabBGLayout:
                 closeFABMenu();
                 break;
@@ -244,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         fabLabel2.setVisibility(View.VISIBLE);
         fabLabel3.setVisibility(View.VISIBLE);
         fabLabel4.setVisibility(View.VISIBLE);
+        fabLabel5.setVisibility(View.VISIBLE);
         fabBGLayout.setVisibility(View.VISIBLE);
 
         fab.animate().rotationBy(180);
@@ -251,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         fabLabel2.animate().translationY(-standard_100);
         fabLabel3.animate().translationY(-standard_145);
         fabLabel4.animate().translationY(-standard_190);
+        fabLabel5.animate().translationY(-standard_235);
     }
 
     private void closeFABMenu() {
@@ -265,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         fabLabel3.setVisibility(View.GONE);
         fabLabel4.animate().translationY(0);
         fabLabel4.setVisibility(View.GONE);
+        fabLabel5.animate().translationY(0);
+        fabLabel5.setVisibility(View.GONE);
     }
 
     private void getBTDevice() {

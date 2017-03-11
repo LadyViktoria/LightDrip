@@ -125,6 +125,33 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/fabLabel5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/standard_23"
+        android:layout_marginRight="@dimen/standard_23"
+        android:clipToPadding="false"
+        android:gravity="center_vertical"
+        android:padding="@dimen/standard_12"
+        android:visibility="gone"
+        app:layout_behavior="com.lady.viktoria.lightdrip.utils.MoveUpwardBehavior">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Backup" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_backup_black_24px" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
