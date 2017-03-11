@@ -3,8 +3,11 @@ package com.lady.viktoria.lightdrip;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.lady.viktoria.lightdrip.RealmBackup.Backup;
+import com.lady.viktoria.lightdrip.RealmBackup.GoogleDriveBackup;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
@@ -60,5 +63,10 @@ public class MainApplication extends RealmBaseApplication {
             }
         }
         return false;
+    }
+
+    @NonNull
+    public Backup getBackup() {
+        return new GoogleDriveBackup();
     }
 }

@@ -83,6 +83,11 @@
                 android:value="com.lady.viktoria.lightdrip.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".BackupActivity"
+            android:label="title_activity_backup_drive" >
+        </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="4ee637e9d32a37083732de46f9287d593e25fc63" />

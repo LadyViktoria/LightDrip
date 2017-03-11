@@ -50,6 +50,7 @@ dependencies {
 
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support:design:25.2.0'
+    compile 'com.google.android.gms:play-services-drive:10.2.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'io.realm:android-adapters:1.4.0'
     compile 'com.wdullaer:materialdatetimepicker:3.1.2'
