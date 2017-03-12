@@ -46,7 +46,9 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    
     compile 'com.github.jonasrottmann.realm-browser:realm-browser:develop-SNAPSHOT'
+    compile 'io.realm:android-adapters:1.4.0'
 
     compile "com.android.support:appcompat-v7:${androidSupportVer}"
     compile "com.android.support:design:${androidSupportVer}"
@@ -55,19 +57,21 @@ dependencies {
     compile "com.android.support:percent:${androidSupportVer}"
     compile "com.android.support:support-v4:${androidSupportVer}"
     compile 'com.google.android.gms:play-services-drive:10.2.0'
-
-    compile 'com.github.paolorotolo:expandableheightlistview:1.0.0'
     compile 'com.google.code.gson:gson:2.8.0'
-    compile 'io.realm:android-adapters:1.4.0'
+
+    compile 'xiaofei.library:hermes-eventbus:0.3.0'
+    compile 'com.evernote:android-job:1.1.7'
+    compile 'com.github.paolorotolo:expandableheightlistview:1.0.0'
     compile 'com.wdullaer:materialdatetimepicker:3.1.2'
     compile 'net.grandcentrix.tray:tray:0.11.1'
     compile 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+
     compile 'com.polidea.rxandroidble:rxandroidble:1.2.0-SNAPSHOT'
     compile 'com.trello:rxlifecycle:1.0'
     compile 'com.trello:rxlifecycle-components:1.0'
     compile 'com.trello:rxlifecycle-android:1.0'
-    compile 'xiaofei.library:hermes-eventbus:0.3.0'
+
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {
         transitive = true;
     }
