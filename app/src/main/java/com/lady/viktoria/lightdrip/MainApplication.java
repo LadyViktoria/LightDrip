@@ -11,6 +11,7 @@ import com.lady.viktoria.lightdrip.RealmBackup.GoogleDriveBackup;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
+import com.lady.viktoria.lightdrip.services.DriveBackupSchedulerService;
 import com.lady.viktoria.lightdrip.services.SchedulerJobService;
 
 import io.realm.Realm;
@@ -43,6 +44,13 @@ public class MainApplication extends RealmBaseApplication {
         if (!isMyServiceRunning(mJobService.getClass())) {
             startService(mServiceSchedulerJobIntent);
             Log.v(TAG, "Restart SchedulerJobService");
+        }
+
+        DriveBackupSchedulerService mDriveBackupSchedulerService = new DriveBackupSchedulerService();
+        Intent mServiceDriveBackupSchedulerIntent = new Intent(getApplicationContext(), DriveBackupSchedulerService.class);
+        if (!isMyServiceRunning(mDriveBackupSchedulerService.getClass())) {
+            startService(mServiceDriveBackupSchedulerIntent);
+            Log.v(TAG, "Restart DriveBackupSchedulerService");
         }
     }
 

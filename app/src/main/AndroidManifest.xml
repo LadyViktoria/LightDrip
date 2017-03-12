@@ -38,6 +38,22 @@
             android:process=":services">
         </service>
 
+        <service
+            android:name=".services.DriveBackupSchedulerService"
+            android:process=":services">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".receiver.DriveBackupSchedulerServiceRestarter"
+            android:label="RestartServiceWhenStopped">
+            <intent-filter>
+                <action android:name="com.lady.viktoria.lightdrip.services.RestartDriveBackupSchedulerService" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".receiver.CgmBleServiceRestarter"
             android:label="RestartServiceWhenStopped">

@@ -26,7 +26,6 @@ import com.google.android.gms.drive.query.SortableField;
 
 import net.grandcentrix.tray.AppPreferences;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
