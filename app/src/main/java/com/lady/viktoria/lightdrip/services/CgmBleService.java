@@ -8,13 +8,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.firebase.jobdispatcher.Constraint;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
-import com.firebase.jobdispatcher.Job;
-import com.firebase.jobdispatcher.Lifetime;
-import com.firebase.jobdispatcher.RetryStrategy;
-import com.firebase.jobdispatcher.Trigger;
 import com.lady.viktoria.lightdrip.RealmActions.TransmitterRecord;
 import com.lady.viktoria.lightdrip.utils.ConvertHexString;
 import com.lady.viktoria.lightdrip.utils.ConvertTxID;
@@ -56,18 +49,15 @@ public class CgmBleService extends Service {
     Handler handler;
     Subscription writeNotificationSubscription;
     Subscription writeCharacteristicSubscription;
-    FirebaseJobDispatcher dispatcher;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         //startForeground(R.string.app_name, new Notification());
-        dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
         HermesEventBus.getDefault().init(this);
 
         handler = new Handler();
-        startJobScheduler();
 
         // get mac address from selected wixelbridge
         mTrayPreferences = new AppPreferences(this);
@@ -164,7 +154,6 @@ public class CgmBleService extends Service {
             } catch (Exception e) {
                 Log.v(TAG, "connectionstat DISCONNECTED " + e.getMessage());
             }
-
         }
     }
 
@@ -272,41 +261,11 @@ public class CgmBleService extends Service {
         writeCharacteristic(ackMessage);
     }
 
-    public void startJobScheduler() {
-        Job myJob = dispatcher.newJobBuilder()
-                // the JobService that will be called
-                .setService(SchedulerJobService.class)
-                // uniquely identifies the job
-                .setTag("discover-sdk-tag")
-                // one-off job
-                .setRecurring(true)
-                // don't persist past a device reboot
-                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
-                // start between 0 and 90 seconds from now
-                .setTrigger(Trigger.executionWindow(0, 5*60))
-                // don't overwrite an existing job with the same tag
-                .setReplaceCurrent(true)
-                // retry with exponential backoff
-                .setRetryStrategy(RetryStrategy.DEFAULT_EXPONENTIAL)
-                // constraints that need to be satisfied for the job to run
-                .setConstraints(
-                        // only run on an unmetered network
-                        Constraint.ON_ANY_NETWORK
-                )
-                .build();
-        dispatcher.mustSchedule(myJob);
-    }
-
-    public void stopJobScheduler() {
-        dispatcher.cancel("discover-sdk-tag");
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         Intent broadcastIntent = new Intent("com.lady.viktoria.lightdrip.services.RestartCgmBleService");
         sendBroadcast(broadcastIntent);
-        stopJobScheduler();
     }
 
     @Nullable

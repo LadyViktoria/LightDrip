@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.lady.viktoria.lightdrip.services.CgmBleService;
-import com.lady.viktoria.lightdrip.services.SchedulerJobService;
 
 public class BroadcastReceiverOnBootComplete extends BroadcastReceiver {
 
