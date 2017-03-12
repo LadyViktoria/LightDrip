@@ -18,7 +18,7 @@
             <LinearLayout
                 android:id="@+id/activity_backup_drive_button_folder"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:paddingTop="8dp">
 
@@ -26,40 +26,55 @@
                     android:id="@+id/textView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="8dp"
-                    android:text="Backup Folder:"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:text="Click to set\nBackup Folder:"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/activity_backup_drive_textview_folder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
                     android:layout_margin="8dp"
-                    android:gravity="right"
+                    android:gravity="center_vertical|center_horizontal"
                     android:paddingRight="16dp"
-                    android:text="Click to set Folder" />
+                    android:text="Backup Folder" />
 
-                <Button
-                    android:id="@+id/activity_backup_drive_button_manage_drive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_row="0"
-                    android:layout_weight="1"
-                    android:text="Open Drive"
-                    android:visibility="gone" />
             </LinearLayout>
 
 
-            <Button
-                android:id="@+id/activity_backup_drive_button_backup"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_column="0"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:layout_row="1"
-                android:text="Backup" />
+                android:layout_column="0"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/activity_backup_drive_button_backup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Backup" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/activity_backup_drive_button_manage_drive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Open Drive"
+                    android:visibility="visible" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView2"

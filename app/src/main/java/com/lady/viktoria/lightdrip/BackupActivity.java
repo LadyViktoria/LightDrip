@@ -113,7 +113,7 @@ public class BackupActivity extends AppCompatActivity {
         realm = getDefaultInstance();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Backup Databse");
+        getSupportActionBar().setTitle("Backup Database to Google Drive");
 
         backup = mainApplication.getBackup();
         backup.init(this);
