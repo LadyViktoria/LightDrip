@@ -68,6 +68,8 @@ import com.lady.viktoria.lightdrip.RealmBackup.Backup;
 import com.lady.viktoria.lightdrip.RealmBackup.BackupAdapter;
 import com.lady.viktoria.lightdrip.RealmBackup.LightDripBackup;
 
+import net.grandcentrix.tray.AppPreferences;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -109,7 +111,8 @@ public class BackupActivity extends AppCompatActivity {
     private Realm realm;
     private String backupFolder;
 
-    private SharedPreferences sharedPref;
+    AppPreferences appPreferences;
+
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -119,7 +122,7 @@ public class BackupActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         MainApplication mainApplication = (MainApplication) getApplicationContext();
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        appPreferences = new AppPreferences(this);
         realm = getDefaultInstance();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -133,11 +136,11 @@ public class BackupActivity extends AppCompatActivity {
         backupButton.setOnClickListener(v -> {openFolderPicker(true);});
         selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
-        numberofstoredrecords = sharedPref.getInt("NUMBER_OF_STORED_RECORDS", 5);
+        numberofstoredrecords = appPreferences.getInt("NUMBER_OF_STORED_RECORDS", 5);
         noRecords.setText(String.valueOf(numberofstoredrecords));
 
         // Show backup folder, if exists
-        backupFolder = sharedPref.getString(BACKUP_FOLDER_KEY, "");
+        backupFolder = appPreferences.getString(BACKUP_FOLDER_KEY, "");
         if (!("").equals(backupFolder)) {
             setBackupFolderTitle(DriveId.decodeFromString(backupFolder));
             manageButton.setVisibility(View.VISIBLE);
@@ -156,7 +159,7 @@ public class BackupActivity extends AppCompatActivity {
         if (value.equals("0") || value.equals("")) {
             noRecords.setError("not allowed");
         } else {
-            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
+            appPreferences.put("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value));
         }
     }
 
@@ -331,7 +334,7 @@ public class BackupActivity extends AppCompatActivity {
                         @Override
                         public void onResult(@NonNull DriveApi.MetadataBufferResult result) {
                             MetadataBuffer buffer = result.getMetadataBuffer();
-                            numberofstoredrecords = sharedPref.getInt("NUMBER_OF_STORED_RECORDS", 5);
+                            numberofstoredrecords = appPreferences.getInt("NUMBER_OF_STORED_RECORDS", 5);
                             int size = buffer.getCount();
                             for (int i = numberofstoredrecords-1; i < size; i++) {
                                 Metadata metadata = buffer.get(i);
@@ -478,9 +481,7 @@ public class BackupActivity extends AppCompatActivity {
     }
 
     private void saveBackupFolder(String folderPath) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(BACKUP_FOLDER_KEY, folderPath);
-        editor.apply();
+        appPreferences.put(BACKUP_FOLDER_KEY, folderPath);
     }
 
     private void showSuccessDialog() {
