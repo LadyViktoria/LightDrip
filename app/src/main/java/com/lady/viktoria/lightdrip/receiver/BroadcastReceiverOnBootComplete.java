@@ -13,10 +13,8 @@ public class BroadcastReceiverOnBootComplete extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
-            Intent mServiceBGMeterGattIntent = new Intent(context, CgmBleService.class);
-            context.startService(mServiceBGMeterGattIntent);
-            Intent mServicSchedulerJobIntent = new Intent(context, SchedulerJobService.class);
-            context.startService(mServicSchedulerJobIntent);
+            Intent mCgmBleServiceIntent = new Intent(context, CgmBleService.class);
+            context.startService(mCgmBleServiceIntent);
         }
     }
 }
