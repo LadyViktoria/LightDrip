@@ -33,6 +33,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".services.DriveBackupService"
+            android:process=":services">
+        </service>
+
         <receiver
             android:name=".receiver.CgmBleServiceRestarter"
             android:label="RestartServiceWhenStopped">
