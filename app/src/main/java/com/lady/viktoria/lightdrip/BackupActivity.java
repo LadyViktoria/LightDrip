@@ -31,11 +31,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +51,7 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
@@ -76,6 +79,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnTextChanged;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
@@ -86,12 +90,14 @@ public class BackupActivity extends AppCompatActivity {
 
     private final static String TAG = BackupActivity.class.getSimpleName();
     private static final String BACKUP_FOLDER_KEY = "backup_folder";
+    private int numberofstoredrecords = 5;
 
     @BindView(R.id.activity_backup_drive_button_backup) Button backupButton;
     @BindView(R.id.activity_backup_drive_button_manage_drive) Button manageButton;
     @BindView(R.id.activity_backup_drive_textview_folder) TextView folderTextView;
     @BindView(R.id.activity_backup_drive_button_folder) LinearLayout selectFolderButton;
     @BindView(R.id.activity_backup_drive_listview_restore) ExpandableHeightListView backupListView;
+    @BindView(R.id.backup_drive_et_numberofrecords) EditText noRecords;
 
     private Backup backup;
     private GoogleApiClient mGoogleApiClient;
@@ -123,6 +129,8 @@ public class BackupActivity extends AppCompatActivity {
         backupButton.setOnClickListener(v -> {openFolderPicker(true);});
         selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
+        numberofstoredrecords = sharedPref.getInt("NUMBER_OF_STORED_RECORDS", 5);
+        noRecords.setText(String.valueOf(numberofstoredrecords));
 
         // Show backup folder, if exists
         backupFolder = sharedPref.getString(BACKUP_FOLDER_KEY, "");
@@ -134,6 +142,17 @@ public class BackupActivity extends AppCompatActivity {
         // Populate backup list
         if (!("").equals(backupFolder)) {
             getBackupsFromDrive(DriveId.decodeFromString(backupFolder).asDriveFolder());
+        }
+    }
+
+    @OnTextChanged(value = R.id.backup_drive_et_numberofrecords,
+            callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    void noRecordsInput(Editable editable) {
+        String value = noRecords.getText().toString();
+        if (value.equals("0") || value.equals("")) {
+            noRecords.setError("not allowed");
+        } else {
+            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
         }
     }
 
@@ -282,8 +301,36 @@ public class BackupActivity extends AppCompatActivity {
 
     private void uploadToDrive(DriveId mFolderDriveId) {
         if (mFolderDriveId != null) {
-            //Create the file on GDrive
             final DriveFolder folder = mFolderDriveId.asDriveFolder();
+            SortOrder sortOrder = new SortOrder.Builder()
+                    .addSortDescending(SortableField.MODIFIED_DATE).build();
+            Query query = new Query.Builder()
+                    .addFilter(Filters.eq(SearchableField.TITLE, "lightdrip.realm"))
+                    .addFilter(Filters.eq(SearchableField.TRASHED, false))
+                    .setSortOrder(sortOrder)
+                    .build();
+            folder.queryChildren(mGoogleApiClient, query)
+                    .setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+
+                        private ArrayList<LightDripBackup> backupsArray = new ArrayList<>();
+
+                        @Override
+                        public void onResult(@NonNull DriveApi.MetadataBufferResult result) {
+                            MetadataBuffer buffer = result.getMetadataBuffer();
+                            numberofstoredrecords = sharedPref.getInt("NUMBER_OF_STORED_RECORDS", 5);
+                            int size = buffer.getCount();
+                            for (int i = numberofstoredrecords-1; i < size; i++) {
+                                Metadata metadata = buffer.get(i);
+                                DriveResource driveResource = metadata.getDriveId().asDriveResource();
+                                if (metadata.isTrashable()) {
+                                    if (!metadata.isTrashed()) {
+                                        driveResource.trash(mGoogleApiClient);
+                                    }
+                                }
+                            }
+                        }
+                    });
+            //Create the file on GDrive
             Drive.DriveApi.newDriveContents(mGoogleApiClient)
                     .setResultCallback(result -> {
                         if (!result.getStatus().isSuccess()) {

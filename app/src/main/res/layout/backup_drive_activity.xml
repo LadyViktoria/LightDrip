@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true" >
 
     <ScrollView
         android:layout_width="match_parent"
@@ -74,6 +76,38 @@
                     android:layout_weight="1"
                     android:text="Open Drive"
                     android:visibility="visible" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_row="2"
+                android:layout_column="0">
+
+                <TextView
+                    android:id="@+id/backup_drive_no_records"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Number of stored Backups" />
+
+                <EditText
+                    android:id="@+id/backup_drive_et_numberofrecords"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.27"
+                    android:ems="10"
+                    android:gravity="center_horizontal"
+                    android:inputType="number"
+                    android:text="5" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.41" />
+
             </LinearLayout>
 
             <TextView
@@ -82,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_column="0"
                 android:layout_margin="16dp"
-                android:layout_row="2"
+                android:layout_row="3"
                 android:layout_weight="1"
                 android:text="Recent Backups"
                 android:textAllCaps="true"
@@ -93,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_column="0"
-                android:layout_row="3"
+                android:layout_row="4"
                 android:layout_weight="1">
             </com.github.paolorotolo.expandableheightlistview.ExpandableHeightListView>
 
