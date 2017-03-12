@@ -64,6 +64,8 @@ public class CgmBleService extends Service {
         //startForeground(R.string.app_name, new Notification());
         dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
 
+        HermesEventBus.getDefault().init(this);
+
         handler = new Handler();
         startJobScheduler();
 
