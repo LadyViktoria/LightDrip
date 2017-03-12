@@ -46,7 +46,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile(name: 'realm-browser-debug', ext: 'aar')
+    compile 'com.github.jonasrottmann.realm-browser:realm-browser:develop-SNAPSHOT'
 
     compile "com.android.support:appcompat-v7:${androidSupportVer}"
     compile "com.android.support:design:${androidSupportVer}"
