@@ -155,14 +155,14 @@ public class BackupActivity extends AppCompatActivity {
         String value = noRecords.getText().toString();
         if (value.equals("0") || value.equals("")) {
             noRecords.setError("not allowed");
+        } else {
+            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
         }
     }
 
     @OnEditorAction(R.id.backup_drive_et_numberofrecords)
      boolean onEditorAction(TextView v, int actionId, KeyEvent key) {
         if(actionId== EditorInfo.IME_ACTION_DONE){
-            String value = noRecords.getText().toString();
-            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
             InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             noRecords.clearFocus();
