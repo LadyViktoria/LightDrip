@@ -101,6 +101,8 @@
                     android:ems="10"
                     android:gravity="center_horizontal"
                     android:inputType="number"
+                    android:imeOptions="actionDone"
+                    android:selectAllOnFocus="true"
                     android:text="5" />
 
                 <Space

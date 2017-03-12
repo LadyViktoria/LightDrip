@@ -34,8 +34,11 @@ import android.support.v7.app.AppCompatDelegate;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -79,6 +82,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnEditorAction;
 import butterknife.OnTextChanged;
 import io.realm.Realm;
 
@@ -151,9 +155,19 @@ public class BackupActivity extends AppCompatActivity {
         String value = noRecords.getText().toString();
         if (value.equals("0") || value.equals("")) {
             noRecords.setError("not allowed");
-        } else {
-            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
         }
+    }
+
+    @OnEditorAction(R.id.backup_drive_et_numberofrecords)
+     boolean onEditorAction(TextView v, int actionId, KeyEvent key) {
+        if(actionId== EditorInfo.IME_ACTION_DONE){
+            String value = noRecords.getText().toString();
+            sharedPref.edit().putInt("NUMBER_OF_STORED_RECORDS", Integer.parseInt(value)).apply();
+            InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            noRecords.clearFocus();
+        }
+        return false;
     }
 
     private void setBackupFolderTitle(DriveId id) {
