@@ -90,6 +90,7 @@ public class DriveBackupService extends Service implements GoogleApiClient.Conne
                                 }
                             }
                         }
+                    buffer.release();
                     });
             //Create the file on GDrive
             Drive.DriveApi.newDriveContents(mGoogleApiClient)
