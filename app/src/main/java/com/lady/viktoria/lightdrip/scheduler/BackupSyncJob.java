@@ -25,7 +25,7 @@ public class BackupSyncJob extends Job {
         int minute = calendar.get(Calendar.MINUTE);
 
         // 8 AM - 8:10 AM, ignore seconds
-        long startMs = TimeUnit.MINUTES.toMillis(60 - minute) + TimeUnit.HOURS.toMillis((8 - hour) % 24);
+        long startMs = TimeUnit.MINUTES.toMillis(60 - minute) + TimeUnit.HOURS.toMillis((24 - hour) % 24);
         long endMs = startMs + (10 * 60 * 1000);
 
         new JobRequest.Builder(TAG)

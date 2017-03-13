@@ -42,6 +42,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +68,7 @@ import com.google.android.gms.drive.query.SortableField;
 import com.lady.viktoria.lightdrip.RealmBackup.Backup;
 import com.lady.viktoria.lightdrip.RealmBackup.BackupAdapter;
 import com.lady.viktoria.lightdrip.RealmBackup.LightDripBackup;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import net.grandcentrix.tray.AppPreferences;
 
@@ -79,18 +81,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import butterknife.OnTextChanged;
 import io.realm.Realm;
 
 import static io.realm.Realm.getDefaultInstance;
 
-public class BackupActivity extends AppCompatActivity {
+public class BackupActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener{
     private static final int REQUEST_CODE_PICKER = 2;
     private static final int REQUEST_CODE_PICKER_FOLDER = 4;
 
@@ -104,6 +109,10 @@ public class BackupActivity extends AppCompatActivity {
     @BindView(R.id.activity_backup_drive_button_folder) LinearLayout selectFolderButton;
     @BindView(R.id.activity_backup_drive_listview_restore) ExpandableHeightListView backupListView;
     @BindView(R.id.backup_drive_et_numberofrecords) EditText noRecords;
+    @BindView(R.id.switch_backup_activity) Switch sButton;
+    @BindView(R.id.time_tv_backup_activity) TextView timeTextView;
+
+
 
     private Backup backup;
     private GoogleApiClient mGoogleApiClient;
@@ -137,6 +146,17 @@ public class BackupActivity extends AppCompatActivity {
         selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
         numberofstoredrecords = appPreferences.getInt("NUMBER_OF_STORED_RECORDS", 5);
+        String schedulerTime = appPreferences.getString("scheduler_time", "Click to set Time");
+        timeTextView.setText("Backup at: " + schedulerTime + ":00");
+
+        Boolean useScheduler = appPreferences.getBoolean("use_scheduler", false);
+        if (useScheduler) {
+            timeTextView.setVisibility(View.VISIBLE);
+            sButton.setChecked(true);
+        } else {
+            timeTextView.setVisibility(View.GONE);
+            sButton.setChecked(false);
+        }
         noRecords.setText(String.valueOf(numberofstoredrecords));
 
         // Show backup folder, if exists
@@ -150,6 +170,37 @@ public class BackupActivity extends AppCompatActivity {
         if (!("").equals(backupFolder)) {
             getBackupsFromDrive(DriveId.decodeFromString(backupFolder).asDriveFolder());
         }
+    }
+
+    @OnCheckedChanged(R.id.switch_backup_activity)
+    public void checkboxToggled (boolean isChecked) {
+        if (isChecked) {
+            timeTextView.setVisibility(View.VISIBLE);
+            appPreferences.put("use_scheduler", true);
+        } else {
+            timeTextView.setVisibility(View.GONE);
+            appPreferences.put("use_scheduler", false);
+        }
+    }
+
+    @OnClick(R.id.time_tv_backup_activity)
+    public void onClick(View views) {
+        Calendar now = Calendar.getInstance();
+        TimePickerDialog tpd = TimePickerDialog.newInstance(
+                BackupActivity.this,
+                now.get(Calendar.HOUR_OF_DAY),
+                now.get(Calendar.MINUTE),
+                true
+        );
+        tpd.enableMinutes(false);
+        tpd.setThemeDark(true);
+        tpd.show(getFragmentManager(), "Timepickerdialog");
+    }
+
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
+        timeTextView.setText("Backup at: " + hourOfDay + ":00");
+        appPreferences.put("scheduler_time", hourOfDay);
     }
 
     @OnTextChanged(value = R.id.backup_drive_et_numberofrecords,
