@@ -16,113 +16,117 @@
             android:layout_height="wrap_content" >
 
             <LinearLayout
-                android:id="@+id/activity_backup_drive_button_folder"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="80dp"
                 android:orientation="horizontal"
                 android:paddingTop="8dp"
                 android:weightSum="1">
 
-                <TextView
-                    android:id="@+id/textView"
+                <Button
+                    android:id="@+id/activity_backup_drive_button_manage_drive"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|center_horizontal"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:text="Click to set\nBackup Folder:"
-                    android:textStyle="bold" />
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/shape_rectangle"
+                    android:text="Open Drive"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    android:textAllCaps="false" />
 
-                <TextView
-                    android:id="@+id/activity_backup_drive_textview_folder"
-                    android:layout_width="90dp"
+                <Button
+                    android:id="@+id/activity_backup_drive_button_backup"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|center_horizontal"
-                    android:layout_margin="8dp"
-                    android:gravity="center_vertical|center_horizontal"
-                    android:paddingRight="16dp"
-                    android:text="Backup Folder" />
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/shape_rectangle"
+                    android:text="Backup"
+                    android:textStyle="bold"
+                    android:textAllCaps="false" />
 
-                <Space
-                    android:layout_width="33dp"
-                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/activity_backup_drive_button_folder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/shape_rectangle"
+                    android:text="Backup Folder"
+                    android:textStyle="bold"
+                    android:textAllCaps="false" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_column="0"
+                android:layout_row="1"
+                android:orientation="horizontal">
 
                 <Switch
                     android:id="@+id/switch_backup_activity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|center_horizontal"
-                    android:layout_weight="0.13"
-                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="20dp"
                     android:text="Scheduler" />
 
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_row="1"
-                android:layout_column="0"
-                android:orientation="horizontal">
-
                 <Button
-                    android:id="@+id/activity_backup_drive_button_backup"
+                    android:id="@+id/time_btn_backup_activity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Backup" />
-
-                <Space
-                    android:layout_width="10dp"
-                    android:layout_height="match_parent" />
-
-                <Button
-                    android:id="@+id/activity_backup_drive_button_manage_drive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Open Drive"
-                    android:visibility="visible" />
-
-                <Space
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent" />
-
-                <TextView
-                    android:id="@+id/time_tv_backup_activity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_marginRight="20dp"
+                    android:background="@drawable/shape_rectangle"
                     android:gravity="center_vertical|center_horizontal"
                     android:text="Click to set Time"
+                    android:textAllCaps="false"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/time_spinner_backup_activity"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/shape_rectangle"
+                    android:entries="@array/spinnerItems"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:spinnerMode="dialog"
+                    android:textAlignment="center"
                     android:textStyle="bold" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
+                android:layout_height="80dp"
+                android:layout_column="0"
                 android:layout_row="2"
-                android:layout_column="0">
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/backup_drive_no_records"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="20dp"
                     android:gravity="center_vertical|center_horizontal"
                     android:text="Number of stored Backups" />
-
-                <Space
-                    android:layout_width="10dp"
-                    android:layout_height="match_parent" />
 
                 <EditText
                     android:id="@+id/backup_drive_et_numberofrecords"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
                     android:ems="10"
-                    android:gravity="center_horizontal"
+                    android:gravity="center_vertical|center_horizontal"
                     android:imeOptions="actionDone"
                     android:inputType="number"
                     android:selectAllOnFocus="true"
@@ -136,7 +140,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_column="0"
-                android:layout_margin="16dp"
+                android:layout_marginLeft="10dp"
                 android:layout_row="3"
                 android:text="Recent Backups"
                 android:textAllCaps="true"
@@ -147,8 +151,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_column="0"
-                android:layout_row="4">
-            </com.github.paolorotolo.expandableheightlistview.ExpandableHeightListView>
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_row="4"></com.github.paolorotolo.expandableheightlistview.ExpandableHeightListView>
 
         </GridLayout>
     </ScrollView>

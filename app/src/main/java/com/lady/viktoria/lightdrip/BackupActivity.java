@@ -41,6 +41,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,6 +92,7 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
+import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
 import io.realm.Realm;
 
@@ -112,12 +114,12 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
 
     @BindView(R.id.activity_backup_drive_button_backup) Button backupButton;
     @BindView(R.id.activity_backup_drive_button_manage_drive) Button manageButton;
-    @BindView(R.id.activity_backup_drive_textview_folder) TextView folderTextView;
-    @BindView(R.id.activity_backup_drive_button_folder) LinearLayout selectFolderButton;
+    @BindView(R.id.activity_backup_drive_button_folder) Button folderButton;
     @BindView(R.id.activity_backup_drive_listview_restore) ExpandableHeightListView backupListView;
     @BindView(R.id.backup_drive_et_numberofrecords) EditText noRecords;
     @BindView(R.id.switch_backup_activity) Switch sButton;
-    @BindView(R.id.time_tv_backup_activity) TextView timeTextView;
+    @BindView(R.id.time_btn_backup_activity) Button timeButton;
+    @BindView(R.id.time_spinner_backup_activity) Spinner timeSpinner;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -139,24 +141,28 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
         mGoogleApiClient = backup.getClient();
         backupListView.setExpanded(true);
         backupButton.setOnClickListener(v -> {openFolderPicker(true);});
-        selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
+        folderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
         numberofstoredrecords = appPreferences.getInt("NUMBER_OF_STORED_RECORDS", 5);
         String schedulerTimeHour = appPreferences.getString("backup_scheduler_time_hour", "15");
         String schedulerTimeMinute = appPreferences.getString("backup_scheduler_time_minute", "30");
-        timeTextView.setText("Backup at: " + schedulerTimeHour + ":" + schedulerTimeMinute);
+        timeButton.setText("Backup at: " + schedulerTimeHour + ":" + schedulerTimeMinute);
+        int spinner = appPreferences.getInt("backup_scheduler_time_day", 0);
+        timeSpinner.setSelection(spinner);
+        noRecords.setText(String.valueOf(numberofstoredrecords));
 
         Boolean useScheduler = appPreferences.getBoolean("use_scheduler", false);
         if (useScheduler) {
-            timeTextView.setVisibility(View.VISIBLE);
+            timeButton.setVisibility(View.VISIBLE);
+            timeSpinner.setVisibility(View.VISIBLE);
             sButton.setChecked(true);
             BackupSyncJob.schedule(this);
         } else {
-            timeTextView.setVisibility(View.GONE);
+            timeButton.setVisibility(View.GONE);
+            timeSpinner.setVisibility(View.GONE);
             sButton.setChecked(false);
             JobManager.instance().cancelAllForTag("job_backup_tag");
         }
-        noRecords.setText(String.valueOf(numberofstoredrecords));
 
         // Show backup folder, if exists
         backupFolder = appPreferences.getString(BACKUP_FOLDER_KEY, "");
@@ -174,17 +180,19 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
     @OnCheckedChanged(R.id.switch_backup_activity)
     public void checkboxToggled (boolean isChecked) {
         if (isChecked) {
-            timeTextView.setVisibility(View.VISIBLE);
+            timeButton.setVisibility(View.VISIBLE);
+            timeSpinner.setVisibility(View.VISIBLE);
             appPreferences.put("use_scheduler", true);
             BackupSyncJob.schedule(this);
         } else {
-            timeTextView.setVisibility(View.GONE);
+            timeButton.setVisibility(View.GONE);
+            timeSpinner.setVisibility(View.GONE);
             appPreferences.put("use_scheduler", false);
             JobManager.instance().cancelAllForTag("job_backup_tag");
         }
     }
 
-    @OnClick(R.id.time_tv_backup_activity)
+    @OnClick(R.id.time_btn_backup_activity)
     public void onClick(View views) {
         Calendar now = Calendar.getInstance();
         TimePickerDialog tpd = TimePickerDialog.newInstance(
@@ -199,7 +207,7 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
 
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
-        timeTextView.setText("Backup at: " + hourOfDay + ":00");
+        timeButton.setText("Backup at: " + hourOfDay + ":" + minute);
         appPreferences.put("backup_scheduler_time_hour", hourOfDay);
         appPreferences.put("backup_scheduler_time_minute", minute);
         BackupSyncJob.schedule(this);
@@ -226,6 +234,22 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
         return false;
     }
 
+    @OnItemSelected(R.id.time_spinner_backup_activity)
+    public void spinnerItemSelected(Spinner spinner, int position) {
+        if (position == 0) {
+            appPreferences.put("backup_scheduler_time_day", 0);
+            BackupSyncJob.schedule(this);
+        }
+        if (position == 1) {
+            appPreferences.put("backup_scheduler_time_day", 1);
+            BackupSyncJob.schedule(this);
+        }
+        if (position == 2) {
+            appPreferences.put("backup_scheduler_time_day", 2);
+            BackupSyncJob.schedule(this);
+        }
+    }
+
     private void setBackupFolderTitle(DriveId id) {
         id.asDriveFolder().getMetadata((mGoogleApiClient)).setResultCallback(
                 result -> {
@@ -234,7 +258,7 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
                         return;
                     }
                     Metadata metadata = result.getMetadata();
-                    folderTextView.setText(metadata.getTitle());
+                    folderButton.setText("Folder: " + metadata.getTitle());
                 }
         );
     }
