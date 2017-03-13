@@ -156,7 +156,6 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
             timeButton.setVisibility(View.VISIBLE);
             timeSpinner.setVisibility(View.VISIBLE);
             sButton.setChecked(true);
-            BackupSyncJob.schedule(this);
         } else {
             timeButton.setVisibility(View.GONE);
             timeSpinner.setVisibility(View.GONE);
@@ -183,7 +182,6 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
             timeButton.setVisibility(View.VISIBLE);
             timeSpinner.setVisibility(View.VISIBLE);
             appPreferences.put("use_scheduler", true);
-            BackupSyncJob.schedule(this);
         } else {
             timeButton.setVisibility(View.GONE);
             timeSpinner.setVisibility(View.GONE);
@@ -236,17 +234,15 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
 
     @OnItemSelected(R.id.time_spinner_backup_activity)
     public void spinnerItemSelected(Spinner spinner, int position) {
+        BackupSyncJob.schedule(this);
         if (position == 0) {
             appPreferences.put("backup_scheduler_time_day", 0);
-            BackupSyncJob.schedule(this);
         }
         if (position == 1) {
             appPreferences.put("backup_scheduler_time_day", 1);
-            BackupSyncJob.schedule(this);
         }
         if (position == 2) {
             appPreferences.put("backup_scheduler_time_day", 2);
-            BackupSyncJob.schedule(this);
         }
     }
 
@@ -332,6 +328,7 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
                             backupsArray.add(new LightDripBackup(driveId, modifiedDate, backupSize));
                         }
                         backupListView.setAdapter(new BackupAdapter(activity, R.layout.activity_backup_drive_restore_item, backupsArray));
+                    buffer.release();
                     }
                 });
     }
@@ -422,6 +419,7 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
                                     }
                                 }
                             }
+                        buffer.release();
                         }
                     });
             //Create the file on GDrive
