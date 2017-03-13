@@ -25,7 +25,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -46,6 +45,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.evernote.android.job.JobManager;
 import com.github.paolorotolo.expandableheightlistview.ExpandableHeightListView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -68,6 +68,7 @@ import com.google.android.gms.drive.query.SortableField;
 import com.lady.viktoria.lightdrip.RealmBackup.Backup;
 import com.lady.viktoria.lightdrip.RealmBackup.BackupAdapter;
 import com.lady.viktoria.lightdrip.RealmBackup.LightDripBackup;
+import com.lady.viktoria.lightdrip.scheduler.BackupSyncJob;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import net.grandcentrix.tray.AppPreferences;
@@ -102,6 +103,12 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
     private final static String TAG = BackupActivity.class.getSimpleName();
     private static final String BACKUP_FOLDER_KEY = "backup_folder";
     private int numberofstoredrecords = 5;
+    private Backup backup;
+    private GoogleApiClient mGoogleApiClient;
+    private IntentSender intentPicker;
+    private Realm realm;
+    private String backupFolder;
+    AppPreferences appPreferences;
 
     @BindView(R.id.activity_backup_drive_button_backup) Button backupButton;
     @BindView(R.id.activity_backup_drive_button_manage_drive) Button manageButton;
@@ -111,17 +118,6 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
     @BindView(R.id.backup_drive_et_numberofrecords) EditText noRecords;
     @BindView(R.id.switch_backup_activity) Switch sButton;
     @BindView(R.id.time_tv_backup_activity) TextView timeTextView;
-
-
-
-    private Backup backup;
-    private GoogleApiClient mGoogleApiClient;
-    private IntentSender intentPicker;
-    private Realm realm;
-    private String backupFolder;
-
-    AppPreferences appPreferences;
-
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -146,16 +142,19 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
         selectFolderButton.setOnClickListener(v -> {openFolderPicker(false);});
         manageButton.setOnClickListener(v -> openOnDrive(DriveId.decodeFromString(backupFolder)));
         numberofstoredrecords = appPreferences.getInt("NUMBER_OF_STORED_RECORDS", 5);
-        String schedulerTime = appPreferences.getString("scheduler_time", "Click to set Time");
-        timeTextView.setText("Backup at: " + schedulerTime + ":00");
+        String schedulerTimeHour = appPreferences.getString("backup_scheduler_time_hour", "15");
+        String schedulerTimeMinute = appPreferences.getString("backup_scheduler_time_minute", "30");
+        timeTextView.setText("Backup at: " + schedulerTimeHour + ":" + schedulerTimeMinute);
 
         Boolean useScheduler = appPreferences.getBoolean("use_scheduler", false);
         if (useScheduler) {
             timeTextView.setVisibility(View.VISIBLE);
             sButton.setChecked(true);
+            BackupSyncJob.schedule(this);
         } else {
             timeTextView.setVisibility(View.GONE);
             sButton.setChecked(false);
+            JobManager.instance().cancelAllForTag("job_backup_tag");
         }
         noRecords.setText(String.valueOf(numberofstoredrecords));
 
@@ -177,9 +176,11 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
         if (isChecked) {
             timeTextView.setVisibility(View.VISIBLE);
             appPreferences.put("use_scheduler", true);
+            BackupSyncJob.schedule(this);
         } else {
             timeTextView.setVisibility(View.GONE);
             appPreferences.put("use_scheduler", false);
+            JobManager.instance().cancelAllForTag("job_backup_tag");
         }
     }
 
@@ -192,7 +193,6 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
                 now.get(Calendar.MINUTE),
                 true
         );
-        tpd.enableMinutes(false);
         tpd.setThemeDark(true);
         tpd.show(getFragmentManager(), "Timepickerdialog");
     }
@@ -200,7 +200,9 @@ public class BackupActivity extends AppCompatActivity implements TimePickerDialo
     @Override
     public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
         timeTextView.setText("Backup at: " + hourOfDay + ":00");
-        appPreferences.put("scheduler_time", hourOfDay);
+        appPreferences.put("backup_scheduler_time_hour", hourOfDay);
+        appPreferences.put("backup_scheduler_time_minute", minute);
+        BackupSyncJob.schedule(this);
     }
 
     @OnTextChanged(value = R.id.backup_drive_et_numberofrecords,

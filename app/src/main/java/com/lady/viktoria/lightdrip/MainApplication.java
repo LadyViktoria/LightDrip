@@ -33,7 +33,7 @@ public class MainApplication extends RealmBaseApplication {
         initializePrimaryKeyFactory();
         HermesEventBus.getDefault().init(this);
         JobManager.create(this).addJobCreator(new BackupJobCreator());
-        BackupSyncJob.schedule();
+        BackupSyncJob.schedule(this);
 
         CgmBleService mCgmBleService = new CgmBleService();
         Intent mServiceCgmBleIntent = new Intent(getApplicationContext(), CgmBleService.class);
