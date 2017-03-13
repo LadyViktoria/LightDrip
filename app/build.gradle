@@ -46,7 +46,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    
+
     compile 'com.github.jonasrottmann.realm-browser:realm-browser:develop-SNAPSHOT'
     compile 'io.realm:android-adapters:1.4.0'
 

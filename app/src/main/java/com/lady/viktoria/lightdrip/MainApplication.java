@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.evernote.android.job.JobManager;
 import com.lady.viktoria.lightdrip.RealmBackup.Backup;
 import com.lady.viktoria.lightdrip.RealmBackup.GoogleDriveBackup;
 import com.lady.viktoria.lightdrip.RealmConfig.PrimaryKeyFactory;
 import com.lady.viktoria.lightdrip.RealmConfig.RealmBaseApplication;
+import com.lady.viktoria.lightdrip.scheduler.BackupJobCreator;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
 
 import io.realm.Realm;
@@ -29,6 +31,8 @@ public class MainApplication extends RealmBaseApplication {
         mRealm = getInstance(getRealmConfig());
         initializePrimaryKeyFactory();
         HermesEventBus.getDefault().init(this);
+        JobManager.create(this).addJobCreator(new BackupJobCreator());
+
 
         CgmBleService mCgmBleService = new CgmBleService();
         Intent mServiceCgmBleIntent = new Intent(getApplicationContext(), CgmBleService.class);
