@@ -71,6 +71,14 @@
         </activity>
 
         <activity
+            android:name=".LinearRegression.LinearRegressionActivity"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lady.viktoria.lightdrip.MainActivity" />
+        </activity>
+
+        <activity
             android:name=".BackupActivity"
             android:parentActivityName=".PreferncesActivity">
             <meta-data

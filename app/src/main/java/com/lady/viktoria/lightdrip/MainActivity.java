@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.lady.viktoria.lightdrip.LinearRegression.LinearRegressionActivity;
 import com.lady.viktoria.lightdrip.RealmActions.GlucoseRecord;
 import com.lady.viktoria.lightdrip.RealmActions.SensorRecord;
 import com.lady.viktoria.lightdrip.RealmModels.CalibrationData;
@@ -26,6 +27,7 @@ import com.lady.viktoria.lightdrip.RealmModels.GlucoseData;
 import com.lady.viktoria.lightdrip.RealmModels.SensorData;
 import com.lady.viktoria.lightdrip.RealmModels.TransmitterData;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
+import com.lady.viktoria.lightdrip.services.DriveBackupService;
 
 import net.grandcentrix.tray.AppPreferences;
 import net.grandcentrix.tray.core.OnTrayPreferenceChangeListener;
@@ -232,7 +234,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             case R.id.fab4:
             case R.id.fabLabel4:
                 closeFABMenu();
-                startActivity(new Intent(this, PreferncesActivity.class));
+                startActivity(new Intent(this, LinearRegressionActivity.class));
+                //startActivity(new Intent(this, PreferncesActivity.class));
                 break;
             case R.id.fab5:
             case R.id.fabLabel5:
