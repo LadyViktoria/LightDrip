@@ -2,6 +2,8 @@ package com.lady.viktoria.lightdrip.LinearRegression;
 
 import android.util.Log;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LinearRegression {
@@ -68,6 +70,26 @@ public class LinearRegression {
      * @param array of weights of each observation/input
      * @return whether regression works or not
      */
+
+    public boolean regress(double[] Y, double[] X)
+    {
+        double[] W = new double[3];
+        for (int i =0; i < 3; ++i)
+            W[i] = 1.0;
+        return regress(Y, X, W);
+    }
+
+    public boolean regress(double[] Y, double[] X, double[] W)
+    {
+        double[][] X2 = new double[3][3];
+        for (int i = 0; i < 3; i++)
+        {
+            X2[0][i] = 1.0;
+            X2[1][i] = X[i];
+        }
+        return regress(Y, X2, W);
+    }
+
     public boolean regress(double[] Y, double[][] X, double[] W)  {
         if (X.length <0)
             return false;
