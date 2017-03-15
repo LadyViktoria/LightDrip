@@ -234,8 +234,8 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
             case R.id.fab4:
             case R.id.fabLabel4:
                 closeFABMenu();
-                startActivity(new Intent(this, LinearRegressionActivity.class));
-                //startActivity(new Intent(this, PreferncesActivity.class));
+                //startActivity(new Intent(this, LinearRegressionActivity.class));
+                startActivity(new Intent(this, PreferncesActivity.class));
                 break;
             case R.id.fab5:
             case R.id.fabLabel5:
