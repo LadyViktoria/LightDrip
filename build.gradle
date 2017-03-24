@@ -19,7 +19,7 @@ allprojects {
         jcenter()
         maven { url 'https://jitpack.io' }
     }
-    ext.androidSupportVer = '25.2.0'
+    ext.androidSupportVer = '25.3.0'
 }
 
 task clean(type: Delete) {
