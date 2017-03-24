@@ -9,11 +9,13 @@ public abstract class RealmBaseApplication extends Application {
 
     private RealmConfiguration realmConfiguration;
 
-    protected RealmConfiguration getRealmConfig() {
+    protected RealmConfiguration getRealmConfig(String name) {
         if (realmConfiguration == null) {
             realmConfiguration = new RealmConfiguration
                     .Builder()
                     .deleteRealmIfMigrationNeeded()
+                    .name(name)
+                    .schemaVersion(0)
                     .build();
         }
         Realm.setDefaultConfiguration(realmConfiguration);
@@ -21,6 +23,6 @@ public abstract class RealmBaseApplication extends Application {
     }
 
     protected void resetRealm() {
-        Realm.deleteRealm(getRealmConfig());
+        Realm.deleteRealm(getRealmConfig("default.realm"));
     }
 }

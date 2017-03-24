@@ -15,6 +15,8 @@ import com.lady.viktoria.lightdrip.scheduler.BackupJobCreator;
 import com.lady.viktoria.lightdrip.scheduler.BackupSyncJob;
 import com.lady.viktoria.lightdrip.services.CgmBleService;
 
+import java.io.File;
+
 import io.realm.Realm;
 import xiaofei.library.hermeseventbus.HermesEventBus;
 
@@ -29,7 +31,8 @@ public class MainApplication extends RealmBaseApplication {
     public void onCreate() {
         super.onCreate();
         Realm.init(this);
-        mRealm = getInstance(getRealmConfig());
+        mRealm = getInstance(getRealmConfig("default.realm"));
+        compactDb("default.realm");
         initializePrimaryKeyFactory();
         HermesEventBus.getDefault().init(this);
         JobManager.create(this).addJobCreator(new BackupJobCreator());
@@ -65,5 +68,26 @@ public class MainApplication extends RealmBaseApplication {
     @NonNull
     public Backup getBackup() {
         return new GoogleDriveBackup();
+    }
+
+    public void compactDb(String dbName){
+        try{
+            //move compacted db to new one...
+            Realm db = Realm.getInstance(getRealmConfig(dbName));
+            File compactedFile = new File(db.getConfiguration().getRealmDirectory(), "default-compacted.realm");
+            compactedFile.delete();
+            db.writeCopyTo(compactedFile);
+            db.close();
+
+            Realm compactedDb = Realm.getInstance(getRealmConfig("default-compacted.realm"));
+            File dbFile = new File(compactedDb.getConfiguration().getRealmDirectory(), dbName);
+            dbFile.delete();
+            compactedDb.writeCopyTo(dbFile);
+            compactedDb.close();
+            compactedFile.delete();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

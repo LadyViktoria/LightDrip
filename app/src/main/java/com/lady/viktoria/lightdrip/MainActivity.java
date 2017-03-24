@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements OnTrayPreferenceC
         super.onDestroy();
         mRealm.removeChangeListener(realmListener);
         mRealm.close();
-        Realm.compactRealm(mRealm.getConfiguration());
         HermesEventBus.getDefault().unregister(this);
     }
 
